@@ -20,6 +20,7 @@ public class SaveState
     //ƒAƒjƒ‚Ìˆ—
     public float m_AnimeTime;
     public int m_AnimeHash;
+    public float m_AnimeStateValue;
 
     public int m_Inihp;
     public Vector3 v_IniPosition;

@@ -23,6 +23,7 @@ public class BossMoveManager : CharaBase
         if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
         if (Input.GetKeyDown(KeyCode.Q))
         {
+            c_SaveState.m_AnimeStateValue = a_Animator.GetFloat("Move");
             c_SaveState.m_AnimeTime = a_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
             c_SaveState.m_AnimeHash = a_Animator.GetCurrentAnimatorStateInfo(0).fullPathHash;
             c_SaveState.m_Inihp = m_hp;
@@ -33,6 +34,7 @@ public class BossMoveManager : CharaBase
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
+            a_Animator.SetFloat("Move", c_SaveState.m_AnimeStateValue);
             a_Animator.Play(c_SaveState.m_AnimeHash, 0, c_SaveState.m_AnimeTime);
             m_hp = c_SaveState.m_Inihp;
             transform.position = c_SaveState.v_IniPosition;
