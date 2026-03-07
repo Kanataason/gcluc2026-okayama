@@ -607,6 +607,7 @@ GameObject:
   - component: {fileID: 1424122294}
   - component: {fileID: 1424122293}
   - component: {fileID: 1424122295}
+  - component: {fileID: 1424122296}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -701,6 +702,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c94972055441d9e469eeb8d80fc951e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossMoveManager
+--- !u!95 &1424122296
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1424122292}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 60d3a28d82623a84cb87b3de2257077d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1605415601
 GameObject:
   m_ObjectHideFlags: 0
