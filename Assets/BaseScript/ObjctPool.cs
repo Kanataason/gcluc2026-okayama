@@ -4,7 +4,7 @@ using System;
 using Unity.VisualScripting;
 public class ObjctPool : MonoBehaviour
 {
-    public enum CharaStatus //キャラの種類
+    public enum CharaState //キャラの種類
     {
         Player,
         Boss,
@@ -34,15 +34,15 @@ public class ObjctPool : MonoBehaviour
     [System.Serializable]
     public class EfectData//エフェクトのデータ　インスペクターで出したいエフェクトを追加する
     {
-        public CharaStatus e_CharaStatus;
+        public CharaState e_CharaState;
         public EfectType e_EfectType;
         public GameObject g_Prefab;
         public int m_InstantiateNumber;
     }
     public List<EfectData> l_DataList = new();
 
-    public Dictionary<(CharaStatus,EfectType), Queue<GameObject>> d_EfectList = new();//現在所有している数のlist
-    public Dictionary<(CharaStatus,EfectType), GameObject> d_PrefabList = new();//設計図リスト
+    public Dictionary<(CharaState,EfectType), Queue<GameObject>> d_EfectList = new();//現在所有している数のlist
+    public Dictionary<(CharaState,EfectType), GameObject> d_PrefabList = new();//設計図リスト
     void Start()
     {
         Init();
@@ -59,19 +59,19 @@ public class ObjctPool : MonoBehaviour
     {
         foreach (var list in l_DataList)//キャラ、オブジェクトごとに分けて作る
         {
-            d_PrefabList[(list.e_CharaStatus,list.e_EfectType)] = list.g_Prefab;
-            d_EfectList[(list.e_CharaStatus, list.e_EfectType)] = new Queue<GameObject>();
+            d_PrefabList[(list.e_CharaState,list.e_EfectType)] = list.g_Prefab;
+            d_EfectList[(list.e_CharaState, list.e_EfectType)] = new Queue<GameObject>();
 
             for(int i =0; i < list.m_InstantiateNumber; i++)
             {
                 var obj = Instantiate(list.g_Prefab, transform);//自分の子で設定
                 obj.SetActive(false);
-                d_EfectList[(list.e_CharaStatus,list.e_EfectType)].Enqueue(obj);
+                d_EfectList[(list.e_CharaState,list.e_EfectType)].Enqueue(obj);
             }
         }
     }
 
-    public GameObject GetObject(CharaStatus CType,EfectType EType)//objゲットする関数
+    public GameObject GetObject(CharaState CType,EfectType EType)//objゲットする関数
     {
         if(!d_EfectList.ContainsKey((CType, EType)))
         {
@@ -93,7 +93,7 @@ public class ObjctPool : MonoBehaviour
             return obj;
         }
     }
-    public void ReturnObject(EfectType Etype, CharaStatus Ctype, GameObject obj)//obj返すときの関数
+    public void ReturnObject(EfectType Etype, CharaState Ctype, GameObject obj)//obj返すときの関数
     {
         if (obj == null) return;
 

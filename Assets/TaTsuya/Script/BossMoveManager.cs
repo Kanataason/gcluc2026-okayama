@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 public class BossMoveManager : CharaBase
 {
-    enum BossStatus
+    enum BossState
     {
         Idle = 1,
         Attack = 2,
@@ -11,9 +11,10 @@ public class BossMoveManager : CharaBase
         Invincible = 4,
     }
 
-    BossStatus s_BossStatus = BossStatus.Idle;
-    Dictionary<BossStatus, Action> d_Lottery;
+    BossState s_BossState = BossState.Idle;
+    Dictionary<BossState, Action> d_Lottery;
     BossAttackManager c_BossAttackManager;
+    //でバック
     public GameObject Player;
     public SpriteRenderer sprite;
     public GameObject pos;
@@ -27,12 +28,12 @@ public class BossMoveManager : CharaBase
     {
         c_BossAttackManager = GetComponent<BossAttackManager>();
         m_hp = 100;
-        d_Lottery = new Dictionary<BossStatus, Action>
+        d_Lottery = new Dictionary<BossState, Action>
         {
-            {BossStatus.Idle, null},
-            {BossStatus.Attack,c_BossAttackManager.AttackEnter},
-            {BossStatus.Die,Die },
-            {BossStatus.Invincible,null}
+            {BossState.Idle, null},
+            {BossState.Attack,c_BossAttackManager.AttackEnter},
+            {BossState.Die,Die },
+            {BossState.Invincible,null}
         };
     }
     public override void Update()
@@ -76,8 +77,8 @@ public class BossMoveManager : CharaBase
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SetIsAttackFlag(true);
-            ChengeStatus(BossStatus.Attack);
-            if(d_Lottery.TryGetValue(s_BossStatus,out var action))
+            ChengeStatus(BossState.Attack);
+            if(d_Lottery.TryGetValue(s_BossState,out var action))
             {
                 action.Invoke();
             }
@@ -89,6 +90,10 @@ public class BossMoveManager : CharaBase
     }
     public override void SetStatus(int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
+        foreach (var list in c_BossAttackManager.l_BulletList)
+        {
+            list.StopClock();
+        }
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
@@ -112,5 +117,5 @@ public class BossMoveManager : CharaBase
     }
     public void ResetAttackFlag() { SetIsAttackFlag(false); }//リセットフラグ
 
-    private void ChengeStatus(BossStatus state) { s_BossStatus = state; }//ステータスを変える
+    private void ChengeStatus(BossState state) { s_BossState = state; }//ステータスを変える
 }

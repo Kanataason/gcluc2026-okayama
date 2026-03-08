@@ -36,4 +36,8 @@ public class SortOrderManager : MonoBehaviour
     {
         l_SceneObj.Remove(obj);
     }
+    public void SetSortOrder(Renderer renderer)
+    {
+        renderer.sortingOrder = (int)Mathf.Abs(renderer.transform.position.y * 100);
+    }
 }

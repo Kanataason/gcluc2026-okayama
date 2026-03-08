@@ -5,8 +5,8 @@ public class BossBulletManager : MonoBehaviour
 {
     private float m_DestroyTime = 5;
     private float m_Time = 0;
-    public float m_CurrentProgressTime;
-    AttackInfo c_AttackInfo = new AttackInfo();
+    private bool m_IsStop = false;
+    public AttackInfo c_AttackInfo = new AttackInfo();
 
     public event Action<GameObject> DestroyObjEvent;
     void Start()
@@ -17,6 +17,7 @@ public class BossBulletManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (m_IsStop) return;
         m_Time += Time.deltaTime;
         if(m_Time > m_DestroyTime)
         {
@@ -28,6 +29,16 @@ public class BossBulletManager : MonoBehaviour
     {
         m_Time = 0;
         DestroyObjEvent?.Invoke(this.gameObject);
+    }
+    public void StopClock()
+    {
+        m_IsStop = true;
+        c_AttackInfo.m_CurrentTime = m_Time;
+    }
+    public void RestartClock()
+    {
+        m_IsStop = false;
+        c_AttackInfo.m_CurrentTime = 0;
     }
 }
 [Serializable]

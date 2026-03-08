@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class StatusManager : StateMachineBehaviour
+public class StateManager : StateMachineBehaviour
 {
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
