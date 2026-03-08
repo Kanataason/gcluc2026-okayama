@@ -28,6 +28,12 @@ public class CharaBase : MonoBehaviour
         c_SaveState.m_AnimeHash = animeName;
         c_SaveState.m_AnimeStateValue = animeValue;
     }
+    public virtual void CheckGround(float Min,float Max)//ˆÚ“®§ŒÀ
+    {
+        Vector3 pos = transform.position;
+        float Clamp = Mathf.Clamp(pos.y, Min, Max);
+        transform.position = new Vector3(pos.x,Clamp,pos.z);
+    }
     public virtual void TakeDamage(int damage) { m_hp -= damage; }//UŒ‚‚ğH‚ç‚Á‚½‚Æ‚«‚ÌŠÖ”
     public virtual void Die() { Debug.Log("€‚ñ‚¾"); }//€‚ñ‚¾‚Æ‚«
 

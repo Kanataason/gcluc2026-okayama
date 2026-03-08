@@ -33,6 +33,7 @@ public class BossMoveManager : CharaBase
     }
     public override void Update()
     {
+        CheckGround(-1,4);
         if (Input.GetKeyDown(KeyCode.Q))
         {
             SetStatus(Animator.StringToHash("Move"));
