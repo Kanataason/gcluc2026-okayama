@@ -14,9 +14,13 @@ public class BossMoveManager : CharaBase
     BossStatus s_BossStatus = BossStatus.Idle;
     Dictionary<BossStatus, Action> d_Lottery;
     BossAttackManager c_BossAttackManager;
+    public GameObject Player;
+    public SpriteRenderer sprite;
+    public GameObject pos;
     public override void Start()
     {
         base.Start();
+        SortOrderManager.Instance.SetList(Player.transform.parent.GetComponent<SpriteRenderer>());
         Init();
     }
     private void Init()
@@ -33,7 +37,7 @@ public class BossMoveManager : CharaBase
     }
     public override void Update()
     {
-        CheckGround(-1,4);
+        CheckGround(-8,-2);
         if (Input.GetKeyDown(KeyCode.Q))
         {
             SetStatus(Animator.StringToHash("Move"));
@@ -44,22 +48,22 @@ public class BossMoveManager : CharaBase
         if(Input.GetKey(KeyCode.A))
         {
             a_Animator.SetFloat("Move", 3f * Time.deltaTime, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.left * 3f*Time.deltaTime);
+            transform.Translate(Vector3.left * 8f*Time.deltaTime);
         }
         else if (Input.GetKey(KeyCode.D))
         {
             a_Animator.SetFloat("Move",0, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.right * 4f * Time.deltaTime);
+            transform.Translate(Vector3.right * 8f * Time.deltaTime);
         }
         else if (Input.GetKey(KeyCode.W))
         {
             a_Animator.SetFloat("Move", 3f * Time.deltaTime, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.up * 4f * Time.deltaTime);
+            transform.Translate(Vector3.up * 8f * Time.deltaTime);
         }
         else if (Input.GetKey(KeyCode.S))
         {
             a_Animator.SetFloat("Move", 0, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.down * 4f * Time.deltaTime);
+            transform.Translate(Vector3.down * 8f * Time.deltaTime);
         }
 
             if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
@@ -78,6 +82,10 @@ public class BossMoveManager : CharaBase
                 action.Invoke();
             }
         }
+    }
+    public override void FixedUpdate()
+    {
+        CheckCollision(1f,1.2f,transform.position, Player.transform.position);
     }
     public override void SetStatus(int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {

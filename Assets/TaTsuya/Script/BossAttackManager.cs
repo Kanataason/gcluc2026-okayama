@@ -6,7 +6,6 @@ public class BossAttackManager : MonoBehaviour
 
     Animator a_Animetor;
     private List<GameObject> l_BulletList = new();
-    public GameObject pre;
     void Start()
     {
         a_Animetor = GetComponent<Animator>();
@@ -14,7 +13,6 @@ public class BossAttackManager : MonoBehaviour
     }
     void Init()
     {
-
     }
 
 
@@ -22,7 +20,7 @@ public class BossAttackManager : MonoBehaviour
     {
         a_Animetor.SetTrigger("Attack");
         Debug.Log("‚ ‚Á‚½‚Á‚­");
-        GameObject obj = Instantiate(pre, Vector3.zero, Quaternion.identity);
+        GameObject obj = ObjctPool.Instance.GetObject(ObjctPool.CharaStatus.Boss, ObjctPool.EfectType.Die);
         SetBulletInfo(obj);
     }
 
@@ -30,11 +28,18 @@ public class BossAttackManager : MonoBehaviour
     private void SetBulletInfo(GameObject obj)
     {
         l_BulletList.Add(obj);
-
+        var script = obj.GetComponent<BossBulletManager>();
+        script.DestroyObjEvent += DestroyInfoList;
     }
-    private void DestroyInfoList()
+    private void DestroyInfoList(GameObject obj)
     {
+       var script = obj.GetComponent<BossBulletManager>();
+        script.DestroyObjEvent -= DestroyInfoList;
 
+        if (l_BulletList.Remove(obj))
+        {
+            ObjctPool.Instance.ReturnObject(ObjctPool.EfectType.Die, ObjctPool.CharaStatus.Boss, obj);
+        }
     }
 }
 

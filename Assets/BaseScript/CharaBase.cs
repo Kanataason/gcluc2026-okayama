@@ -2,8 +2,16 @@ using UnityEngine;
 
 public class CharaBase : MonoBehaviour
 {
-    public virtual void Start() { a_Animator = GetComponent<Animator>(); }
-    public virtual void Update() { }
+    public virtual void Start() 
+    {
+        s_Sprite = GetComponent<SpriteRenderer>();
+        a_Animator = GetComponent<Animator>();
+
+        SortOrderManager.Instance.SetList(s_Sprite);
+    }
+    public virtual void Update() { }//キーの取得だけ
+
+    public virtual void FixedUpdate() { }//主な処理はこっち
     public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//画面切り替え時点でいる場所を保存
     public virtual Vector3 GetPos() { return transform.position; }//前回の場面を取ってセット
     public virtual void SetStatus(int AnimeName =0) //画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
@@ -32,21 +40,40 @@ public class CharaBase : MonoBehaviour
     {
         Vector3 pos = transform.position;
         float Clamp = Mathf.Clamp(pos.y, Min, Max);
-        transform.position = new Vector3(pos.x,Clamp,pos.z);
+        transform.position = new Vector3(pos.x,Clamp,Clamp);
     }
+    public virtual void CheckCollision(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos)//当たり判定 奥行きはｚで判定
+    {
+        if (GetIsHitFlag()) return;
+        OppPos = new Vector3(OppPos.x, OppPos.y, OppPos.y);//これはdebag用 プレイヤー側で設定する必要あり
+
+        float dx = Mathf.Abs(MyPos.x - OppPos.x);
+        float dz = Mathf.Abs(MyPos.z - OppPos.z);
+
+
+        if (dx < ScaleX && dz < ScaleY)
+        {
+            SetIsHitFlag(true);
+        }
+    }
+
     public virtual void TakeDamage(int damage) { m_hp -= damage; }//攻撃を食らったときの関数
     public virtual void Die() { Debug.Log("死んだ"); }//死んだとき
 
     public virtual void SetIsAttackFlag(bool active) { m_IsAttack = active; }//攻撃初めのフラグ
+    public virtual void SetIsHitFlag(bool active) { m_IsHit = active; }//攻撃が当たったときのフラグ
     public virtual bool GetIsAttackFlag() { return m_IsAttack; }
+    public virtual bool GetIsHitFlag() { return m_IsHit; }
     public virtual int GetAnimeHashCode() { return m_AnimeHashcode; }
 
+    protected SpriteRenderer s_Sprite;
     protected Animator a_Animator;
     protected int m_hp;
     protected int m_AnimeHashcode;
     protected SaveState c_SaveState = new SaveState();
 
     private bool m_IsAttack = false;
+    private bool m_IsHit = false;
 }
 [System.Serializable]
 public class SaveState

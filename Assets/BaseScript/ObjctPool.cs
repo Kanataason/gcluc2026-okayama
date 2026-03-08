@@ -32,7 +32,7 @@ public class ObjctPool : MonoBehaviour
     }
 
     [System.Serializable]
-    public class EfectData//エフェクトのデータ
+    public class EfectData//エフェクトのデータ　インスペクターで出したいエフェクトを追加する
     {
         public CharaStatus e_CharaStatus;
         public EfectType e_EfectType;
@@ -71,7 +71,7 @@ public class ObjctPool : MonoBehaviour
         }
     }
 
-    public GameObject GetObject(CharaStatus CType,EfectType EType)//ゲットする関数
+    public GameObject GetObject(CharaStatus CType,EfectType EType)//objゲットする関数
     {
         if(!d_EfectList.ContainsKey((CType, EType)))
         {
@@ -93,7 +93,7 @@ public class ObjctPool : MonoBehaviour
             return obj;
         }
     }
-    public void ReturnObject(EfectType Etype, CharaStatus Ctype, GameObject obj)//返すときの関数
+    public void ReturnObject(EfectType Etype, CharaStatus Ctype, GameObject obj)//obj返すときの関数
     {
         if (obj == null) return;
 
