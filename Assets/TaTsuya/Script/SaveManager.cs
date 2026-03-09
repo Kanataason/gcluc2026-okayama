@@ -19,11 +19,13 @@ public class SaveManager : MonoBehaviour
     public StageSaveData c_Stage1SaveData;
     public StageSaveData c_Stage2SaveData;
 
-    private StageSaveData CurrentData;
-    public void SetSaveData(CharaState state,SaveState data)
+    public StageSaveData CurrentData;
+    private void Start()
     {
-        BattleManager battle = BattleManager.Instance;
-        CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
+        CheckRound();
+    }
+    public void SetSaveData(CharaState state,SaveState data)//セーブデータを設定する
+    {
 
         if (state == CharaState.Player)
         {
@@ -33,58 +35,79 @@ public class SaveManager : MonoBehaviour
         {
             CurrentData.SetBossState(data);
         }
-        Debug.Log($"{CurrentData.b_BIsAttack}");
+    }
+    public void CheckRound()
+    {
+        BattleManager battle = BattleManager.Instance;
+        CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
     }
 }
 [System.Serializable]
 public class StageSaveData//全体のsave
 {
-    //ボスの処理
-    //アニメの処理
-    public float m_BAnimeTime;//現在のアニメ進行時間
-    public int m_BAnimeHash;//どこでアニメーションをするか
-    public int m_BAnimeHashName;//アニメーション単体の名前
-    public float m_BAnimeStateValue;//現在のアニメのステートの値
+   public SaveState c_PlayerData = new SaveState();
+   public SaveState c_BossDate = new SaveState();
+    public void InitState()
+    {
+        c_PlayerData.Init();
 
-    public int m_BInihp;//現在のhp
-    public Vector3 v_BIniPosition;//現在の自分の場所
-    public Quaternion q_BIniRotate;//現在の回転値
-    public bool b_BIsAttack;//攻撃フラグ
-
-    //プレイヤーの処理
-    //アニメの処理
-    public float m_PAnimeTime;//現在のアニメ進行時間
-    public int m_PAnimeHash;//どこでアニメーションをするか
-    public int m_PAnimeHashName;//アニメーション単体の名前
-    public float m_PAnimeStateValue;//現在のアニメのステートの値
-
-    public int m_PInihp;//現在のhp
-    public Vector3 v_PIniPosition;//現在の自分の場所
-    public Quaternion q_PIniRotate;//現在の回転値
-    public bool b_PIsAttack;//攻撃フラグ
-
+        c_BossDate.Init();
+    }
+    //合わせてもいいがあえてこのままでいく
     public void SetPlayerState(SaveState data)
     {
-        m_PAnimeTime = data.m_AnimeTime;
-        m_PAnimeHash = data.m_AnimeHash;
-        m_PAnimeHashName = data.m_AnimeHashName;
-        m_PAnimeStateValue = data.m_AnimeStateValue;
+        c_PlayerData.m_AnimeTime = data.m_AnimeTime;
+        c_PlayerData.m_AnimeHash = data.m_AnimeHash;
+        c_PlayerData.m_AnimeHashName = data.m_AnimeHashName;
+        c_PlayerData.m_AnimeStateValue = data.m_AnimeStateValue;
 
-        m_PInihp = data.m_Inihp;
-        v_PIniPosition = data.v_IniPosition;
-        q_PIniRotate = data.q_IniRotate;
-        b_PIsAttack = data.b_IsAttack;
+        c_PlayerData.m_Inihp = data.m_Inihp;
+        c_PlayerData.v_IniPosition = data.v_IniPosition;
+        c_PlayerData.q_IniRotate = data.q_IniRotate;
+        c_PlayerData.b_IsAttack = data.b_IsAttack;
     }
     public void SetBossState(SaveState data)
     {
-        m_BAnimeTime = data.m_AnimeTime;
-        m_BAnimeHash = data.m_AnimeHash;
-        m_BAnimeHashName = data.m_AnimeHashName;
-        m_BAnimeStateValue = data.m_AnimeStateValue;
+        c_BossDate.m_AnimeTime = data.m_AnimeTime;
+        c_BossDate.m_AnimeHash = data.m_AnimeHash;
+        c_BossDate.m_AnimeHashName = data.m_AnimeHashName;
+        c_BossDate.m_AnimeStateValue = data.m_AnimeStateValue;
 
-        m_BInihp = data.m_Inihp;
-        v_BIniPosition = data.v_IniPosition;
-        q_BIniRotate = data.q_IniRotate;
-        b_BIsAttack = data.b_IsAttack;
+        c_BossDate.m_Inihp = data.m_Inihp;
+        c_BossDate.v_IniPosition = data.v_IniPosition;
+        c_BossDate.q_IniRotate = data.q_IniRotate;
+        c_BossDate.b_IsAttack = data.b_IsAttack;
+    }
+    public SaveState GetPlayerState(StageSaveData data)
+    {
+        SaveState save = new SaveState();
+
+        save.m_AnimeHash = data.c_BossDate.m_AnimeHash;
+        save.m_AnimeTime = data.c_BossDate.m_AnimeTime;
+        save.m_AnimeStateValue = data.c_BossDate.m_AnimeStateValue;
+        save.m_AnimeHashName = data.c_BossDate.m_AnimeHashName;
+
+        save.m_Inihp = data.c_BossDate.m_Inihp;
+        save.v_IniPosition = data.c_BossDate.v_IniPosition;
+        save.q_IniRotate = data.c_BossDate.q_IniRotate;
+        save.b_IsAttack = data.c_BossDate.b_IsAttack;
+
+        return save;
+    }
+    public SaveState GetBossState(StageSaveData data)
+    {
+        SaveState save = new SaveState();
+
+        save.m_AnimeHash = data.c_BossDate.m_AnimeHash;
+        save.m_AnimeTime = data.c_BossDate.m_AnimeTime;
+        save.m_AnimeStateValue = data.c_BossDate.m_AnimeStateValue;
+        save.m_AnimeHashName = data.c_BossDate.m_AnimeHashName;
+
+        save.m_Inihp = data.c_BossDate.m_Inihp;
+        save.v_IniPosition = data.c_BossDate.v_IniPosition;
+        save.q_IniRotate = data.c_BossDate.q_IniRotate;
+        save.b_IsAttack = data.c_BossDate.b_IsAttack;
+
+        return save;
     }
 }

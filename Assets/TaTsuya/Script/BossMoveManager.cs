@@ -20,6 +20,8 @@ public class BossMoveManager : CharaBase
     public GameObject pos;
     public override void Start()
     {
+        e_CharaState = CharaState.Boss;
+
         base.Start();
         SortOrderManager.Instance.SetList(Player.transform.parent.GetComponent<SpriteRenderer>());
         Init();
@@ -35,6 +37,8 @@ public class BossMoveManager : CharaBase
             {BossState.Die,Die },
             {BossState.Invincible,null}
         };
+        SetStatus(CharaState.Boss, Animator.StringToHash("Move"));
+        Debug.Log($"{SaveManager.Instance.CurrentData.c_BossDate.m_Inihp}");
     }
     public override void Update()
     {
@@ -69,7 +73,6 @@ public class BossMoveManager : CharaBase
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            GetStatus();
             Debug.Log($"hp{m_hp}/pos{transform.position}/rotete{transform.rotation}");
         }
         if (Input.GetKeyDown(KeyCode.Space))
@@ -101,12 +104,9 @@ public class BossMoveManager : CharaBase
         base.SetStatus(state, AnimeName);
     }
 
-    public override void GetStatus()//前回のステータスをセット        
+    public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
-        a_Animator.SetFloat(GetAnimeHashCode(), c_SaveState.m_AnimeStateValue);
-        a_Animator.Play(c_SaveState.m_AnimeHash, 0, c_SaveState.m_AnimeTime);
-
-        base.GetStatus();
+        base.GetStatus(data);
     }
 
     public override void SetIsAttackFlag(bool active)//攻撃開始時のフラグ

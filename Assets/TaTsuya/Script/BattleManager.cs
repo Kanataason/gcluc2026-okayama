@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using State = StateMachine<BattleManager>.State;
 public class BattleManager : MonoBehaviour
@@ -11,6 +12,7 @@ public class BattleManager : MonoBehaviour
         Menu = 5
     }
     private StateMachine<BattleManager> c_BattleManager;
+    private SaveManager c_SaveData;
     public static BattleManager Instance { get; private set; }
     private void Awake()
     {
@@ -26,16 +28,25 @@ public class BattleManager : MonoBehaviour
     }
 
     public int m_TotalRound;
-    public int m_CurrentRound;
+    public int m_CurrentRound = 1;
     public float m_TimeLimit;
     public float m_CurrentTime;
+
+    public event Action<StageSaveData> OnSetStageInfo; 
     void Start()
     {
         InitTransition();
+        InitRoundInfo();
 
-        SaveManager save = SaveManager.Instance;
-        save.c_Stage1SaveData = new StageSaveData();
-        save.c_Stage2SaveData = new StageSaveData();
+        c_SaveData = SaveManager.Instance;
+        c_SaveData.c_Stage1SaveData = new StageSaveData();
+        c_SaveData.c_Stage2SaveData = new StageSaveData();
+    }
+    private void InitRoundInfo()
+    {
+        m_CurrentRound = 1;
+        m_TotalRound = m_CurrentRound;
+        m_CurrentTime = 0;
     }
     private void InitTransition()//ここで状態を追加
     {
@@ -55,9 +66,13 @@ public class BattleManager : MonoBehaviour
 
     private class GameEnter:State
     {
+        BattleManager manager;
         protected override void OnEnter(State prevstate)//ここで順番を確認
         {
-            Debug.Log("s");
+            Debug.Log("開始");
+            manager = stateMachine.owner;
+            var data = manager.m_CurrentRound == 1 ? manager.c_SaveData.c_Stage1SaveData : manager.c_SaveData.c_Stage2SaveData;
+            manager.OnSetStageInfo?.Invoke(data);
         }
         protected override void OnUpdata()
         {
@@ -68,7 +83,7 @@ public class BattleManager : MonoBehaviour
             base.OnExit(nextstate);
         }
     }
-    private class GameStay : State
+    private class GameStay : State//ランダムで切り替え時間を設定
     {
         protected override void OnEnter(State prevstate)
         {
@@ -118,7 +133,9 @@ public class BattleManager : MonoBehaviour
     {
         protected override void OnEnter(State prevstate)
         {
-            base.OnEnter(prevstate);
+            SaveManager save = SaveManager.Instance;
+            save.c_Stage1SaveData.InitState();
+            save.c_Stage2SaveData.InitState();
         }
         protected override void OnUpdata()
         {

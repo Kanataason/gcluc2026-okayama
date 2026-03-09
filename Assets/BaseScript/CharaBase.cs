@@ -1,7 +1,16 @@
+using UnityEditor.Overlays;
 using UnityEngine;
 
 public class CharaBase : MonoBehaviour
 {
+    public virtual void OnEnable()
+    {
+        BattleManager.Instance.OnSetStageInfo += GetStatus;
+    }
+    public virtual void OnDisable()
+    {
+        BattleManager.Instance.OnSetStageInfo -= GetStatus;
+    }
     public virtual void Start() 
     {
         s_Sprite = GetComponent<SpriteRenderer>();
@@ -25,12 +34,20 @@ public class CharaBase : MonoBehaviour
 
         SaveManager.Instance.SetSaveData(state, c_SaveState);
     }
-    public virtual void GetStatus() //前回のステータスをセット
+    public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
-        m_hp = c_SaveState.m_Inihp;
-        SetPos(c_SaveState.v_IniPosition);
-        transform.rotation = c_SaveState.q_IniRotate;
-        m_IsAttack = c_SaveState.b_IsAttack;
+        SaveState save = null;
+        if(e_CharaState == CharaState.Player) { save = data.GetPlayerState(data); }
+        else if (e_CharaState == CharaState.Boss) { save = data.GetBossState(data); }
+
+        if (save == null) return;
+        a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
+        a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
+
+        m_hp = save.m_Inihp;
+        SetPos(save.v_IniPosition);
+        transform.rotation = save.q_IniRotate;
+        m_IsAttack = save.b_IsAttack;
     }
     public virtual void SetAnimetion(float nowAnime, float animeValue, int animeName)//現在のアニメーションの進行度、アニメのステートの値、名前
     {
@@ -73,7 +90,7 @@ public class CharaBase : MonoBehaviour
     protected int m_hp;
     protected int m_AnimeHashcode;
     protected SaveState c_SaveState = new SaveState();//自分にあったSaveManagerにあるものに書き込む
-
+    protected CharaState e_CharaState;
     private bool m_IsAttack = false;
     private bool m_IsHit = false;
 }
@@ -90,4 +107,18 @@ public class SaveState
     public Vector3 v_IniPosition;//現在の自分の場所
     public Quaternion q_IniRotate;//現在の回転値
     public bool b_IsAttack;//攻撃フラグ
+
+    public void Init()
+    {
+        m_AnimeHash = 0;
+        m_AnimeStateValue = 0;
+        m_AnimeTime = 0;
+        m_AnimeHashName = 0;
+
+        m_Inihp = 0;
+        v_IniPosition = Vector3.zero;
+        q_IniRotate = Quaternion.identity;
+        b_IsAttack = false;
+
+    }
 }
