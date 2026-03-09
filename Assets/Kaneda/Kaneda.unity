@@ -340,6 +340,7 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 2308870421428179129, guid: 3d02b3b94d432a8458d1aa9dae0956c9, type: 3}
     - {fileID: 3705707924365317063, guid: 3d02b3b94d432a8458d1aa9dae0956c9, type: 3}
+    - {fileID: 2107836644978827353, guid: 3d02b3b94d432a8458d1aa9dae0956c9, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d02b3b94d432a8458d1aa9dae0956c9, type: 3}
@@ -351,17 +352,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8829248005778218970, guid: ea5c218d2d56f214ca644a5065cf0b1b, type: 3}
+      propertyPath: m_Intensity
+      value: 1.07
+      objectReference: {fileID: 0}
     - target: {fileID: 8829248005778218971, guid: ea5c218d2d56f214ca644a5065cf0b1b, type: 3}
       propertyPath: m_Name
       value: Global Light 2D
       objectReference: {fileID: 0}
     - target: {fileID: 8829248005778218973, guid: ea5c218d2d56f214ca644a5065cf0b1b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.6190114
+      value: -1.47
       objectReference: {fileID: 0}
     - target: {fileID: 8829248005778218973, guid: ea5c218d2d56f214ca644a5065cf0b1b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.3929577
+      value: -3.52
       objectReference: {fileID: 0}
     - target: {fileID: 8829248005778218973, guid: ea5c218d2d56f214ca644a5065cf0b1b, type: 3}
       propertyPath: m_LocalPosition.z
