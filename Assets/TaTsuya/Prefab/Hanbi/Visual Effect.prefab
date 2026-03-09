@@ -131,4 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c28eb0560c23149b6b0644c4dcb41f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletManager
-  m_CurrentProgressTime: 0
+  c_AttackInfo:
+    g_Obj: {fileID: 0}
+    m_CurrentTime: 0
+    v_IniPos: {x: 0, y: 0, z: 0}

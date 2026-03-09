@@ -38,6 +38,6 @@ public class SortOrderManager : MonoBehaviour
     }
     public void SetSortOrder(Renderer renderer)
     {
-        renderer.sortingOrder = (int)Mathf.Abs(renderer.transform.position.y * 100);
+        renderer.sortingOrder = (int)Mathf.Abs(renderer.transform.parent.position.y * 101);
     }
 }

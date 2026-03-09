@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BossBulletManager : MonoBehaviour
 {
-    private float m_DestroyTime = 5;
+    public float m_DestroyTime = 0.5f;
     private float m_Time = 0;
     private bool m_IsStop = false;
     public AttackInfo c_AttackInfo = new AttackInfo();
@@ -34,11 +34,13 @@ public class BossBulletManager : MonoBehaviour
     {
         m_IsStop = true;
         c_AttackInfo.m_CurrentTime = m_Time;
+        gameObject.SetActive(false);
     }
     public void RestartClock()
     {
         m_IsStop = false;
-        c_AttackInfo.m_CurrentTime = 0;
+        m_Time = c_AttackInfo.m_CurrentTime;
+        gameObject.SetActive(true);
     }
 }
 [Serializable]

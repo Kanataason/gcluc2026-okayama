@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -44,7 +45,7 @@ public class CharaBase : MonoBehaviour
         Debug.Log($"{save.m_Inihp}/{save.m_AnimeTime}");
         switch (m_AnimeHashType)
         {
-            case 0:a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue); break;
+            case 0:if (GetAnimeHashCode() == 0) break; a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue); break;
             default: Debug.Log("セットする必要ない"); break;
         }
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
@@ -115,6 +116,8 @@ public class SaveState
     public Vector3 v_IniPosition;//現在の自分の場所
     public Quaternion q_IniRotate;//現在の回転値
     public bool b_IsAttack;//攻撃フラグ
+
+    public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 
     public void Init()
     {

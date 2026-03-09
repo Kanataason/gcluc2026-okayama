@@ -40,6 +40,7 @@ public class BattleManager : MonoBehaviour
     public TextMeshProUGUI debagte;
     void Start()
     {
+        Application.targetFrameRate = 60;
         InitTransition();
         InitRoundInfo();
 
@@ -117,9 +118,9 @@ public class BattleManager : MonoBehaviour
         {
             m_RandamNum -= Time.deltaTime;
             m_UpdataTimer += Time.deltaTime;
-            if (m_RandamNum <= 0)
+            if (m_RandamNum <= 0.5f)
             {
-                m_RandamNum = 10;
+                m_UpdataTimer = 1;
                 stateMachine.Dispatch((int)BattleState.GameEnd);
             }
             if (m_UpdataTimer >= 0.1f)

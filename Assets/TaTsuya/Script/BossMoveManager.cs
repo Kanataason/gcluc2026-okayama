@@ -1,6 +1,8 @@
+using NUnit.Framework;
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 public class BossMoveManager : CharaBase
 {
     enum BossState
@@ -10,12 +12,7 @@ public class BossMoveManager : CharaBase
         Die = 3,
         Invincible = 4,
     }
-    private void OnEnable()
-    {
-        Debug.Log("イベント登録");
-        BattleManager.Instance.OnSetStageInfo += ChangePlayer;
-        BattleManager.Instance.OnGetStageInfo += GetStatus;
-    }
+
 
     BossState s_BossState = BossState.Idle;
     Dictionary<BossState, Action> d_Lottery;
@@ -27,10 +24,16 @@ public class BossMoveManager : CharaBase
     public override void Start()
     {
         e_CharaState = CharaState.Boss;
-
+        EventEnter();
         base.Start();
         SortOrderManager.Instance.SetList(Player.transform.parent.GetComponent<SpriteRenderer>());
         Init();
+    }
+    private void EventEnter()
+    {
+        Debug.Log("イベント登録");
+        BattleManager.Instance.OnSetStageInfo += ChangePlayer;
+        BattleManager.Instance.OnGetStageInfo += GetStatus;
     }
     private void Init()
     {
@@ -76,28 +79,42 @@ public class BossMoveManager : CharaBase
     }
     public override void SetStatus(CharaState state,int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
-        foreach (var list in c_BossAttackManager.l_BulletList)
+        if (c_BossAttackManager.l_BulletList != null)
         {
-            list.StopClock();
+            c_SaveState.l_ObjList = c_BossAttackManager.l_BulletList.ToList();
+            foreach (var list in c_BossAttackManager.l_BulletList)
+            {
+                list.StopClock();
+            }
         }
+        
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
-        float animevalue = 0;
+        float animevalue = AnimeName;
         switch (m_AnimeHashType)
         {
-            case 0: animevalue = a_Animator.GetFloat(AnimeName); break;
+            case 0: if (AnimeName == 0) break; animevalue = a_Animator.GetFloat(AnimeName); break;
             default:Debug.Log("取る必要ない"); break;
         }
         SetAnimetion(animetime, animevalue, animehash);
         base.SetStatus(state, AnimeName);
     }
-    public override void ChangePlayer()
+    public override void ChangePlayer()//切り替え処理
     {
         SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
+        if (c_SaveState.l_ObjList != null)
+        {
+            Debug.Log("再現");
+            foreach (var obj in c_SaveState.l_ObjList)
+            {
+                obj.RestartClock();
+            }
+            c_SaveState.l_ObjList.Clear();
+        }
         base.GetStatus(data);
     }
 
@@ -105,7 +122,6 @@ public class BossMoveManager : CharaBase
     {
         base.SetIsAttackFlag(active);
     }
-    public void ResetAttackFlag() { a_Animator.SetInteger("AttackType", 0); SetIsAttackFlag(false); }//リセットフラグ
 
     private void ChengeStatus(BossState state) { s_BossState = state; }//ステータスを変える
 }

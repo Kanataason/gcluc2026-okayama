@@ -18,9 +18,11 @@ public class BossAttackManager : MonoBehaviour
     public AnimaType e_AnimaType;
 
     private BossMoveManager c_BossMoveManager;
+    private ObjctPool c_ObjectPool;
     void Start()
     {
         CurrentAnime = BossMove;
+        c_ObjectPool = GetComponentInChildren<ObjctPool>();
         c_BossMoveManager = GetComponent<BossMoveManager>();
         a_Animator = GetComponent<Animator>();
         Init();
@@ -40,6 +42,7 @@ public class BossAttackManager : MonoBehaviour
 
         if (move != Vector3.zero)
         {
+            e_AnimaType = AnimaType.Move;
             CurrentAnime = BossMove;
             c_BossMoveManager.SetAnimaType((int)e_AnimaType);
 
@@ -58,13 +61,19 @@ public class BossAttackManager : MonoBehaviour
         CurrentAnime = BossAttack;
         a_Animator.SetInteger("AttackType", 1);
         a_Animator.SetTrigger("Attack");
+        e_AnimaType = AnimaType.Attack1;
         c_BossMoveManager.SetAnimaType((int)e_AnimaType);
         Debug.Log("あったっく");
-        //GameObject obj = ObjctPool.Instance.GetObject(CharaState.Boss, ObjctPool.EfectType.Die);
-        //obj.transform.localPosition = SpownPos.localPosition;
-        //Debug.Log($"{obj.transform.localPosition}s{SpownPos.localPosition}");
-        //SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
-        //SetBulletInfo(obj);
+    }
+    public void Collision()
+    {
+        GameObject obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Slash);
+        obj.transform.localPosition = new Vector3(SpownPos.localPosition.x + UnityEngine.Random.Range(1,5),
+                                                  SpownPos.localPosition.y + UnityEngine.Random.Range(1,5),
+                                                  SpownPos.localPosition.z);
+        Debug.Log($"{obj.transform.localPosition}s{SpownPos.localPosition}");
+        SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
+        SetBulletInfo(obj);
     }
 
     //攻撃&セット処理
@@ -78,14 +87,17 @@ public class BossAttackManager : MonoBehaviour
     {
        var script = obj.GetComponent<BossBulletManager>();
         script.DestroyObjEvent -= DestroyInfoList;
-
         if (l_BulletList.Remove(script))
         {
-            ObjctPool.Instance.ReturnObject(ObjctPool.EfectType.Die,CharaState.Boss, obj);
+            c_ObjectPool.ReturnObject(ObjctPool.EfectType.Slash,CharaState.Boss, obj);
         }
     }
     //ここからアニメーションの値参照
-     
+    public void ResetAttackFlag() 
+    {
+        a_Animator.SetInteger("AttackType", 0);
+        c_BossMoveManager.SetIsAttackFlag(false);
+    }//リセットフラグ
 }
 
 

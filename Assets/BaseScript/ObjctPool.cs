@@ -18,19 +18,6 @@ public class ObjctPool : MonoBehaviour
         Hit,
         Shot
     }
-    public static ObjctPool Instance { get; private set; }
-    private void Awake()
-    {
-        if(Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-    }
 
     [System.Serializable]
     public class EfectData//エフェクトのデータ　インスペクターで出したいエフェクトを追加する
@@ -50,7 +37,6 @@ public class ObjctPool : MonoBehaviour
     }
     private void OnDisable()
     {
-        Instance = null;
         d_EfectList.Clear();
         d_PrefabList.Clear();
         l_DataList.Clear();
