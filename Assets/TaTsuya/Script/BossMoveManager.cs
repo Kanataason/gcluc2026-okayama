@@ -43,36 +43,16 @@ public class BossMoveManager : CharaBase
             {BossState.Die,Die },
             {BossState.Invincible,null}
         };
-        SetStatus(e_CharaState,c_BossAttackManager.BossMove);
+        SetStatus(e_CharaState,c_BossAttackManager.CurrentAnime);
     }
     public override void Update()
     {
         CheckGround(-8,-2);
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            SetStatus(e_CharaState, c_BossAttackManager.BossMove);
+            SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
         }
-        if (GetIsAttackFlag()) return;
-        if(Input.GetKey(KeyCode.A))
-        {
-            a_Animator.SetFloat("Move", 3f * Time.deltaTime, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.left * 8f*Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            a_Animator.SetFloat("Move",0, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.right * 8f * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.W))
-        {
-            a_Animator.SetFloat("Move", 3f * Time.deltaTime, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.up * 8f * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            a_Animator.SetFloat("Move", 0, 0.05f, Time.deltaTime);
-            transform.Translate(Vector3.down * 8f * Time.deltaTime);
-        }
+
 
             if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
 
@@ -103,14 +83,18 @@ public class BossMoveManager : CharaBase
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
-        float animevalue = a_Animator.GetFloat(AnimeName);
+        float animevalue = 0;
+        switch (m_AnimeHashType)
+        {
+            case 0: animevalue = a_Animator.GetFloat(AnimeName); break;
+            default:Debug.Log("取る必要ない"); break;
+        }
         SetAnimetion(animetime, animevalue, animehash);
-
         base.SetStatus(state, AnimeName);
     }
     public override void ChangePlayer()
     {
-        SetStatus(e_CharaState, c_BossAttackManager.BossMove);
+        SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
@@ -121,7 +105,7 @@ public class BossMoveManager : CharaBase
     {
         base.SetIsAttackFlag(active);
     }
-    public void ResetAttackFlag() { SetIsAttackFlag(false); }//リセットフラグ
+    public void ResetAttackFlag() { a_Animator.SetInteger("AttackType", 0); SetIsAttackFlag(false); }//リセットフラグ
 
     private void ChengeStatus(BossState state) { s_BossState = state; }//ステータスを変える
 }

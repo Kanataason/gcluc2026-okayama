@@ -105,23 +105,29 @@ public class BattleManager : MonoBehaviour
     }
     private class GameStay : State//ƒ‰ƒ“ƒ_ƒ€‚ÅØ‚è‘Ö‚¦ŽžŠÔ‚ðÝ’è
     {
-        private int m_RandamNum;
-        private float m_CurrentTimer;
+        private float m_RandamNum;
+        private float m_UpdataTimer;
         protected override void OnEnter(State prevstate)
         {
-            m_RandamNum = UnityEngine.Random.Range(10, 14);
+            m_UpdataTimer = 0;
+            m_RandamNum = (int)UnityEngine.Random.Range(10, 14);
             Debug.Log(m_RandamNum);
         }
         protected override void OnUpdata()
         {
-            m_CurrentTimer += Time.deltaTime;
-            if(m_CurrentTimer > m_RandamNum)
+            m_RandamNum -= Time.deltaTime;
+            m_UpdataTimer += Time.deltaTime;
+            if (m_RandamNum <= 0)
             {
-                m_CurrentTimer =0;
+                m_RandamNum = 10;
                 stateMachine.Dispatch((int)BattleState.GameEnd);
             }
-            owner.debagte.text = m_CurrentTimer.ToString();
-        }
+            if (m_UpdataTimer >= 0.1f)
+            {
+                m_UpdataTimer = 0;
+                owner.debagte.SetText("time : {0:0}", m_RandamNum);
+            }
+        }   
         protected override void OnExit(State nextstate)
         {
             base.OnExit(nextstate);

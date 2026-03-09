@@ -1,5 +1,6 @@
 using UnityEditor.Overlays;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CharaBase : MonoBehaviour
 {
@@ -41,7 +42,11 @@ public class CharaBase : MonoBehaviour
 
         if (save == null) return;
         Debug.Log($"{save.m_Inihp}/{save.m_AnimeTime}");
-        a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
+        switch (m_AnimeHashType)
+        {
+            case 0:a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue); break;
+            default: Debug.Log("セットする必要ない"); break;
+        }
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
 
         m_hp = save.m_Inihp;
@@ -84,13 +89,14 @@ public class CharaBase : MonoBehaviour
     public virtual bool GetIsAttackFlag() { return m_IsAttack; }
     public virtual bool GetIsHitFlag() { return m_IsHit; }
     public virtual int GetAnimeHashCode() { return c_SaveState.m_AnimeHashName; }
+    public virtual void SetAnimaType(int type) { m_AnimeHashType = type; }//アニメーションタイプを設定
 
     public virtual void ChangePlayer() { }
 
     protected SpriteRenderer s_Sprite;
     protected Animator a_Animator;
     protected int m_hp;
-    protected int m_AnimeHashcode;
+    protected int m_AnimeHashType;
     protected SaveState c_SaveState = new SaveState();//自分にあったSaveManagerにあるものに書き込む
     protected CharaState e_CharaState;
     private bool m_IsAttack = false;
