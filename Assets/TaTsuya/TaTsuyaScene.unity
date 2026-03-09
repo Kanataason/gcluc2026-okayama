@@ -934,6 +934,132 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossAttackManager
   l_BulletList: []
   SpownPos: {fileID: 913712397}
+--- !u!1 &1566103426
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1566103428}
+  - component: {fileID: 1566103427}
+  m_Layer: 0
+  m_Name: SaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1566103427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566103426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed73ab74ff2bcd54c9189b6f8b500a5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveManager
+  c_Stage1SaveData:
+    m_BAnimeTime: 0
+    m_BAnimeHash: 0
+    m_BAnimeHashName: 0
+    m_BAnimeStateValue: 0
+    m_BInihp: 0
+    v_BIniPosition: {x: 0, y: 0, z: 0}
+    q_BIniRotate: {x: 0, y: 0, z: 0, w: 0}
+    b_BIsAttack: 0
+    m_PAnimeTime: 0
+    m_PAnimeHash: 0
+    m_PAnimeHashName: 0
+    m_PAnimeStateValue: 0
+    m_PInihp: 0
+    v_PIniPosition: {x: 0, y: 0, z: 0}
+    q_PIniRotate: {x: 0, y: 0, z: 0, w: 0}
+    b_PIsAttack: 0
+  c_Stage2SaveData:
+    m_BAnimeTime: 0
+    m_BAnimeHash: 0
+    m_BAnimeHashName: 0
+    m_BAnimeStateValue: 0
+    m_BInihp: 0
+    v_BIniPosition: {x: 0, y: 0, z: 0}
+    q_BIniRotate: {x: 0, y: 0, z: 0, w: 0}
+    b_BIsAttack: 0
+    m_PAnimeTime: 0
+    m_PAnimeHash: 0
+    m_PAnimeHashName: 0
+    m_PAnimeStateValue: 0
+    m_PInihp: 0
+    v_PIniPosition: {x: 0, y: 0, z: 0}
+    q_PIniRotate: {x: 0, y: 0, z: 0, w: 0}
+    b_PIsAttack: 0
+--- !u!4 &1566103428
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566103426}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.76944, y: -5.2385, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1608507386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1608507388}
+  - component: {fileID: 1608507387}
+  m_Layer: 0
+  m_Name: BattleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1608507387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608507386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d6084f2e9f0dce439266fa662c834c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleManager
+  m_TotalRound: 0
+  m_CurrentRound: 0
+  m_TimeLimit: 0
+  m_CurrentTime: 0
+--- !u!4 &1608507388
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608507386}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.76944, y: -5.2385, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1770563300
 GameObject:
   m_ObjectHideFlags: 0
@@ -1250,3 +1376,5 @@ SceneRoots:
   - {fileID: 1375592626}
   - {fileID: 911716669}
   - {fileID: 2050326715}
+  - {fileID: 1566103428}
+  - {fileID: 1608507388}

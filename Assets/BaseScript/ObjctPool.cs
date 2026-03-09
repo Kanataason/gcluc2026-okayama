@@ -2,14 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using Unity.VisualScripting;
+
+public enum CharaState //キャラの種類
+{
+    Player,
+    Boss,
+    Other
+}
 public class ObjctPool : MonoBehaviour
 {
-    public enum CharaState //キャラの種類
-    {
-        Player,
-        Boss,
-        Other
-    }
     public enum EfectType//エフェクトの種類
     {
         Die,

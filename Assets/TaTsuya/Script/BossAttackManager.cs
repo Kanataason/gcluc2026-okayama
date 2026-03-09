@@ -21,7 +21,7 @@ public class BossAttackManager : MonoBehaviour
     {
         a_Animetor.SetTrigger("Attack");
         Debug.Log("‚ ‚Á‚½‚Á‚­");
-        GameObject obj = ObjctPool.Instance.GetObject(ObjctPool.CharaState.Boss, ObjctPool.EfectType.Die);
+        GameObject obj = ObjctPool.Instance.GetObject(CharaState.Boss, ObjctPool.EfectType.Die);
         obj.transform.localPosition = SpownPos.localPosition;
         Debug.Log($"{obj.transform.localPosition}s{SpownPos.localPosition}");
         SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
@@ -42,7 +42,7 @@ public class BossAttackManager : MonoBehaviour
 
         if (l_BulletList.Remove(script))
         {
-            ObjctPool.Instance.ReturnObject(ObjctPool.EfectType.Die, ObjctPool.CharaState.Boss, obj);
+            ObjctPool.Instance.ReturnObject(ObjctPool.EfectType.Die,CharaState.Boss, obj);
         }
     }
 }

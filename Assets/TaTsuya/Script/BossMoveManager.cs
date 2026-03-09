@@ -41,9 +41,7 @@ public class BossMoveManager : CharaBase
         CheckGround(-8,-2);
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            SetStatus(Animator.StringToHash("Move"));
-            Debug.Log($"hp{c_SaveState.m_Inihp}/pos{c_SaveState.v_IniPosition}/rotete" +
-                $"{c_SaveState.q_IniRotate}/animetime{c_SaveState.m_AnimeTime}");
+            SetStatus(CharaState.Boss,Animator.StringToHash("Move"));
         }
         if (GetIsAttackFlag()) return;
         if(Input.GetKey(KeyCode.A))
@@ -88,7 +86,7 @@ public class BossMoveManager : CharaBase
     {
         CheckCollision(1f,1.2f,transform.position, Player.transform.position);
     }
-    public override void SetStatus(int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
+    public override void SetStatus(CharaState state,int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
         foreach (var list in c_BossAttackManager.l_BulletList)
         {
@@ -100,7 +98,7 @@ public class BossMoveManager : CharaBase
         float animevalue = a_Animator.GetFloat(AnimeName);
         SetAnimetion(animetime, animevalue, animehash);
 
-        base.SetStatus(AnimeName);
+        base.SetStatus(state, AnimeName);
     }
 
     public override void GetStatus()//前回のステータスをセット        

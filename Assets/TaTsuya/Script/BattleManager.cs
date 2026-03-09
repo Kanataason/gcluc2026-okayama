@@ -7,7 +7,8 @@ public class BattleManager : MonoBehaviour
         GameStating = 1, 
         GamePose = 2,
         GameEnd = 3,
-        GamePlaying = 4
+        GamePlaying = 4,
+        Menu = 5
     }
     private StateMachine<BattleManager> c_BattleManager;
     public static BattleManager Instance { get; private set; }
@@ -30,10 +31,22 @@ public class BattleManager : MonoBehaviour
     public float m_CurrentTime;
     void Start()
     {
+        InitTransition();
+
+        SaveManager save = SaveManager.Instance;
+        save.c_Stage1SaveData = new StageSaveData();
+        save.c_Stage2SaveData = new StageSaveData();
+    }
+    private void InitTransition()//‚±‚±‚Åó‘Ô‚ğ’Ç‰Á
+    {
+        c_BattleManager = new StateMachine<BattleManager>(this);
+
+        c_BattleManager.AddTransition<Other, GameEnter>((int)BattleState.GameStating);
         c_BattleManager.AddTransition<GameEnter, GameStay>((int)BattleState.GamePlaying);
         c_BattleManager.AddTransition<GameStay, GameStop>((int)BattleState.GamePose);
         c_BattleManager.AnyAddTrasition<GameExit>((int)BattleState.GameEnd);
-        c_BattleManager.Start<GameEnter>();
+        c_BattleManager.AnyAddTrasition<GameEnter>((int)BattleState.GamePlaying);
+        c_BattleManager.Start<Other>();
     }
     private void Update()
     {
@@ -42,9 +55,9 @@ public class BattleManager : MonoBehaviour
 
     private class GameEnter:State
     {
-        protected override void OnEnter(State prevstate)
+        protected override void OnEnter(State prevstate)//‚±‚±‚Å‡”Ô‚ğŠm”F
         {
-            base.OnEnter(prevstate);
+            Debug.Log("s");
         }
         protected override void OnUpdata()
         {
@@ -86,6 +99,22 @@ public class BattleManager : MonoBehaviour
         }
     }
     private class GameExit:State
+    {
+        protected override void OnEnter(State prevstate)
+        {
+            base.OnEnter(prevstate);
+        }
+        protected override void OnUpdata()
+        {
+            base.OnUpdata();
+        }
+        protected override void OnExit(State nextstate)
+        {
+            base.OnExit(nextstate);
+        }
+    }
+
+    private class Other : State
     {
         protected override void OnEnter(State prevstate)
         {

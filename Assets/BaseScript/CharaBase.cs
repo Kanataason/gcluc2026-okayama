@@ -14,14 +14,16 @@ public class CharaBase : MonoBehaviour
     public virtual void FixedUpdate() { }//主な処理はこっち
     public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//画面切り替え時点でいる場所を保存
     public virtual Vector3 GetPos() { return transform.position; }//前回の場面を取ってセット
-    public virtual void SetStatus(int AnimeName =0) //画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
+    public virtual void SetStatus(CharaState state, int animeName =0) //画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
                                    //アニメーションが現在何秒まで進んでいるのかを
     {
         c_SaveState.m_Inihp = m_hp;
         c_SaveState.v_IniPosition = GetPos();
         c_SaveState.q_IniRotate = transform.rotation;
         c_SaveState.b_IsAttack = GetIsAttackFlag();
-        c_SaveState.m_AnimeHashName = AnimeName;
+        c_SaveState.m_AnimeHashName = animeName;
+
+        SaveManager.Instance.SetSaveData(state, c_SaveState);
     }
     public virtual void GetStatus() //前回のステータスをセット
     {
@@ -70,7 +72,7 @@ public class CharaBase : MonoBehaviour
     protected Animator a_Animator;
     protected int m_hp;
     protected int m_AnimeHashcode;
-    protected SaveState c_SaveState = new SaveState();
+    protected SaveState c_SaveState = new SaveState();//自分にあったSaveManagerにあるものに書き込む
 
     private bool m_IsAttack = false;
     private bool m_IsHit = false;
