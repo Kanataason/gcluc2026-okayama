@@ -5,7 +5,7 @@ public class StateMachine<TOwner>
 {
   public abstract class State
     {
-        protected StateMachine<TOwner> c_StateMachine => stateMachine;
+        protected StateMachine<TOwner> StateMachine => stateMachine;
         internal StateMachine<TOwner> stateMachine;
 
         internal Dictionary<int, State> state = new Dictionary<int, State>();

@@ -10,6 +10,12 @@ public class BossMoveManager : CharaBase
         Die = 3,
         Invincible = 4,
     }
+    private void OnEnable()
+    {
+        Debug.Log("イベント登録");
+        BattleManager.Instance.OnSetStageInfo += ChangePlayer;
+        BattleManager.Instance.OnGetStageInfo += GetStatus;
+    }
 
     BossState s_BossState = BossState.Idle;
     Dictionary<BossState, Action> d_Lottery;
@@ -37,15 +43,14 @@ public class BossMoveManager : CharaBase
             {BossState.Die,Die },
             {BossState.Invincible,null}
         };
-        SetStatus(CharaState.Boss, Animator.StringToHash("Move"));
-        Debug.Log($"{SaveManager.Instance.CurrentData.c_BossDate.m_Inihp}");
+        SetStatus(e_CharaState,c_BossAttackManager.BossMove);
     }
     public override void Update()
     {
         CheckGround(-8,-2);
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            SetStatus(CharaState.Boss,Animator.StringToHash("Move"));
+            SetStatus(e_CharaState, c_BossAttackManager.BossMove);
         }
         if (GetIsAttackFlag()) return;
         if(Input.GetKey(KeyCode.A))
@@ -103,7 +108,10 @@ public class BossMoveManager : CharaBase
 
         base.SetStatus(state, AnimeName);
     }
-
+    public override void ChangePlayer()
+    {
+        SetStatus(e_CharaState, c_BossAttackManager.BossMove);
+    }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);

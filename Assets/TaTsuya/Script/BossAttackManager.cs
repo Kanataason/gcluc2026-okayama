@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 public class BossAttackManager : MonoBehaviour
 {
-
+    public readonly int BossMove = Animator.StringToHash("Move");
     Animator a_Animetor;
     public List<BossBulletManager> l_BulletList = new();
     public Transform SpownPos;

@@ -16,17 +16,42 @@ public class SaveManager : MonoBehaviour
         }
     }
     //それぞれ一個ずつでいいかも
-    public StageSaveData c_Stage1SaveData;
-    public StageSaveData c_Stage2SaveData;
+    private StageSaveData c_Stage1SaveData =null;
+    private StageSaveData c_Stage2SaveData =null;
 
-    public StageSaveData CurrentData;
+   [HideInInspector] public StageSaveData CurrentData = new StageSaveData();
     private void Start()
     {
-        CheckRound();
     }
+    void InitSaveData()
+    {
+        c_Stage1SaveData = new StageSaveData();
+        c_Stage2SaveData = new StageSaveData();
+    }
+    public void ResetSaveData()
+    {
+        c_Stage1SaveData = null;
+        c_Stage2SaveData = null;
+    }
+
     public void SetSaveData(CharaState state,SaveState data)//セーブデータを設定する
     {
-
+        if(c_Stage1SaveData == null || c_Stage2SaveData == null)
+        {
+            InitSaveData();
+            if (state == CharaState.Player)
+            {
+                c_Stage1SaveData.SetPlayerState(data);
+                c_Stage2SaveData.SetPlayerState(data);
+            }
+            else if (state == CharaState.Boss)
+            {
+                c_Stage1SaveData.SetBossState(data);
+                c_Stage2SaveData.SetBossState(data);
+            }
+            CheckRound();
+        }
+        Debug.Log("セット");
         if (state == CharaState.Player)
         {
             CurrentData.SetPlayerState(data);
@@ -38,6 +63,7 @@ public class SaveManager : MonoBehaviour
     }
     public void CheckRound()
     {
+        Debug.Log("チェック");
         BattleManager battle = BattleManager.Instance;
         CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
     }
@@ -45,8 +71,8 @@ public class SaveManager : MonoBehaviour
 [System.Serializable]
 public class StageSaveData//全体のsave
 {
-   public SaveState c_PlayerData = new SaveState();
-   public SaveState c_BossDate = new SaveState();
+    public SaveState c_PlayerData = new SaveState();
+    public SaveState c_BossDate = new SaveState();
     public void InitState()
     {
         c_PlayerData.Init();

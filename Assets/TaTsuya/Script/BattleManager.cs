@@ -1,19 +1,21 @@
 using System;
+using TMPro;
 using UnityEngine;
 using State = StateMachine<BattleManager>.State;
 public class BattleManager : MonoBehaviour
 {
     public enum BattleState
     {
-        GameStating = 1, 
-        GamePose = 2,
-        GameEnd = 3,
-        GamePlaying = 4,
-        Menu = 5
+        GameStating,
+        GamePlaying,
+        GamePose,
+        GameEnd,
+        Menu
     }
-    private StateMachine<BattleManager> c_BattleManager;
-    private SaveManager c_SaveData;
     public static BattleManager Instance { get; private set; }
+
+    private StateMachine<BattleManager> c_StateMachine;
+    private SaveManager c_SaveData;
     private void Awake()
     {
         if (Instance == null)
@@ -32,15 +34,16 @@ public class BattleManager : MonoBehaviour
     public float m_TimeLimit;
     public float m_CurrentTime;
 
-    public event Action<StageSaveData> OnSetStageInfo; 
+    public event Action<StageSaveData> OnGetStageInfo;
+    public event Action OnSetStageInfo;
+
+    public TextMeshProUGUI debagte;
     void Start()
     {
         InitTransition();
         InitRoundInfo();
 
         c_SaveData = SaveManager.Instance;
-        c_SaveData.c_Stage1SaveData = new StageSaveData();
-        c_SaveData.c_Stage2SaveData = new StageSaveData();
     }
     private void InitRoundInfo()
     {
@@ -50,48 +53,74 @@ public class BattleManager : MonoBehaviour
     }
     private void InitTransition()//ここで状態を追加
     {
-        c_BattleManager = new StateMachine<BattleManager>(this);
+        c_StateMachine = new StateMachine<BattleManager>(this);
 
-        c_BattleManager.AddTransition<Other, GameEnter>((int)BattleState.GameStating);
-        c_BattleManager.AddTransition<GameEnter, GameStay>((int)BattleState.GamePlaying);
-        c_BattleManager.AddTransition<GameStay, GameStop>((int)BattleState.GamePose);
-        c_BattleManager.AnyAddTrasition<GameExit>((int)BattleState.GameEnd);
-        c_BattleManager.AnyAddTrasition<GameEnter>((int)BattleState.GamePlaying);
-        c_BattleManager.Start<Other>();
+        c_StateMachine.AddTransition<Other, GameEnter>((int)BattleState.GameStating);
+        c_StateMachine.AddTransition<GameEnter, GameStay>((int)BattleState.GamePlaying);
+        c_StateMachine.AddTransition<GameStay, GameExit>((int)BattleState.GameEnd);
+        c_StateMachine.AddTransition<GameExit, GameEnter>((int)BattleState.GameStating);
+        c_StateMachine.AnyAddTrasition<GameStop>((int)BattleState.GamePose);
+        c_StateMachine.Start<Other>();
+
     }
     private void Update()
     {
-        c_BattleManager.Updata();
+        c_StateMachine.Updata();
     }
-
-    private class GameEnter:State
+    private class Other: State
     {
-        BattleManager manager;
-        protected override void OnEnter(State prevstate)//ここで順番を確認
+        protected override void OnEnter(State prevstate)
         {
-            Debug.Log("開始");
-            manager = stateMachine.owner;
-            var data = manager.m_CurrentRound == 1 ? manager.c_SaveData.c_Stage1SaveData : manager.c_SaveData.c_Stage2SaveData;
-            manager.OnSetStageInfo?.Invoke(data);
+
         }
         protected override void OnUpdata()
         {
-            base.OnUpdata();
+            if (Input.GetKeyDown(KeyCode.Y))
+            {
+                stateMachine.Dispatch((int)BattleState.GameStating);
+            }
         }
         protected override void OnExit(State nextstate)
         {
             base.OnExit(nextstate);
         }
     }
-    private class GameStay : State//ランダムで切り替え時間を設定
+    private class GameEnter:State//切り替わった瞬間
     {
-        protected override void OnEnter(State prevstate)
+        BattleManager manager;
+        protected override void OnEnter(State prevstate)//ここで順番を確認
         {
-            base.OnEnter(prevstate);
+            manager = stateMachine.owner;
+            var data = manager.c_SaveData.CurrentData;
+            manager.OnGetStageInfo?.Invoke(data);
         }
         protected override void OnUpdata()
         {
-            base.OnUpdata();
+            stateMachine.Dispatch((int)BattleState.GamePlaying);
+        }
+        protected override void OnExit(State nextstate)
+        {
+             Debug.Log("終わり");  
+        }
+    }
+    private class GameStay : State//ランダムで切り替え時間を設定
+    {
+        private int m_RandamNum;
+        private float m_CurrentTimer;
+        protected override void OnEnter(State prevstate)
+        {
+            m_RandamNum = UnityEngine.Random.Range(10, 14);
+            Debug.Log(m_RandamNum);
+        }
+        protected override void OnUpdata()
+        {
+            m_CurrentTimer += Time.deltaTime;
+            if(m_CurrentTimer > m_RandamNum)
+            {
+                m_CurrentTimer =0;
+                stateMachine.Dispatch((int)BattleState.GameEnd);
+            }
+            owner.debagte.text = m_CurrentTimer.ToString();
         }
         protected override void OnExit(State nextstate)
         {
@@ -113,33 +142,25 @@ public class BattleManager : MonoBehaviour
             base.OnExit(nextstate);
         }
     }
-    private class GameExit:State
+    private class GameExit:State//切り替わる前の処理
     {
+        BattleManager manager;
         protected override void OnEnter(State prevstate)
         {
-            base.OnEnter(prevstate);
+            owner.OnSetStageInfo?.Invoke();
+            Debug.Log("切り替え");
+            manager = stateMachine.owner;
+            manager.m_CurrentRound++;
+            manager.m_TotalRound++;
+            if (manager.m_CurrentRound > 2)
+            {
+                manager.m_CurrentRound = 1;
+            }
+            manager.c_SaveData.CheckRound();
         }
         protected override void OnUpdata()
         {
-            base.OnUpdata();
-        }
-        protected override void OnExit(State nextstate)
-        {
-            base.OnExit(nextstate);
-        }
-    }
-
-    private class Other : State
-    {
-        protected override void OnEnter(State prevstate)
-        {
-            SaveManager save = SaveManager.Instance;
-            save.c_Stage1SaveData.InitState();
-            save.c_Stage2SaveData.InitState();
-        }
-        protected override void OnUpdata()
-        {
-            base.OnUpdata();
+            stateMachine.Dispatch((int)BattleState.GameStating);
         }
         protected override void OnExit(State nextstate)
         {

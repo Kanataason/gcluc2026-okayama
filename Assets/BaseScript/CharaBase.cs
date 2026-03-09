@@ -3,16 +3,15 @@ using UnityEngine;
 
 public class CharaBase : MonoBehaviour
 {
-    public virtual void OnEnable()
-    {
-        BattleManager.Instance.OnSetStageInfo += GetStatus;
-    }
     public virtual void OnDisable()
     {
-        BattleManager.Instance.OnSetStageInfo -= GetStatus;
+        Debug.Log("イベント解除");
+        BattleManager.Instance.OnSetStageInfo -= ChangePlayer;
+        BattleManager.Instance.OnGetStageInfo -= GetStatus;
     }
-    public virtual void Start() 
+    public virtual void Start()
     {
+
         s_Sprite = GetComponent<SpriteRenderer>();
         a_Animator = GetComponent<Animator>();
 
@@ -37,10 +36,11 @@ public class CharaBase : MonoBehaviour
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
         SaveState save = null;
-        if(e_CharaState == CharaState.Player) { save = data.GetPlayerState(data); }
-        else if (e_CharaState == CharaState.Boss) { save = data.GetBossState(data); }
+        if(e_CharaState == CharaState.Player) { save = SaveManager.Instance.CurrentData.GetPlayerState(data); }
+        else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.CurrentData.GetBossState(data); }
 
         if (save == null) return;
+        Debug.Log($"{save.m_Inihp}/{save.m_AnimeTime}");
         a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
 
@@ -83,7 +83,9 @@ public class CharaBase : MonoBehaviour
     public virtual void SetIsHitFlag(bool active) { m_IsHit = active; }//攻撃が当たったときのフラグ
     public virtual bool GetIsAttackFlag() { return m_IsAttack; }
     public virtual bool GetIsHitFlag() { return m_IsHit; }
-    public virtual int GetAnimeHashCode() { return m_AnimeHashcode; }
+    public virtual int GetAnimeHashCode() { return c_SaveState.m_AnimeHashName; }
+
+    public virtual void ChangePlayer() { }
 
     protected SpriteRenderer s_Sprite;
     protected Animator a_Animator;
