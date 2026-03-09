@@ -1,16 +1,14 @@
 using UnityEngine;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : CharaBase
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    PlayerMoveManager c_PlayerMove;
+
+    public override void Start()
     {
-        
+        base.Start();
+
+        c_PlayerMove = GetComponent<PlayerMoveManager>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
