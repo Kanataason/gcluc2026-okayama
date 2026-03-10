@@ -7,8 +7,7 @@ public class PlayerManager : CharaBase
 {
     //ˆÚ“®ŠÇ—ƒNƒ‰ƒX
     PlayerMoveManager c_PlayerMove;
-
-    // ‰Šú‰»
+    PlayerInputManager c_PlayerInput;
     public override void Start()
     {
         base.Start();

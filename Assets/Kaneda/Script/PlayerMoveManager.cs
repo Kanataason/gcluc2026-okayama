@@ -17,8 +17,6 @@ public class PlayerMoveManager : CharaBase
     //アニメーション値
     const float move_Anime = 3f;
     const float damp_Time = 0.05f;
-
-    // 初期化
     public override void Start()
     {
         base.Start();
