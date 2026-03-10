@@ -58,6 +58,7 @@ public class BossAttackManager : MonoBehaviour
 
     public void AttackEnter(int AttackType)
     {
+        c_BossMoveManager.SetIsAttackFlag(true);
         CurrentAnime = BossAttack;
         a_Animator.SetInteger("AttackType", AttackType);
         a_Animator.SetTrigger("Attack");
@@ -68,8 +69,9 @@ public class BossAttackManager : MonoBehaviour
     public void SpawnEfect(AnimationEvent evt)//p1 b2 o3    Die1 slash2 hit3 shot4
     {
         //文字列で分けてintに変換
-        CharaState e_CharaType = (CharaState)evt.intParameter;
-        ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)evt.floatParameter;
+        CharaState e_CharaType = (CharaState)evt.floatParameter;
+        ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)evt.intParameter;
+        Debug.Log($"{evt.intParameter}f{evt.floatParameter}");
         GameObject obj = c_ObjectPool.GetObject(e_CharaType, e_EfectType);
 
         obj.transform.localPosition = SpownPos.localPosition;
@@ -84,11 +86,17 @@ public class BossAttackManager : MonoBehaviour
         l_BulletList.Add(script);
         script.DestroyObjEvent += DestroyInfoList;
     }
-    private void DestroyInfoList(GameObject obj)
+    private void DestroyInfoList(GameObject obj,int CharaType,int EfectType)
     {
-       var script = obj.GetComponent<BossBulletManager>();
+        var script = obj.GetComponent<BossBulletManager>();
         script.DestroyObjEvent -= DestroyInfoList;
-            c_ObjectPool.ReturnObject(ObjctPool.EfectType.Slash,CharaState.Boss, obj);   
+        CharaState e_CharaType = (CharaState)CharaType;
+        ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)EfectType;
+
+        l_BulletList.Clear();
+        Debug.Log("消すことに成功");
+        c_ObjectPool.ReturnObject(e_CharaType, e_EfectType, obj);
+        
     }
     //ここからアニメーションの値参照
     public void ResetAttackFlag() 

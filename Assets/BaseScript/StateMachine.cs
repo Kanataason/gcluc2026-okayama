@@ -88,7 +88,7 @@ public class StateMachine<TOwner>
         {
             if (!GetOrAddState<AnyState>().state.TryGetValue(eventId, out to))
             {
-                Debug.Log("Not Event");
+                Debug.Log($"{CurrentState}Not Event");
                 return;
             }
         }

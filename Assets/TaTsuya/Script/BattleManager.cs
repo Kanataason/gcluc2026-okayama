@@ -16,6 +16,7 @@ public class BattleManager : MonoBehaviour
 
     private StateMachine<BattleManager> c_StateMachine;
     private SaveManager c_SaveData;
+    private BossBehaviorManager c_BossBehaviorManager;
     private void Awake()
     {
         if (Instance == null)
@@ -33,6 +34,7 @@ public class BattleManager : MonoBehaviour
     public int m_CurrentRound = 1;
     public float m_TimeLimit;
     public float m_CurrentTime;
+    public bool b_IsLoading = false;
 
     public event Action<StageSaveData> OnGetStageInfo;
     public event Action OnSetStageInfo;
@@ -44,6 +46,7 @@ public class BattleManager : MonoBehaviour
         InitTransition();
         InitRoundInfo();
 
+        c_BossBehaviorManager = GameObject.Find("Boss").GetComponent<BossBehaviorManager>();
         c_SaveData = SaveManager.Instance;
     }
     private void InitRoundInfo()
@@ -112,7 +115,6 @@ public class BattleManager : MonoBehaviour
         {
             m_UpdataTimer = 0;
             m_RandamNum = (int)UnityEngine.Random.Range(10, 14);
-            Debug.Log(m_RandamNum);
         }
         protected override void OnUpdata()
         {
@@ -154,6 +156,7 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)
         {
+            owner.c_SaveData.SetCurrenBossInfo(owner.c_BossBehaviorManager.e_AwakeHp, owner.c_BossBehaviorManager.m_CurrentActionTime);
             owner.OnSetStageInfo?.Invoke();
             Debug.Log("êÿÇËë÷Ç¶");
             manager = stateMachine.owner;

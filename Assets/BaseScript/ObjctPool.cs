@@ -80,7 +80,7 @@ public class ObjctPool : MonoBehaviour
             return obj;
         }
     }
-    public void ReturnObject(EfectType Etype, CharaState Ctype, GameObject obj)//obj•Ô‚·‚Æ‚«‚ÌŠÖ”
+    public void ReturnObject(CharaState Ctype, EfectType Etype, GameObject obj)//obj•Ô‚·‚Æ‚«‚ÌŠÖ”
     {
         if (obj == null) return;
 

@@ -1677,6 +1677,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBehaviorManager
   e_AwakeHp: 0
+  m_CurrentActionTime: 0
 --- !u!1 &1503574096
 GameObject:
   m_ObjectHideFlags: 0
@@ -1722,9 +1723,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjctPool
   l_DataList:
-  - e_CharaState: 1
-    e_EfectType: 1
+  - e_CharaState: 2
+    e_EfectType: 2
     g_Prefab: {fileID: 3387792679920713146, guid: 41b9ce686e07eda4d936b94826745097, type: 3}
+    m_InstantiateNumber: 5
+  - e_CharaState: 2
+    e_EfectType: 1
+    g_Prefab: {fileID: 8262112147667920061, guid: 5fb7f64f1b1158b4db12bb29a2e0aafb, type: 3}
     m_InstantiateNumber: 5
 --- !u!1 &1566103426
 GameObject:
@@ -1765,8 +1770,10 @@ MonoBehaviour:
       v_IniPosition: {x: 0, y: 0, z: 0}
       q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
       b_IsAttack: 0
+      m_ActionTime: 0
+      e_BossAwake: 0
       l_ObjList: []
-    c_BossDate:
+    c_BossData:
       m_AnimeTime: 0
       m_AnimeHash: 0
       m_AnimeHashName: 0
@@ -1775,6 +1782,8 @@ MonoBehaviour:
       v_IniPosition: {x: 0, y: 0, z: 0}
       q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
       b_IsAttack: 0
+      m_ActionTime: 0
+      e_BossAwake: 0
       l_ObjList: []
 --- !u!4 &1566103428
 Transform:
@@ -1839,6 +1848,7 @@ MonoBehaviour:
   m_CurrentRound: 1
   m_TimeLimit: 0
   m_CurrentTime: 0
+  b_IsLoading: 0
   debagte: {fileID: 1122098549}
 --- !u!1 &1770563300
 GameObject:

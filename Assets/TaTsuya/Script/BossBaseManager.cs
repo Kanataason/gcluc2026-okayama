@@ -15,6 +15,7 @@ public class BossBaseManager : CharaBase
     public bool m_IsAwake2 = false;
     public override void Start()
     {
+        e_CharaState = CharaState.Boss;
         EventEnter();
         base.Start();
         SortOrderManager.Instance.SetList(Player.transform.parent.GetComponent<SpriteRenderer>());
@@ -40,11 +41,13 @@ public class BossBaseManager : CharaBase
         {
             SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
         }
-        if (Input.GetKeyDown(KeyCode.Tab)) 
-        { Debug.Log($"ob{c_SaveState.l_ObjList.Count}save{SaveManager.Instance.CurrentData.c_BossDate.l_ObjList.Count}" +
-            $"bu{c_BossAttackManager.l_BulletList.Count}"); }
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            Debug.Log($"ob{c_SaveState.l_ObjList.Count}/save{SaveManager.Instance.CurrentData.c_BossData.l_ObjList.Count}" +
+            $"/bu{c_BossAttackManager.l_BulletList.Count}");
+        }
 
-            if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
+        if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -57,7 +60,7 @@ public class BossBaseManager : CharaBase
     }
     public override void SetStatus(CharaState state,int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
-        if (c_BossAttackManager.l_BulletList != null)
+        if (c_BossAttackManager.l_BulletList != null&& c_BossAttackManager.l_BulletList.Count >0)
         {
             c_SaveState.l_ObjList = c_BossAttackManager.l_BulletList.ToList();
             foreach (var list in c_BossAttackManager.l_BulletList)
@@ -85,37 +88,44 @@ public class BossBaseManager : CharaBase
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
+        base.GetStatus(data);
+        c_BossBehaviorManager.e_AwakeHp = data.c_BossData.e_BossAwake;
+        c_BossBehaviorManager.m_CurrentActionTime = data.c_BossData.m_ActionTime;
+
         if (e_CharaState == CharaState.Player)
         {
-            if (data.c_PlayerData.l_ObjList != null)
+            if (data.c_PlayerData.l_ObjList != null&&data.c_PlayerData.l_ObjList.Count>0)
             {
                 Debug.Log("再現");
-                foreach (var obj in data.c_BossDate.l_ObjList)
+                foreach (var obj in data.c_BossData.l_ObjList)
                 {
                     obj.RestartClock();
                 }
 
-                data.c_BossDate.l_ObjList.Clear();
+                data.c_BossData.l_ObjList.Clear();
                 c_SaveState.l_ObjList?.Clear();
                 SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
             }  
         }
         else if(e_CharaState == CharaState.Boss)
         {
-            if(data.c_BossDate.l_ObjList != null)
+            if(data.c_BossData.l_ObjList != null && data.c_BossData.l_ObjList.Count > 0)
             {
                 Debug.Log("再現");
-                foreach (var obj in data.c_BossDate.l_ObjList)
+                foreach (var obj in data.c_BossData.l_ObjList)
                 {
                     obj.RestartClock();
                 }
 
-                data.c_BossDate.l_ObjList.Clear();
+                data.c_BossData.l_ObjList.Clear();
                 c_SaveState.l_ObjList?.Clear();
                 SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
             }
         }
-            base.GetStatus(data);
+        NextFrame.Run(this, 0.1f, () =>
+        {
+            BattleManager.Instance.b_IsLoading = false;
+        });
     }
     public override void TakeDamage(int damage)//ダメージ
     {

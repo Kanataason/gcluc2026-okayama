@@ -37,16 +37,16 @@ public class CharaBase : MonoBehaviour
     }
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
+        BattleManager.Instance.b_IsLoading = true;
         SaveState save = null;
         if(e_CharaState == CharaState.Player) { save = SaveManager.Instance.CurrentData.GetPlayerState(data); }
         else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.CurrentData.GetBossState(data); }
 
         if (save == null) return;
-        Debug.Log($"{save.m_Inihp}/{save.m_AnimeTime}");
         switch (m_AnimeHashType)
         {
             case 0:if (GetAnimeHashCode() == 0) break; a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue); break;
-            default: Debug.Log("セットする必要ない"); break;
+            default:  break;
         }
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
 
@@ -117,6 +117,10 @@ public class SaveState
     public Quaternion q_IniRotate;//現在の回転値
     public bool b_IsAttack;//攻撃フラグ
 
+    //ボス戦用
+    public float m_ActionTime;//現在のアニメーションの時間
+    public BossBehaviorManager.BossAwake e_BossAwake;
+    
     public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 
     public void Init()

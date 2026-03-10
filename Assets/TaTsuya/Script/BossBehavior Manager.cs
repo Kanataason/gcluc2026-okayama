@@ -35,8 +35,9 @@ public class BossBehaviorManager : MonoBehaviour
 
     private List<AttackEvent> l_AttackEvent;
 
-    private BossState e_State = BossState.Idle;
+    //private BossState e_State = BossState.Idle;
     public BossAwake e_AwakeHp = BossAwake.FirstForm;
+    public float m_CurrentActionTime = 0;
 
     private StateMachine<BossBehaviorManager> c_BossBehaviorManager;
     private BossAttackManager c_AttackManager;
@@ -59,9 +60,16 @@ public class BossBehaviorManager : MonoBehaviour
         {
             new AttackEvent(){m_Weight = 20,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack1},
              new AttackEvent(){m_Weight = 40,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
+              new AttackEvent(){m_Weight = 70,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
         };
 
+    }
+    private void ChangeValue(int[] values)
+    {
+        for (int i = 0; i < l_AttackEvent.Count; i++)
+        {
+            l_AttackEvent[i].m_Weight = values[i];
+        }
     }
     private void Update()
     {
@@ -111,6 +119,8 @@ public class BossBehaviorManager : MonoBehaviour
                 if (CurrentHp < m_AwakeningHp[2])
                 {
                     e_AwakeHp = BossAwake.FinalForm;
+                    int[] nums = { 40, 45, 30 };
+                    ChangeValue(nums);
                     return m_AwakeningHp[2];
                 }
                 break;
@@ -131,16 +141,25 @@ public class BossBehaviorManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
+            if (BattleManager.Instance.b_IsLoading) SetTime();
+
             m_CurrentTime += Time.deltaTime;
+            owner.m_CurrentActionTime = m_CurrentTime;
+
             if(m_CurrentTime >= m_LotteryTime)
             {
                 m_CurrentTime = 0;
                 stateMachine.Dispatch((int)BossState.Attack);     
             }
+            owner.m_CurrentActionTime = m_CurrentTime;
         }
         protected override void OnExit(State nextstate)
         {
             Debug.Log("s“®ŠJŽn");
+        }
+        private void SetTime()
+        {
+            m_CurrentTime = owner.m_CurrentActionTime;
         }
     }
     private class Attack : State
@@ -154,21 +173,17 @@ public class BossBehaviorManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
-            if (IsFirst)
+            bool IsAttack = owner.c_BaseManager.GetIsAttackFlag();
+
+            if (IsFirst && !IsAttack)
             {
-                if (!owner.c_BaseManager.GetIsAttackFlag())
+                NextFrame.Run(owner, 0.5f, () =>
                 {
-                    IsFirst = false;
-                    NextFrame.Run(owner, 2, () =>
-                    {
-                        stateMachine.Dispatch((int)BossState.Idle);
-                    });
-                }
+                    stateMachine.Dispatch((int)BossState.Idle);
+                });
             }
-            if (owner.c_BaseManager.GetIsAttackFlag())
-            {
-                IsFirst = true;
-            }
+
+            IsFirst = IsAttack;
         }
         protected override void OnExit(State nextstate)
         {

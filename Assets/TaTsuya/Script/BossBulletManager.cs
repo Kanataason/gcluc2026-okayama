@@ -8,12 +8,14 @@ public class BossBulletManager : MonoBehaviour
     private bool m_IsStop = false;
     public AttackInfo c_AttackInfo = new AttackInfo();
 
-    public event Action<GameObject> DestroyObjEvent;
+    public event Action<GameObject,int,int> DestroyObjEvent;
+
+    public int m_CharaType;
+    public int m_EfectType;
     void Start()
     {
       
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -22,13 +24,12 @@ public class BossBulletManager : MonoBehaviour
         if(m_Time > m_DestroyTime)
         {
             DestroyInfo();
-            Debug.Log("‰ó‚µ‚½");
         }
     }
     private void DestroyInfo()
     {
         m_Time = 0;
-        DestroyObjEvent?.Invoke(this.gameObject);
+        DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
     }
     public void StopClock()
     {
