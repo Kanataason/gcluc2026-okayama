@@ -3,27 +3,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-public class BossMoveManager : CharaBase
+public class BossBaseManager : CharaBase
 {
-    enum BossState
-    {
-        Idle = 1,
-        Attack = 2,
-        Die = 3,
-        Invincible = 4,
-    }
 
-
-    BossState s_BossState = BossState.Idle;
-    Dictionary<BossState, Action> d_Lottery;
     BossAttackManager c_BossAttackManager;
+    BossBehaviorManager c_BossBehaviorManager;
     //でバック
     public GameObject Player;
-    public SpriteRenderer sprite;
-    public GameObject pos;
+
+    public bool m_IsAwake1 = false;
+    public bool m_IsAwake2 = false;
     public override void Start()
     {
-        e_CharaState = CharaState.Boss;
         EventEnter();
         base.Start();
         SortOrderManager.Instance.SetList(Player.transform.parent.GetComponent<SpriteRenderer>());
@@ -37,15 +28,9 @@ public class BossMoveManager : CharaBase
     }
     private void Init()
     {
+        c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_BossAttackManager = GetComponent<BossAttackManager>();
-        m_hp = 100;
-        d_Lottery = new Dictionary<BossState, Action>
-        {
-            {BossState.Idle, null},
-            {BossState.Attack,c_BossAttackManager.AttackEnter},
-            {BossState.Die,Die },
-            {BossState.Invincible,null}
-        };
+        m_hp = 150;
         SetStatus(e_CharaState,c_BossAttackManager.CurrentAnime);
     }
     public override void Update()
@@ -55,22 +40,15 @@ public class BossMoveManager : CharaBase
         {
             SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
         }
-
+        if (Input.GetKeyDown(KeyCode.Tab)) 
+        { Debug.Log($"ob{c_SaveState.l_ObjList.Count}save{SaveManager.Instance.CurrentData.c_BossDate.l_ObjList.Count}" +
+            $"bu{c_BossAttackManager.l_BulletList.Count}"); }
 
             if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
             Debug.Log($"hp{m_hp}/pos{transform.position}/rotete{transform.rotation}");
-        }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SetIsAttackFlag(true);
-            ChengeStatus(BossState.Attack);
-            if(d_Lottery.TryGetValue(s_BossState,out var action))
-            {
-                action.Invoke();
-            }
         }
     }
     public override void FixedUpdate()
@@ -86,6 +64,7 @@ public class BossMoveManager : CharaBase
             {
                 list.StopClock();
             }
+            c_BossAttackManager.l_BulletList.Clear();
         }
         
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
@@ -106,22 +85,48 @@ public class BossMoveManager : CharaBase
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
-        if (c_SaveState.l_ObjList != null)
+        if (e_CharaState == CharaState.Player)
         {
-            Debug.Log("再現");
-            foreach (var obj in c_SaveState.l_ObjList)
+            if (data.c_PlayerData.l_ObjList != null)
             {
-                obj.RestartClock();
-            }
-            c_SaveState.l_ObjList.Clear();
+                Debug.Log("再現");
+                foreach (var obj in data.c_BossDate.l_ObjList)
+                {
+                    obj.RestartClock();
+                }
+
+                data.c_BossDate.l_ObjList.Clear();
+                c_SaveState.l_ObjList?.Clear();
+                SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
+            }  
         }
-        base.GetStatus(data);
+        else if(e_CharaState == CharaState.Boss)
+        {
+            if(data.c_BossDate.l_ObjList != null)
+            {
+                Debug.Log("再現");
+                foreach (var obj in data.c_BossDate.l_ObjList)
+                {
+                    obj.RestartClock();
+                }
+
+                data.c_BossDate.l_ObjList.Clear();
+                c_SaveState.l_ObjList?.Clear();
+                SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
+            }
+        }
+            base.GetStatus(data);
+    }
+    public override void TakeDamage(int damage)//ダメージ
+    {
+        base.TakeDamage(damage);
+        m_hp = c_BossBehaviorManager.CheckBossAwakening(m_hp);
     }
 
     public override void SetIsAttackFlag(bool active)//攻撃開始時のフラグ
     {
         base.SetIsAttackFlag(active);
     }
+    public int GetHp() { return m_hp; }
 
-    private void ChengeStatus(BossState state) { s_BossState = state; }//ステータスを変える
 }

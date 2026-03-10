@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SaveManager : MonoBehaviour
@@ -20,6 +21,7 @@ public class SaveManager : MonoBehaviour
     private StageSaveData c_Stage2SaveData =null;
 
    [HideInInspector] public StageSaveData CurrentData = new StageSaveData();
+
     private void Start()
     {
     }
@@ -49,6 +51,7 @@ public class SaveManager : MonoBehaviour
                 c_Stage1SaveData.SetBossState(data);
                 c_Stage2SaveData.SetBossState(data);
             }
+
             CheckRound();
         }
         Debug.Log("セット");
@@ -66,6 +69,15 @@ public class SaveManager : MonoBehaviour
         Debug.Log("チェック");
         BattleManager battle = BattleManager.Instance;
         CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
+    }
+    public void RemoveList(CharaState State,int Round)
+    {
+        List<BossBulletManager> CurrentDatas = null;
+        StageSaveData data = Round == 1 ? c_Stage1SaveData : c_Stage2SaveData;
+        CurrentDatas = data.GetObjList(State);
+        if(CurrentDatas.Count >0)
+            CurrentDatas.Clear();
+        Debug.Log("削除");
     }
 }
 [System.Serializable]
@@ -103,6 +115,8 @@ public class StageSaveData//全体のsave
         c_BossDate.v_IniPosition = data.v_IniPosition;
         c_BossDate.q_IniRotate = data.q_IniRotate;
         c_BossDate.b_IsAttack = data.b_IsAttack;
+
+        c_BossDate.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
     }
     public SaveState GetPlayerState(StageSaveData data)
     {
@@ -118,6 +132,7 @@ public class StageSaveData//全体のsave
         save.q_IniRotate = data.c_BossDate.q_IniRotate;
         save.b_IsAttack = data.c_BossDate.b_IsAttack;
 
+        save.l_ObjList = data.c_BossDate.l_ObjList;
         return save;
     }
     public SaveState GetBossState(StageSaveData data)
@@ -134,6 +149,18 @@ public class StageSaveData//全体のsave
         save.q_IniRotate = data.c_BossDate.q_IniRotate;
         save.b_IsAttack = data.c_BossDate.b_IsAttack;
 
+        return save;
+    }
+
+    public List<BossBulletManager> GetObjList(CharaState state)
+    {
+        List<BossBulletManager> save = null;
+        switch (state)
+        {
+            case CharaState.Player:save = c_PlayerData.l_ObjList; break;
+            case CharaState.Boss:save = c_BossDate.l_ObjList; break;
+            default:break;
+        }
         return save;
     }
 }

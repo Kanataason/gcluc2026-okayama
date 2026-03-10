@@ -6,7 +6,7 @@ public class BossAttackManager : MonoBehaviour
     public enum AnimaType
     {
         Move =0,
-        Attack1
+        Attack
     }
     private readonly int BossMove = Animator.StringToHash("Move");
     private readonly int BossAttack = Animator.StringToHash("Attack");
@@ -17,13 +17,13 @@ public class BossAttackManager : MonoBehaviour
     public int CurrentAnime;
     public AnimaType e_AnimaType;
 
-    private BossMoveManager c_BossMoveManager;
+    private BossBaseManager c_BossMoveManager;
     private ObjctPool c_ObjectPool;
     void Start()
     {
         CurrentAnime = BossMove;
         c_ObjectPool = GetComponentInChildren<ObjctPool>();
-        c_BossMoveManager = GetComponent<BossMoveManager>();
+        c_BossMoveManager = GetComponent<BossBaseManager>();
         a_Animator = GetComponent<Animator>();
         Init();
     }
@@ -56,22 +56,23 @@ public class BossAttackManager : MonoBehaviour
         }
     }
 
-    public void AttackEnter()
+    public void AttackEnter(int AttackType)
     {
         CurrentAnime = BossAttack;
-        a_Animator.SetInteger("AttackType", 1);
+        a_Animator.SetInteger("AttackType", AttackType);
         a_Animator.SetTrigger("Attack");
-        e_AnimaType = AnimaType.Attack1;
+        e_AnimaType = AnimaType.Attack;
         c_BossMoveManager.SetAnimaType((int)e_AnimaType);
         Debug.Log("あったっく");
     }
-    public void Collision()
+    public void SpawnEfect(AnimationEvent evt)//p1 b2 o3    Die1 slash2 hit3 shot4
     {
-        GameObject obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Slash);
-        obj.transform.localPosition = new Vector3(SpownPos.localPosition.x + UnityEngine.Random.Range(1,5),
-                                                  SpownPos.localPosition.y + UnityEngine.Random.Range(1,5),
-                                                  SpownPos.localPosition.z);
-        Debug.Log($"{obj.transform.localPosition}s{SpownPos.localPosition}");
+        //文字列で分けてintに変換
+        CharaState e_CharaType = (CharaState)evt.intParameter;
+        ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)evt.floatParameter;
+        GameObject obj = c_ObjectPool.GetObject(e_CharaType, e_EfectType);
+
+        obj.transform.localPosition = SpownPos.localPosition;
         SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
         SetBulletInfo(obj);
     }
@@ -87,10 +88,7 @@ public class BossAttackManager : MonoBehaviour
     {
        var script = obj.GetComponent<BossBulletManager>();
         script.DestroyObjEvent -= DestroyInfoList;
-        if (l_BulletList.Remove(script))
-        {
-            c_ObjectPool.ReturnObject(ObjctPool.EfectType.Slash,CharaState.Boss, obj);
-        }
+            c_ObjectPool.ReturnObject(ObjctPool.EfectType.Slash,CharaState.Boss, obj);   
     }
     //ここからアニメーションの値参照
     public void ResetAttackFlag() 

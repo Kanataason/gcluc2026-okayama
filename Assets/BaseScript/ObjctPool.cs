@@ -5,18 +5,18 @@ using Unity.VisualScripting;
 
 public enum CharaState //キャラの種類
 {
-    Player,
-    Boss,
-    Other
+    Player = 1,
+    Boss = 2,
+    Other = 3
 }
 public class ObjctPool : MonoBehaviour
 {
     public enum EfectType//エフェクトの種類
     {
-        Die,
-        Slash,
-        Hit,
-        Shot
+        Die = 1,
+        Slash = 2,
+        Hit = 3,
+        Shot = 4
     }
 
     [System.Serializable]
