@@ -4,10 +4,11 @@ using UnityEngine;
 public class BossBulletManager : MonoBehaviour
 {
     public float m_DestroyTime = 0.5f;
-    public float m_StartAnima = 3;
+    public float m_StartAnima = 1.5f;
     private float m_Time = 0;
     private float m_AnimaTime = 0;
     private bool m_IsStop = false;
+    private bool m_IsFirst = false;
     public AttackInfo c_AttackInfo = new AttackInfo();
     public Animator a_Anima;
 
@@ -19,14 +20,21 @@ public class BossBulletManager : MonoBehaviour
     void Start()
     {
         m_AnimaTime = 0;
-        m_IsStop = true;
+       if(a_Anima != null) m_IsStop = true;
+    }
+    public void Init(float timer,bool IsStop)
+    {
+        m_StartAnima = timer;
+        m_IsStop = IsStop;
+        m_IsFirst = false;
     }
     // Update is called once per frame
     void Update()
     {
-        m_AnimaTime += Time.deltaTime;
+        if (!m_IsFirst) m_AnimaTime += Time.deltaTime;
         if (m_AnimaTime >= m_StartAnima)
         {
+            m_IsFirst = true;
             m_AnimaTime = 0;
             m_IsStop = false;
             if (a_Anima != null)
@@ -59,15 +67,19 @@ public class BossBulletManager : MonoBehaviour
     }
     public void RestartClock()
     {
-        m_IsStop = false;
         gameObject.SetActive(true);
         if (a_Anima != null)
         {
             a_Anima.Play(c_AttackInfo.m_Animahash, 0, c_AttackInfo.m_CurrentAnimaTime);
             m_AnimaTime = c_AttackInfo.m_AnimaTime;
         }
-        m_Time = c_AttackInfo.m_CurrentTime;
+        else
+        {
+            m_IsStop = false; 
+        }
+            m_Time = c_AttackInfo.m_CurrentTime;
         c_AttackInfo.Init();
+  
     }
 }
 [Serializable]
@@ -86,5 +98,7 @@ public class AttackInfo//セーブ用
         v_IniPos = Vector3.zero;
         m_CurrentTime = 0;
         m_AnimaTime = 0;
+        m_CurrentAnimaTime = 0;
+        m_Animahash = 0;
     }
 }

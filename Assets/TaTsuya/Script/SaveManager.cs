@@ -185,10 +185,10 @@ public class StageSaveData//全体のsave
         }
         return save;
     }
-    public GameObject GetCharacter(CharaState state) //欲しい方のステータスを設定
+    public GameObject GetCharacter(CharaState TargetState) //欲しい方のステータスを設定
     {
         GameObject obj = null;
-        switch (state)
+        switch (TargetState)
         {
             case CharaState.Player: obj = c_PlayerData.g_Character; break;
             case CharaState.Boss: obj = c_BossData.g_Character; break;

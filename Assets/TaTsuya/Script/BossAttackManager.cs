@@ -1,11 +1,12 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 public class BossAttackManager : MonoBehaviour
 {
     public enum AnimaType
     {
-        Move =0,
+        Move = 0,
         Attack
     }
     private readonly int BossMove = Animator.StringToHash("Move");
@@ -17,6 +18,7 @@ public class BossAttackManager : MonoBehaviour
 
     public int CurrentAnime;
     public AnimaType e_AnimaType;
+    public bool m_IsBossMove = false;
 
     private BossBaseManager c_BossMoveManager;
     private ObjctPool c_ObjectPool;
@@ -61,10 +63,14 @@ public class BossAttackManager : MonoBehaviour
     {
         var script = obj.GetComponent<BossBulletManager>();
         l_BulletList.Add(script);
-        if (script.a_Anima != null) script.m_StartAnima = 3;
+        if (script.a_Anima != null)
+        {
+            float Duration = 2;
+            script.Init(Duration, true);
+        }
         script.DestroyObjEvent += DestroyInfoList;
     }
-    private void DestroyInfoList(GameObject obj,int CharaType,int EfectType)
+    private void DestroyInfoList(GameObject obj, int CharaType, int EfectType)
     {
         ResetAttackFlag();
         var script = obj.GetComponent<BossBulletManager>();
@@ -76,15 +82,18 @@ public class BossAttackManager : MonoBehaviour
         l_BulletList.Clear();
         Debug.Log("消すことに成功");
         c_ObjectPool.ReturnObject(e_CharaType, e_EfectType, obj);
-        
+
     }
     //--------------------ここからアニメーションの値参照
-    public void ResetAttackFlag() 
+    public void ResetAttackFlag()
     {
         a_Animator.SetInteger("AttackType", 0);
         c_BossMoveManager.SetIsAttackFlag(false);
     }//リセットフラグ
-
+    public void ReserAnima()
+    {
+        a_Animator.SetFloat(BossMove, 0);
+    }
 
     //----------------ここから攻撃処理の中身
     float nextTime = 0;
@@ -124,14 +133,65 @@ public class BossAttackManager : MonoBehaviour
     {
         for (int i = 0; i < InstantiateValue; i++)
         {
-            var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin,BattleManager.Instance.m_StageMax);
+            var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
             var RandomPosX = UnityEngine.Random.Range(-22, 22);
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
-           // SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
+            // SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
             obj.transform.parent = null;
-            obj.transform.position = new Vector3(RandomPosX,RandomPosY,0);
+            obj.transform.position = new Vector3(RandomPosX, RandomPosY, 0);
             SetBulletInfo(obj);
         }
+    }
+    public void Attack2()
+    {
+
+    }
+    public void Attack3(int attacktype)//この引数は何の意味もない
+    {
+        m_IsBossMove = true;
+        StartCoroutine(Attack1Move(attacktype));
+    }
+    IEnumerator Attack1Move(int attacktype)
+    {
+        GameObject pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player);
+        float speed = 8f;
+        Vector3 StartPos = transform.position;
+        a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
+        while (true)
+        {
+            Vector3 oppPos = pl.transform.position;
+            float dis = Vector3.Distance(oppPos, transform.position);
+
+            if (dis <= 3f)
+                break;
+
+            if (m_IsBossMove)
+            {
+                Vector3 dir = (oppPos - transform.position).normalized;
+                transform.Translate(dir * speed * Time.deltaTime);
+            }
+
+            yield return null;
+        }
+        AttackEnter(attacktype);
+        yield return new WaitUntil(()=>!c_BossMoveManager.GetIsAttackFlag());
+        a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
+        while (true)
+        {
+            float dis = Vector3.Distance(StartPos, transform.position);
+
+            if (dis <= 0.7f)
+                break;
+
+            if (m_IsBossMove)
+            {
+                Vector3 dir = (StartPos - transform.position).normalized;
+                transform.Translate(dir * speed * Time.deltaTime);
+            }
+
+            yield return null;
+        }
+        ReserAnima();
     }
 }
 

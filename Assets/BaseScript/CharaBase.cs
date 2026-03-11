@@ -143,6 +143,7 @@ public class SaveState
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間
     public BossBehaviorManager.BossAwake e_BossAwake;
+    public bool m_IsMove;
     
     public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 

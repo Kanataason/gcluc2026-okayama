@@ -58,7 +58,7 @@ public class BossBehaviorManager : MonoBehaviour
     {
         l_AttackEvent = new()
         {
-            new AttackEvent(){m_Weight = 40,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack1},
+            new AttackEvent(){m_Weight = 60,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack1},
              new AttackEvent(){m_Weight = 30,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
               new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
         };
@@ -142,7 +142,7 @@ public class BossBehaviorManager : MonoBehaviour
             m_LotteryTime = 7;
             m_CurrentTime = 0;
             m_LotteryTime -=(int)owner.e_AwakeHp;
-            Debug.Log(m_LotteryTime);
+            owner.c_AttackManager.e_AnimaType = BossAttackManager.AnimaType.Move;
         }
         protected override void OnUpdata()
         {

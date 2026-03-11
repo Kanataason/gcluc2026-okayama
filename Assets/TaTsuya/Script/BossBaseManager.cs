@@ -77,6 +77,14 @@ public class BossBaseManager : CharaBase
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
         float animevalue = AnimeName;
+
+        if (c_BossAttackManager.m_IsBossMove)//É{ÉXêÍóp
+        {
+            c_SaveState.m_IsMove = c_BossAttackManager.m_IsBossMove;
+            c_BossAttackManager.m_IsBossMove = false;
+            c_BossAttackManager.ReserAnima();
+        }
+
         switch (m_AnimeHashType)
         {
             case 0: if (AnimeName == 0) break; animevalue = a_Animator.GetFloat(AnimeName); break;
@@ -94,6 +102,7 @@ public class BossBaseManager : CharaBase
         base.GetStatus(data);
         c_BossBehaviorManager.e_AwakeHp = data.c_BossData.e_BossAwake;
         c_BossBehaviorManager.m_CurrentActionTime = data.c_BossData.m_ActionTime;
+        c_BossAttackManager.m_IsBossMove = data.c_BossData.m_IsMove;
 
         if (e_CharaState == CharaState.Player)
         {
