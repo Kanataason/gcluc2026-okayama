@@ -344,11 +344,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d02b3b94d432a8458d1aa9dae0956c9, type: 3}
---- !u!212 &297743973 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 2107836645535664991, guid: 3d02b3b94d432a8458d1aa9dae0956c9, type: 3}
-  m_PrefabInstance: {fileID: 297743972}
+--- !u!1 &787959425
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 787959426}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &787959426
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 787959425}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.83621, y: -4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1545446910
 GameObject:
   m_ObjectHideFlags: 0
@@ -361,6 +387,8 @@ GameObject:
   - component: {fileID: 1545446911}
   - component: {fileID: 1545446913}
   - component: {fileID: 1545446915}
+  - component: {fileID: 1545446917}
+  - component: {fileID: 1545446916}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -468,6 +496,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db46c89b9bf47364aae0610d8c74c829, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputManager
+--- !u!114 &1545446916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545446910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f22ff091dbf995a4287b9edfd565b7e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveManager
+--- !u!95 &1545446917
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1545446910}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 15cdce18d65b48c4a999e6d6a7d9a654, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &1717455437
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -619,7 +681,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortOrderManager
   l_SceneObj:
-  - {fileID: 297743973}
+  - {fileID: 1545446911}
 --- !u!4 &1780944112
 Transform:
   m_ObjectHideFlags: 0
@@ -766,3 +828,4 @@ SceneRoots:
   - {fileID: 1717455437}
   - {fileID: 1545446912}
   - {fileID: 1780944112}
+  - {fileID: 787959426}

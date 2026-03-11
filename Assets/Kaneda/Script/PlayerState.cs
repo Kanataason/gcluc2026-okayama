@@ -1,12 +1,13 @@
 using UnityEngine;
 
-public class PlayerSteato : MonoBehaviour
+public class Player : MonoBehaviour
 {
     //プレイヤー状態
-    public enum PreyerState
+    public enum PlayerState
     {
         Idle,     //待機
         Move,     //移動
+        Jump,     //ジャンプ
         Attack,   //攻撃
         Damage,   //ダメージ
         Die       //死亡

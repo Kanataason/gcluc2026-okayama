@@ -1,9 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// プレイヤー入力管理クラス
-/// WASD入力を取得する
-/// </summary>
+// プレイヤー入力管理クラス
+// WASD入力を取得する
 public class PlayerInputManager : MonoBehaviour
 {
     //横入力
@@ -11,6 +9,9 @@ public class PlayerInputManager : MonoBehaviour
 
     //縦入力
     float v_Input;
+    
+    //ジャンプ入力
+    bool j_Input;
     void Update()
     {
         //入力リセット
@@ -36,6 +37,9 @@ public class PlayerInputManager : MonoBehaviour
         {
             v_Input = -1;
         }
+
+        //ジャンプ
+        j_Input = Input.GetKeyDown(KeyCode.Space);
     }
     // 横入力取得
     public float GetHorizontal()
@@ -46,5 +50,10 @@ public class PlayerInputManager : MonoBehaviour
     public float GetVertical()
     {
         return v_Input;
+    }
+
+    public bool GetJump()
+    {
+        return j_Input;
     }
 }
