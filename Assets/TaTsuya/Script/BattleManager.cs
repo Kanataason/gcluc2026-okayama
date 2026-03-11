@@ -4,6 +4,8 @@ using UnityEngine;
 using State = StateMachine<BattleManager>.State;
 public class BattleManager : MonoBehaviour
 {
+    public float m_StageMax;
+    public float m_StageMin;
     public enum BattleState
     {
         GameStating,

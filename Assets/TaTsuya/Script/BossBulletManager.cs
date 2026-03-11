@@ -7,14 +7,25 @@ public class BossBulletManager : MonoBehaviour
     private float m_Time = 0;
     private bool m_IsStop = false;
     public AttackInfo c_AttackInfo = new AttackInfo();
+    public Animator a_Anima;
 
     public event Action<GameObject,int,int> DestroyObjEvent;
 
     public int m_CharaType;
     public int m_EfectType;
+
     void Start()
     {
-      
+        if (a_Anima != null)
+        {
+            m_IsStop = true;
+            NextFrame.Run(this, 3, () =>
+            {
+                m_IsStop = false;
+                a_Anima.SetTrigger("Attack");
+            });
+
+        }
     }
     // Update is called once per frame
     void Update()

@@ -54,7 +54,7 @@ public class BossBehaviorManager : MonoBehaviour
         InitTransition();
 
     }
-    private void InitDictionary()//リスト初期化
+    private void InitDictionary()//リスト初期化 攻撃を追加するときはここに追加
     {
         l_AttackEvent = new()
         {
@@ -64,7 +64,7 @@ public class BossBehaviorManager : MonoBehaviour
         };
 
     }
-    private void ChangeValue(int[] values)
+    private void ChangeValue(int[] values)//確率を変えるための変数
     {
         for (int i = 0; i < l_AttackEvent.Count; i++)
         {
@@ -132,8 +132,13 @@ public class BossBehaviorManager : MonoBehaviour
     {
         private float m_LotteryTime;
         private float m_CurrentTime;
+        private float m_Duration;
+
+        private Vector3 v_CurrentDirection;
         protected override void OnEnter(State prevstate)
         {
+            v_CurrentDirection = Vector3.zero;
+            m_Duration = 2;
             m_LotteryTime = 7;
             m_CurrentTime = 0;
             m_LotteryTime -=(int)owner.e_AwakeHp;
@@ -142,10 +147,9 @@ public class BossBehaviorManager : MonoBehaviour
         protected override void OnUpdata()
         {
             if (BattleManager.Instance.b_IsLoading) SetTime();
-
             m_CurrentTime += Time.deltaTime;
+        //  v_CurrentDirection = owner.c_AttackManager.Move(m_CurrentTime,m_Duration,v_CurrentDirection);
             owner.m_CurrentActionTime = m_CurrentTime;
-
             if(m_CurrentTime >= m_LotteryTime)
             {
                 m_CurrentTime = 0;
@@ -225,11 +229,20 @@ public class BossBehaviorManager : MonoBehaviour
 }
 public static class NextFrame
 {
+    private static readonly WaitForSeconds c_waitForSeconds = new WaitForSeconds(0.1f);
+    public static void OneFrame(MonoBehaviour owner,System.Action action)
+    {
+        owner.StartCoroutine(RunOneFrame(action));
+    }
     public static void Run(MonoBehaviour owner, float Timer, System.Action action)
     {
         owner.StartCoroutine(RunCoroutine(action,Timer));
     }
-
+    private static System.Collections.IEnumerator RunOneFrame(System.Action action)
+    {
+        yield return c_waitForSeconds;
+        action?.Invoke();
+    }
     private static System.Collections.IEnumerator RunCoroutine(System.Action action,float Timer)
     {
         yield return new WaitForSeconds(Timer);

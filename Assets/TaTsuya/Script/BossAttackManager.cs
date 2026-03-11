@@ -30,31 +30,7 @@ public class BossAttackManager : MonoBehaviour
     void Init()
     {
     }
-    private void Update()
-    {
-        if (c_BossMoveManager.GetIsAttackFlag()) return;
-        Vector3 move = Vector3.zero;
 
-        if (Input.GetKey(KeyCode.A)) move += Vector3.left;
-        if (Input.GetKey(KeyCode.D)) move += Vector3.right;
-        if (Input.GetKey(KeyCode.W)) move += Vector3.up;
-        if (Input.GetKey(KeyCode.S)) move += Vector3.down;
-
-        if (move != Vector3.zero)
-        {
-            e_AnimaType = AnimaType.Move;
-            CurrentAnime = BossMove;
-            c_BossMoveManager.SetAnimaType((int)e_AnimaType);
-
-            a_Animator.SetFloat("Move", 1f, 0.05f, Time.deltaTime);
-
-            transform.Translate(move.normalized * 8f * Time.deltaTime);
-        }
-        else
-        {
-            a_Animator.SetFloat("Move", 0f, 0.05f, Time.deltaTime);
-        }
-    }
 
     public void AttackEnter(int AttackType)
     {
@@ -98,12 +74,61 @@ public class BossAttackManager : MonoBehaviour
         c_ObjectPool.ReturnObject(e_CharaType, e_EfectType, obj);
         
     }
-    //ここからアニメーションの値参照
+    //--------------------ここからアニメーションの値参照
     public void ResetAttackFlag() 
     {
         a_Animator.SetInteger("AttackType", 0);
         c_BossMoveManager.SetIsAttackFlag(false);
     }//リセットフラグ
+
+
+    //----------------ここから攻撃処理の中身
+    float nextTime = 0;
+    public Vector3 Move(float currentTime, float duration, Vector3 direction)
+    {
+        if (c_BossMoveManager.GetIsAttackFlag()) return Vector3.zero;
+
+        Vector3 move = direction;
+
+        if (currentTime >= nextTime)
+        {
+            nextTime += duration;
+            if (nextTime > 7) { nextTime = 0; return Vector3.zero; }
+
+            Vector3[] dirs = { Vector3.up, Vector3.down, Vector3.left, Vector3.right };
+            move = dirs[UnityEngine.Random.Range(0, dirs.Length)];
+        }
+
+        if (move != Vector3.zero)
+        {
+            e_AnimaType = AnimaType.Move;
+            CurrentAnime = BossMove;
+            c_BossMoveManager.SetAnimaType((int)e_AnimaType);
+
+            a_Animator.SetFloat("Move", 1f, 0.05f, Time.deltaTime);
+
+            transform.Translate(move * 8f * Time.deltaTime);
+        }
+        else
+        {
+            a_Animator.SetFloat("Move", 0f, 0.05f, Time.deltaTime);
+        }
+
+        return move;
+    }
+    public void Attack1(int InstantiateValue)//召喚魔法
+    {
+        for (int i = 0; i < InstantiateValue; i++)
+        {
+            var RandomPosY = UnityEngine.Random.Range(0, 6);
+            var RandomPosX = UnityEngine.Random.Range(-22, 22);
+            var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
+            SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
+            obj.transform.parent = null;
+            obj.transform.position = new Vector3(RandomPosX,RandomPosY,0);
+            SetBulletInfo(obj);
+        }
+    }
 }
 
 

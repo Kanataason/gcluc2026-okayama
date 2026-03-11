@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+[RequireComponent(typeof(SpriteRenderer),typeof(Animator))]
 public class CharaBase : MonoBehaviour
 {
     public virtual void OnDisable()
@@ -22,8 +23,27 @@ public class CharaBase : MonoBehaviour
     public virtual void Update() { }//キーの取得だけ
 
     public virtual void FixedUpdate() { }//主な処理はこっち
-    public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//画面切り替え時点でいる場所を保存
-    public virtual Vector3 GetPos() { return transform.position; }//前回の場面を取ってセット
+    public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//セット
+    public virtual Vector3 GetPos() { return transform.position; }//保存
+
+    public virtual void ReverseSprite(CharaState targetstate,Vector3 CharaScale)//向きを変える 1左 0右
+    {
+        var target = SaveManager.Instance.CurrentData.GetCharacter(targetstate).transform;
+        if (target == null) return;
+        int dir = transform.position.x > target.position.x ? 1 : 0;
+        Func<int, bool> func = targetstate == CharaState.Boss
+            ? (v => v == 0)
+            : (v => v == 1);
+
+        if (dir != CurrentDirection)
+        {
+            Debug.Log($"向き変更{this.name}");
+            CurrentDirection = dir;
+            transform.localScale = func(dir)
+                ? CharaScale
+                : new Vector3(-CharaScale.x, CharaScale.y, CharaScale.z);
+        }
+    }
     public virtual void SetStatus(CharaState state, int animeName =0) //画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
                                    //アニメーションが現在何秒まで進んでいるのかを
     {
@@ -43,11 +63,9 @@ public class CharaBase : MonoBehaviour
         else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.CurrentData.GetBossState(data); }
 
         if (save == null) return;
-        switch (m_AnimeHashType)
-        {
-            case 0:if (GetAnimeHashCode() == 0) break; a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue); break;
-            default:  break;
-        }
+
+        if (GetAnimeHashCode() != 0)
+             a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
 
         m_hp = save.m_Inihp;
@@ -64,13 +82,13 @@ public class CharaBase : MonoBehaviour
     public virtual void CheckGround(float Min,float Max)//移動制限
     {
         Vector3 pos = transform.position;
-        float Clamp = Mathf.Clamp(pos.y, Min, Max);
-        transform.position = new Vector3(pos.x,Clamp,Clamp);
+        float ClampY = Mathf.Clamp(pos.y, Min, Max);
+        float ClampX = Mathf.Clamp(pos.x, -23, 23);
+        transform.position = new Vector3(ClampX,ClampY,ClampY);
     }
     public virtual void CheckCollision(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos)//当たり判定 奥行きはｚで判定
     {
         if (GetIsHitFlag()) return;
-        OppPos = new Vector3(OppPos.x, OppPos.y, OppPos.y);//これはdebag用 プレイヤー側で設定する必要あり
 
         float dx = Mathf.Abs(MyPos.x - OppPos.x);
         float dz = Mathf.Abs(MyPos.z - OppPos.z);
@@ -99,13 +117,17 @@ public class CharaBase : MonoBehaviour
     protected int m_hp;
     protected int m_AnimeHashType;
     protected SaveState c_SaveState = new SaveState();//自分にあったSaveManagerにあるものに書き込む
-    protected CharaState e_CharaState;
-    private bool m_IsAttack = false;
-    private bool m_IsHit = false;
+    protected CharaState e_CharaState;//自分が何のキャラクターかしまう変数
+    private bool m_IsAttack = false;//攻撃をしているか
+    private bool m_IsHit = false;//攻撃が当たっているか
+
+    private int CurrentDirection;
 }
 [System.Serializable]
 public class SaveState
 {
+
+    public GameObject g_Character;//playerを設定
     //アニメの処理
     public float m_AnimeTime;//現在のアニメ進行時間
     public int m_AnimeHash;//どこでアニメーションをするか

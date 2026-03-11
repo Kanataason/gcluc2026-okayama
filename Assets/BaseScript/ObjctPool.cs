@@ -16,7 +16,8 @@ public class ObjctPool : MonoBehaviour
         Die = 1,
         Slash = 2,
         Hit = 3,
-        Shot = 4
+        Shot = 4,
+
     }
 
     [System.Serializable]

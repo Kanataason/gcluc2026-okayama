@@ -45,13 +45,13 @@ public class SaveManager : MonoBehaviour
 
     public void SetSaveData(CharaState state,SaveState data)//セーブデータを設定する
     {
-        if(c_Stage1SaveData == null || c_Stage2SaveData == null)
+        if(c_Stage1SaveData == null || c_Stage2SaveData == null)//初期値を与える
         {
             InitSaveData();
             if (state == CharaState.Player)
             {
-                c_Stage1SaveData.SetPlayerState(data);
-                c_Stage2SaveData.SetPlayerState(data);
+                 c_Stage1SaveData.SetPlayerState(data);
+                 c_Stage2SaveData.SetPlayerState(data);
             }
             else if (state == CharaState.Boss)
             {
@@ -60,6 +60,7 @@ public class SaveManager : MonoBehaviour
             }
 
             CheckRound();
+            return;
         }
        // Debug.Log("セット");
         if (state == CharaState.Player)
@@ -119,6 +120,8 @@ public class StageSaveData//全体のsave
         c_PlayerData.q_IniRotate = data.q_IniRotate;
         c_PlayerData.b_IsAttack = data.b_IsAttack;
 
+        c_PlayerData.g_Character = data.g_Character;
+
         c_PlayerData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
     }
     public void SetBossState(SaveState data)
@@ -132,6 +135,8 @@ public class StageSaveData//全体のsave
         c_BossData.v_IniPosition = data.v_IniPosition;
         c_BossData.q_IniRotate = data.q_IniRotate;
         c_BossData.b_IsAttack = data.b_IsAttack;
+
+        c_BossData.g_Character = data.g_Character;
 
         c_BossData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
     }
@@ -184,5 +189,16 @@ public class StageSaveData//全体のsave
             default:break;
         }
         return save;
+    }
+    public GameObject GetCharacter(CharaState state) //欲しい方のステータスを設定
+    {
+        GameObject obj = null;
+        switch (state)
+        {
+            case CharaState.Player: obj = c_PlayerData.g_Character; break;
+            case CharaState.Boss: obj = c_BossData.g_Character; break;
+            default: break;
+        }
+        return obj;
     }
 }

@@ -8,17 +8,18 @@ public class BossBaseManager : CharaBase
 
     BossAttackManager c_BossAttackManager;
     BossBehaviorManager c_BossBehaviorManager;
-    //でバック
-    public GameObject Player;
+
+    public GameObject g_Player;
+    public Vector3 v_Scale;
 
     public bool m_IsAwake1 = false;
     public bool m_IsAwake2 = false;
     public override void Start()
     {
         e_CharaState = CharaState.Boss;
+        c_SaveState.g_Character = this.gameObject;
         EventEnter();
         base.Start();
-        SortOrderManager.Instance.SetList(Player.transform.parent.GetComponent<SpriteRenderer>());
         Init();
     }
     private void EventEnter()
@@ -36,7 +37,7 @@ public class BossBaseManager : CharaBase
     }
     public override void Update()
     {
-        CheckGround(-8,-2);
+        CheckGround(BattleManager.Instance.m_StageMin,BattleManager.Instance.m_StageMax);
         if (Input.GetKeyDown(KeyCode.Q))
         {
             SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
@@ -47,7 +48,8 @@ public class BossBaseManager : CharaBase
             $"/bu{c_BossAttackManager.l_BulletList.Count}");
         }
 
-        if (Input.GetKeyDown(KeyCode.H)) { TakeDamage(5); }
+        if (Input.GetKeyDown(KeyCode.H)) 
+        { c_BossAttackManager.Attack1(4); }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -56,7 +58,8 @@ public class BossBaseManager : CharaBase
     }
     public override void FixedUpdate()
     {
-        CheckCollision(1f,1.2f,transform.position, Player.transform.position);
+       if(g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
+        ReverseSprite(CharaState.Player,v_Scale);
     }
     public override void SetStatus(CharaState state,int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
@@ -122,7 +125,7 @@ public class BossBaseManager : CharaBase
                 SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
             }
         }
-        NextFrame.Run(this, 0.1f, () =>
+        NextFrame.OneFrame(this, () =>
         {
             BattleManager.Instance.b_IsLoading = false;
         });
