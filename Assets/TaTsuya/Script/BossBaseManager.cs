@@ -49,7 +49,7 @@ public class BossBaseManager : CharaBase
         }
 
         if (Input.GetKeyDown(KeyCode.H)) 
-        { c_BossAttackManager.Attack1(4); }
+        { c_BossAttackManager.Attack1(6); }
 
         if (Input.GetKeyDown(KeyCode.E))
         {

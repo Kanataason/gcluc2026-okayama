@@ -144,10 +144,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletManager
   m_DestroyTime: 2
+  m_StartAnima: 3
   c_AttackInfo:
     g_Obj: {fileID: 0}
     m_CurrentTime: 0
     v_IniPos: {x: 0, y: 0, z: 0}
   a_Anima: {fileID: 0}
   m_CharaType: 2
-  m_EfectType: 1
+  m_EfectType: 2

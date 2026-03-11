@@ -45,7 +45,7 @@ public class SaveManager : MonoBehaviour
 
     public void SetSaveData(CharaState state,SaveState data)//セーブデータを設定する
     {
-        if(c_Stage1SaveData == null || c_Stage2SaveData == null)//初期値を与える
+        if(c_Stage1SaveData.c_PlayerData.g_Character == null || c_Stage2SaveData.c_BossData.g_Character == null)//初期値を与える
         {
             InitSaveData();
             if (state == CharaState.Player)

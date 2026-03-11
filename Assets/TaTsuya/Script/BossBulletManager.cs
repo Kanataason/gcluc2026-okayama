@@ -4,6 +4,7 @@ using UnityEngine;
 public class BossBulletManager : MonoBehaviour
 {
     public float m_DestroyTime = 0.5f;
+    public float m_StartAnima = 3;
     private float m_Time = 0;
     private bool m_IsStop = false;
     public AttackInfo c_AttackInfo = new AttackInfo();
@@ -19,7 +20,7 @@ public class BossBulletManager : MonoBehaviour
         if (a_Anima != null)
         {
             m_IsStop = true;
-            NextFrame.Run(this, 3, () =>
+            NextFrame.Run(this, m_StartAnima, () =>
             {
                 m_IsStop = false;
                 a_Anima.SetTrigger("Attack");

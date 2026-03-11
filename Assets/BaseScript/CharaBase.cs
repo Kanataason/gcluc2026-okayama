@@ -28,9 +28,9 @@ public class CharaBase : MonoBehaviour
 
     public virtual void ReverseSprite(CharaState targetstate,Vector3 CharaScale)//Œü‚«‚ð•Ï‚¦‚é 1¶ 0‰E
     {
-        var target = SaveManager.Instance.CurrentData.GetCharacter(targetstate).transform;
+        var target = SaveManager.Instance.CurrentData.GetCharacter(targetstate);
         if (target == null) return;
-        int dir = transform.position.x > target.position.x ? 1 : 0;
+        int dir = transform.position.x > target.transform.position.x ? 1 : 0;
         Func<int, bool> func = targetstate == CharaState.Boss
             ? (v => v == 0)
             : (v => v == 1);

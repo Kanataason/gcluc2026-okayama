@@ -64,8 +64,10 @@ public class BossAttackManager : MonoBehaviour
     }
     private void DestroyInfoList(GameObject obj,int CharaType,int EfectType)
     {
+        ResetAttackFlag();
         var script = obj.GetComponent<BossBulletManager>();
         script.DestroyObjEvent -= DestroyInfoList;
+        obj.transform.parent = c_ObjectPool.transform;
         CharaState e_CharaType = (CharaState)CharaType;
         ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)EfectType;
 
@@ -120,10 +122,10 @@ public class BossAttackManager : MonoBehaviour
     {
         for (int i = 0; i < InstantiateValue; i++)
         {
-            var RandomPosY = UnityEngine.Random.Range(0, 6);
+            var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin,BattleManager.Instance.m_StageMax);
             var RandomPosX = UnityEngine.Random.Range(-22, 22);
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
-            SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
+           // SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
             obj.transform.parent = null;
             obj.transform.position = new Vector3(RandomPosX,RandomPosY,0);
             SetBulletInfo(obj);
