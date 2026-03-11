@@ -28,7 +28,7 @@ public class CharaBase : MonoBehaviour
 
     public virtual void ReverseSprite(CharaState targetstate,Vector3 CharaScale)//向きを変える 1左 0右
     {
-        var target = SaveManager.Instance.CurrentData.GetCharacter(targetstate);
+        var target = SaveManager.Instance.c_CurrentData.GetCharacter(targetstate);
         if (target == null) return;
         int dir = transform.position.x > target.transform.position.x ? 1 : 0;
         Func<int, bool> func = targetstate == CharaState.Boss
@@ -57,15 +57,16 @@ public class CharaBase : MonoBehaviour
     }
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
-        BattleManager.Instance.b_IsLoading = true;
+        BattleManager.Instance.b_IsLoading = true;//継承先でこれのスイッチを書く
         SaveState save = null;
-        if(e_CharaState == CharaState.Player) { save = SaveManager.Instance.CurrentData.GetPlayerState(data); }
-        else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.CurrentData.GetBossState(data); }
+        if(e_CharaState == CharaState.Player) { save = SaveManager.Instance.c_CurrentData.GetPlayerState(data); }
+        else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.c_CurrentData.GetBossState(data); }
 
         if (save == null) return;
 
-        if (GetAnimeHashCode() != 0)
-             a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
+        //if (GetAnimeHashCode() != 0)
+        //     a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
+        Debug.Log(save.m_AnimeHash);
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
 
         m_hp = save.m_Inihp;

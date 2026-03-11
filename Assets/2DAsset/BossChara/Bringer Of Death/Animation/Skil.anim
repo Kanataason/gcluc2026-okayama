@@ -38,20 +38,6 @@ AnimationClip:
       value: {fileID: -1721182466, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
     - time: 1.4
       value: {fileID: 1140639120, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 2.2666667
-      value: {fileID: 1140639120, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 2.4
-      value: {fileID: 243976330, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 2.5333333
-      value: {fileID: -2033113596, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 2.6666667
-      value: {fileID: -750047184722822154, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 2.8
-      value: {fileID: -5923306537521942286, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 2.9333334
-      value: {fileID: -1846612928519130627, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - time: 3.0666666
-      value: {fileID: 28493216337309425, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -83,19 +69,12 @@ AnimationClip:
     - {fileID: 243976330, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
     - {fileID: -1721182466, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
     - {fileID: 1140639120, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: 1140639120, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: 243976330, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: -2033113596, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: -750047184722822154, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: -5923306537521942286, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: -1846612928519130627, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
-    - {fileID: 28493216337309425, guid: 1914d95466e3d4341a618c35a56d5f82, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 3.1333332
+    m_StopTime: 1.4666667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -116,16 +95,9 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 1.4
-    functionName: SpawnEfect
+    functionName: Attack1
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 2
-    intParameter: 4
-    messageOptions: 0
-  - time: 2.2666667
-    functionName: ResetAttackFlag
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
+    intParameter: 5
     messageOptions: 0

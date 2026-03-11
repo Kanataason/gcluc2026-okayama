@@ -17,10 +17,10 @@ public class SaveManager : MonoBehaviour
         }
     }
     //それぞれ一個ずつでいいかも
-    private StageSaveData c_Stage1SaveData =null;
-    private StageSaveData c_Stage2SaveData =null;
+    private StageSaveData c_Stage1SaveData = new();
+    private StageSaveData c_Stage2SaveData  = new();
 
-    public StageSaveData CurrentData = new StageSaveData();
+    public StageSaveData c_CurrentData = new StageSaveData();
 
     private void Start()
     {
@@ -32,11 +32,7 @@ public class SaveManager : MonoBehaviour
             Debug.Log($"s1{c_Stage1SaveData.c_BossData.l_ObjList.Count}  / s2{c_Stage2SaveData.c_BossData.l_ObjList.Count}");
         }
     }
-    void InitSaveData()
-    {
-        c_Stage1SaveData = new StageSaveData();
-        c_Stage2SaveData = new StageSaveData();
-    }
+
     public void ResetSaveData()
     {
         c_Stage1SaveData = null;
@@ -47,7 +43,6 @@ public class SaveManager : MonoBehaviour
     {
         if(c_Stage1SaveData.c_PlayerData.g_Character == null || c_Stage2SaveData.c_BossData.g_Character == null)//初期値を与える
         {
-            InitSaveData();
             if (state == CharaState.Player)
             {
                  c_Stage1SaveData.SetPlayerState(data);
@@ -65,24 +60,24 @@ public class SaveManager : MonoBehaviour
        // Debug.Log("セット");
         if (state == CharaState.Player)
         {
-            CurrentData.SetPlayerState(data);
+            c_CurrentData.SetPlayerState(data);
         }
         else if(state == CharaState.Boss)
         {
-            CurrentData.SetBossState(data);
+            c_CurrentData.SetBossState(data);
         }
        if(data.l_ObjList.Count >0) data.l_ObjList.Clear();
     }
     public void SetCurrenBossInfo(BossBehaviorManager.BossAwake awake, float CurrentTime)//ボスの状況を保存
     {
-        CurrentData.c_BossData.e_BossAwake = awake;
-        CurrentData.c_BossData.m_ActionTime = CurrentTime;
+        c_CurrentData.c_BossData.e_BossAwake = awake;
+        c_CurrentData.c_BossData.m_ActionTime = CurrentTime;
     }
     public void CheckRound()
     {
        // Debug.Log("チェック");
         BattleManager battle = BattleManager.Instance;
-        CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
+        c_CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
     }
     public void RemoveList(CharaState State,int Round)
     {

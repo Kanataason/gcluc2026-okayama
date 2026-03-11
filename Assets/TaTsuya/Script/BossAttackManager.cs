@@ -10,6 +10,7 @@ public class BossAttackManager : MonoBehaviour
     }
     private readonly int BossMove = Animator.StringToHash("Move");
     private readonly int BossAttack = Animator.StringToHash("Attack");
+    private readonly int BossAttackType = Animator.StringToHash("AttackType");
     Animator a_Animator;
     public List<BossBulletManager> l_BulletList = new();
     public Transform SpownPos;
@@ -35,7 +36,7 @@ public class BossAttackManager : MonoBehaviour
     public void AttackEnter(int AttackType)
     {
         c_BossMoveManager.SetIsAttackFlag(true);
-        CurrentAnime = BossAttack;
+        CurrentAnime = BossAttackType;
         a_Animator.SetInteger("AttackType", AttackType);
         a_Animator.SetTrigger("Attack");
         e_AnimaType = AnimaType.Attack;
@@ -60,6 +61,7 @@ public class BossAttackManager : MonoBehaviour
     {
         var script = obj.GetComponent<BossBulletManager>();
         l_BulletList.Add(script);
+        if (script.a_Anima != null) script.m_StartAnima = 3;
         script.DestroyObjEvent += DestroyInfoList;
     }
     private void DestroyInfoList(GameObject obj,int CharaType,int EfectType)

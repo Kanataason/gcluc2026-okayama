@@ -44,7 +44,7 @@ public class BossBaseManager : CharaBase
         }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            Debug.Log($"ob{c_SaveState.l_ObjList.Count}/save{SaveManager.Instance.CurrentData.c_BossData.l_ObjList.Count}" +
+            Debug.Log($"ob{c_SaveState.l_ObjList.Count}/save{SaveManager.Instance.c_CurrentData.c_BossData.l_ObjList.Count}" +
             $"/bu{c_BossAttackManager.l_BulletList.Count}");
         }
 

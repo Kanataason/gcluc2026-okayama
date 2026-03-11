@@ -97,7 +97,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)//‚±‚±‚Å‡”Ô‚ğŠm”F
         {
             manager = stateMachine.owner;
-            var data = manager.c_SaveData.CurrentData;
+            var data = manager.c_SaveData.c_CurrentData;
             manager.OnGetStageInfo?.Invoke(data);
         }
         protected override void OnUpdata()
