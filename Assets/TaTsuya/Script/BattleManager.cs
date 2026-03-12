@@ -14,9 +14,10 @@ public class BattleManager : MonoBehaviour
         GameEnd,
         Menu
     }
+    private static readonly int StartAnima = Animator.StringToHash("Start");
     public static BattleManager Instance { get; private set; }
 
-    private StateMachine<BattleManager> c_StateMachine;
+    private StateMachine<BattleManager> c_BattleManager;
     private SaveManager c_SaveData;
     private BossBehaviorManager c_BossBehaviorManager;
     private void Awake()
@@ -42,6 +43,8 @@ public class BattleManager : MonoBehaviour
     public event Action OnSetStageInfo;
 
     public TextMeshProUGUI debagte;
+    public TextMeshProUGUI Stage;
+    public Animator a_CanvasAnima;
     void Start()
     {
         Application.targetFrameRate = 60;
@@ -59,19 +62,27 @@ public class BattleManager : MonoBehaviour
     }
     private void InitTransition()//Ç±Ç±Ç≈èÛë‘Çí«â¡
     {
-        c_StateMachine = new StateMachine<BattleManager>(this);
+        c_BattleManager = new StateMachine<BattleManager>(this);
 
-        c_StateMachine.AddTransition<Other, GameEnter>((int)BattleState.GameStating);
-        c_StateMachine.AddTransition<GameEnter, GameStay>((int)BattleState.GamePlaying);
-        c_StateMachine.AddTransition<GameStay, GameExit>((int)BattleState.GameEnd);
-        c_StateMachine.AddTransition<GameExit, GameEnter>((int)BattleState.GameStating);
-        c_StateMachine.AnyAddTrasition<GameStop>((int)BattleState.GamePose);
-        c_StateMachine.Start<Other>();
+        c_BattleManager.AddTransition<Other, GameEnter>((int)BattleState.GameStating);
+        c_BattleManager.AddTransition<GameEnter, GameStay>((int)BattleState.GamePlaying);
+        c_BattleManager.AddTransition<GameStay, GameExit>((int)BattleState.GameEnd);
+        c_BattleManager.AddTransition<GameExit, GameEnter>((int)BattleState.GameStating);
+        c_BattleManager.AnyAddTrasition<GameStop>((int)BattleState.GamePose);
+        c_BattleManager.Start<Other>();
 
     }
     private void Update()
     {
-        c_StateMachine.Updata();
+        c_BattleManager.Updata();
+    }
+
+    public void SetAnima(int Anima)//0true  1 false
+    {
+        bool IsStart = Anima == 0 ? true : false;
+
+        if (IsStart) a_CanvasAnima.SetTrigger(StartAnima);
+        else c_BattleManager.Dispatch((int)BattleState.GameStating);
     }
     private class Other: State
     {
@@ -96,6 +107,7 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)//Ç±Ç±Ç≈èáî‘ÇämîF
         {
+            owner.Stage.text = owner.m_CurrentRound.ToString();
             owner.b_IsLoading = false;
             manager = stateMachine.owner;
             var data = manager.c_SaveData.c_CurrentData;
@@ -117,7 +129,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = (int)UnityEngine.Random.Range(30,61);
+            m_RandamNum = 10;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {
@@ -171,10 +183,11 @@ public class BattleManager : MonoBehaviour
                 manager.m_CurrentRound = 1;
             }
             manager.c_SaveData.CheckRound();
+            owner.SetAnima(0);
+
         }
         protected override void OnUpdata()
         {
-            stateMachine.Dispatch((int)BattleState.GameStating);
         }
         protected override void OnExit(State nextstate)
         {

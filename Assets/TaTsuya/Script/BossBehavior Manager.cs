@@ -58,9 +58,9 @@ public class BossBehaviorManager : MonoBehaviour
     {
         l_AttackEvent = new()
         {
-            new AttackEvent(){m_Weight = 60,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack1},
-             new AttackEvent(){m_Weight = 30,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
+            new AttackEvent(){m_Weight = 90,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
+             new AttackEvent(){m_Weight = 10,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
+              new AttackEvent(){m_Weight = 10,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
         };
 
     }
@@ -147,7 +147,7 @@ public class BossBehaviorManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
-            if (owner.c_AttackManager.m_IsBossCoroutine) return;
+           // if (owner.c_AttackManager.m_IsBossCoroutine) return;
 
             if (BattleManager.Instance.b_IsLoading) SetTime();
             m_CurrentTime += Time.deltaTime;
@@ -158,7 +158,6 @@ public class BossBehaviorManager : MonoBehaviour
                 m_CurrentTime = 0;
                 stateMachine.Dispatch((int)BossState.Attack);     
             }
-            owner.m_CurrentActionTime = m_CurrentTime;
         }
         protected override void OnExit(State nextstate)
         {

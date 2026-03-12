@@ -138,6 +138,7 @@ MonoBehaviour:
     m_CurrentTime: 0
     v_IniPos: {x: 0, y: 0, z: 0}
   a_Anima: {fileID: 5414691429321133225}
+  s_Sprite: {fileID: 4503331397895547308}
   m_CharaType: 2
   m_EfectType: 4
 --- !u!1 &7639455629261466334
@@ -167,7 +168,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.0353, y: 0.0155, z: 0}
-  m_LocalScale: {x: 1.3586708, y: 0.24516173, z: 1}
+  m_LocalScale: {x: 1.2, y: 0.48, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8950985566694295456}

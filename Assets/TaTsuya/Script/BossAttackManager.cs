@@ -139,7 +139,6 @@ public class BossAttackManager : MonoBehaviour
             var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
             var RandomPosX = UnityEngine.Random.Range(-22, 22);
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
-            SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
             obj.transform.parent = null;
             obj.transform.position = new Vector3(RandomPosX, RandomPosY, 0);
             SetBulletInfo(obj);

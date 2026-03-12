@@ -73,9 +73,9 @@ public class CharaBase : MonoBehaviour
         transform.rotation = save.q_IniRotate;
         m_IsAttack = save.b_IsAttack;
     }
-    public virtual void SetAnimetion(float nowAnime, float animeValue, int animeName)//現在のアニメーションの進行度、アニメのステートの値、名前
+    public virtual void SetAnimetion(float CurrentAnime, float animeValue, int animeName)//現在のアニメーションの進行度、アニメのステートの値、名前
     {
-        c_SaveState.m_AnimeTime = nowAnime;
+        c_SaveState.m_AnimeTime = CurrentAnime;
         c_SaveState.m_AnimeHash = animeName;
         c_SaveState.m_AnimeStateValue = animeValue;
     }

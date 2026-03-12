@@ -45,4 +45,8 @@ public class SortOrderManager : MonoBehaviour
     {
         renderer.sortingOrder = (int)Mathf.Abs(renderer.transform.parent.position.y * 101);
     }
+    public void SetSpriteOrder(SpriteRenderer renderer)
+    {
+        renderer.sortingOrder = (int)Mathf.Abs(renderer.transform.position.y * 100);
+    }
 }

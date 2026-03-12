@@ -64,6 +64,9 @@ VisualEffect:
       - m_Value: 0.2
         m_Name: Size2
         m_Overridden: 1
+      - m_Value: 0.27
+        m_Name: lifeTime
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
@@ -143,15 +146,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c28eb0560c23149b6b0644c4dcb41f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletManager
-  m_DestroyTime: 0.5
+  m_DestroyTime: 0.3
   m_StartAnima: 3
   c_AttackInfo:
     m_AnimaTime: 0
     m_CurrentAnimaTime: 0
     m_Animahash: 0
+    m_VfxTime: 0
     g_Obj: {fileID: 0}
     m_CurrentTime: 0
     v_IniPos: {x: 0, y: 0, z: 0}
   a_Anima: {fileID: 0}
+  s_Sprite: {fileID: 0}
+  c_Vfx: {fileID: 1634011842979457337}
+  r_Renderer: {fileID: 3874571612185108771}
   m_CharaType: 2
   m_EfectType: 2
