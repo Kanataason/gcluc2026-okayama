@@ -77,14 +77,14 @@ public class BattleManager : MonoBehaviour
     {
         protected override void OnEnter(State prevstate)
         {
-
+            NextFrame.Run(owner, 0.5f, () =>
+            {
+                stateMachine.Dispatch((int)BattleState.GameStating);
+            });
         }
         protected override void OnUpdata()
         {
-            if (Input.GetKeyDown(KeyCode.Y))
-            {
-                stateMachine.Dispatch((int)BattleState.GameStating);
-            }
+
         }
         protected override void OnExit(State nextstate)
         {
@@ -116,7 +116,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = (int)UnityEngine.Random.Range(10, 14);
+            m_RandamNum = (int)UnityEngine.Random.Range(10,15);
         }
         protected override void OnUpdata()
         {

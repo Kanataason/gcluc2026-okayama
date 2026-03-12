@@ -132,6 +132,7 @@ public class StageSaveData//‘S‘Ì‚Ìsave
         c_BossData.b_IsAttack = data.b_IsAttack;
 
         c_BossData.g_Character = data.g_Character;
+        c_BossData.b_IsMove = data.b_IsMove;
 
         c_BossData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
     }
@@ -166,6 +167,7 @@ public class StageSaveData//‘S‘Ì‚Ìsave
         save.v_IniPosition = data.c_BossData.v_IniPosition;
         save.q_IniRotate = data.c_BossData.q_IniRotate;
         save.b_IsAttack = data.c_BossData.b_IsAttack;
+        save.b_IsMove = data.c_BossData.b_IsMove;
 
         save.l_ObjList = data.c_BossData.l_ObjList;
 

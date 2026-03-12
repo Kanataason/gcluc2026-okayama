@@ -1766,6 +1766,7 @@ MonoBehaviour:
   SpownPos: {fileID: 913712397}
   CurrentAnime: 0
   e_AnimaType: 0
+  m_IsBossCoroutine: 0
 --- !u!114 &1424122298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1832,7 +1833,7 @@ MonoBehaviour:
   - e_CharaState: 2
     e_EfectType: 4
     g_Prefab: {fileID: 5960244279577617363, guid: 7a89486a7183ff94da9441e080fce3d3, type: 3}
-    m_InstantiateNumber: 10
+    m_InstantiateNumber: 15
 --- !u!1 &1566103426
 GameObject:
   m_ObjectHideFlags: 0
@@ -1875,6 +1876,7 @@ MonoBehaviour:
       b_IsAttack: 0
       m_ActionTime: 0
       e_BossAwake: 0
+      b_IsMove: 0
       l_ObjList: []
     c_BossData:
       g_Character: {fileID: 0}
@@ -1888,6 +1890,7 @@ MonoBehaviour:
       b_IsAttack: 0
       m_ActionTime: 0
       e_BossAwake: 0
+      b_IsMove: 0
       l_ObjList: []
 --- !u!4 &1566103428
 Transform:

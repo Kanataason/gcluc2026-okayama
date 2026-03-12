@@ -143,7 +143,7 @@ public class SaveState
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間
     public BossBehaviorManager.BossAwake e_BossAwake;
-    public bool m_IsMove;
+    public bool b_IsMove;
     
     public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 
@@ -158,6 +158,7 @@ public class SaveState
         v_IniPosition = Vector3.zero;
         q_IniRotate = Quaternion.identity;
         b_IsAttack = false;
+        b_IsMove = false;
 
     }
 }

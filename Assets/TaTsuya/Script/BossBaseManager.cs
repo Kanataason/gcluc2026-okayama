@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 public class BossBaseManager : CharaBase
 {
 
@@ -44,8 +45,8 @@ public class BossBaseManager : CharaBase
         }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            Debug.Log($"ob{c_SaveState.l_ObjList.Count}/save{SaveManager.Instance.c_CurrentData.c_BossData.l_ObjList.Count}" +
-            $"/bu{c_BossAttackManager.l_BulletList.Count}");
+            Debug.Log($"ob{GetIsAttackFlag()}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
+                $"att{c_BossAttackManager.m_IsBossCoroutine}");
         }
 
         if (Input.GetKeyDown(KeyCode.H)) 
@@ -78,16 +79,15 @@ public class BossBaseManager : CharaBase
         int animehash = status.fullPathHash;
         float animevalue = AnimeName;
 
-        if (c_BossAttackManager.m_IsBossMove)//ボス専用
+        if (c_BossAttackManager.m_IsBossCoroutine)//ボス専用
         {
-            c_SaveState.m_IsMove = c_BossAttackManager.m_IsBossMove;
-            c_BossAttackManager.m_IsBossMove = false;
+            c_SaveState.b_IsMove = c_BossAttackManager.m_IsBossCoroutine;
             c_BossAttackManager.ReserAnima();
         }
 
         switch (m_AnimeHashType)
         {
-            case 0: if (AnimeName == 0) break; animevalue = a_Animator.GetFloat(AnimeName); break;
+            case 0: if (AnimeName != 0)  animevalue = a_Animator.GetFloat(AnimeName); break;
             default:Debug.Log("取る必要ない"); break;
         }
         SetAnimetion(animetime, animevalue, animehash);
@@ -102,7 +102,8 @@ public class BossBaseManager : CharaBase
         base.GetStatus(data);
         c_BossBehaviorManager.e_AwakeHp = data.c_BossData.e_BossAwake;
         c_BossBehaviorManager.m_CurrentActionTime = data.c_BossData.m_ActionTime;
-        c_BossAttackManager.m_IsBossMove = data.c_BossData.m_IsMove;
+        c_BossAttackManager.m_IsBossCoroutine = data.c_BossData.b_IsMove;
+        c_SaveState.b_IsMove = false;
 
         if (e_CharaState == CharaState.Player)
         {
@@ -136,6 +137,7 @@ public class BossBaseManager : CharaBase
         }
         NextFrame.OneFrame(this, () =>
         {
+            data.InitState();
             BattleManager.Instance.b_IsLoading = false;
         });
     }

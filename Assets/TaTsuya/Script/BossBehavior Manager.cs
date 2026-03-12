@@ -60,7 +60,7 @@ public class BossBehaviorManager : MonoBehaviour
         {
             new AttackEvent(){m_Weight = 60,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack1},
              new AttackEvent(){m_Weight = 30,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
+              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.Attack3, e_BossAttackType = BossAttackType.Attack3},
         };
 
     }
@@ -137,6 +137,7 @@ public class BossBehaviorManager : MonoBehaviour
         private Vector3 v_CurrentDirection;
         protected override void OnEnter(State prevstate)
         {
+            owner.c_AttackManager.SetAnima();
             v_CurrentDirection = Vector3.zero;
             m_Duration = 2;
             m_LotteryTime = 7;
@@ -146,6 +147,8 @@ public class BossBehaviorManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
+            if (owner.c_AttackManager.m_IsBossCoroutine) return;
+
             if (BattleManager.Instance.b_IsLoading) SetTime();
             m_CurrentTime += Time.deltaTime;
         //  v_CurrentDirection = owner.c_AttackManager.Move(m_CurrentTime,m_Duration,v_CurrentDirection);

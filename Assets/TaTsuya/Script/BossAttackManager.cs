@@ -18,7 +18,7 @@ public class BossAttackManager : MonoBehaviour
 
     public int CurrentAnime;
     public AnimaType e_AnimaType;
-    public bool m_IsBossMove = false;
+    public bool m_IsBossCoroutine = false;
 
     private BossBaseManager c_BossMoveManager;
     private ObjctPool c_ObjectPool;
@@ -38,9 +38,9 @@ public class BossAttackManager : MonoBehaviour
     public void AttackEnter(int AttackType)
     {
         c_BossMoveManager.SetIsAttackFlag(true);
-        CurrentAnime = BossAttackType;
-        a_Animator.SetInteger("AttackType", AttackType);
-        a_Animator.SetTrigger("Attack");
+        CurrentAnime = BossAttack;
+        a_Animator.SetInteger(BossAttackType, AttackType);
+        a_Animator.SetTrigger(BossAttack);
         e_AnimaType = AnimaType.Attack;
         c_BossMoveManager.SetAnimaType((int)e_AnimaType);
         Debug.Log("あったっく");
@@ -87,13 +87,15 @@ public class BossAttackManager : MonoBehaviour
     //--------------------ここからアニメーションの値参照
     public void ResetAttackFlag()
     {
-        a_Animator.SetInteger("AttackType", 0);
+        a_Animator.SetInteger(BossAttackType, 0);
         c_BossMoveManager.SetIsAttackFlag(false);
     }//リセットフラグ
     public void ReserAnima()
     {
+        m_IsBossCoroutine = false;
         a_Animator.SetFloat(BossMove, 0);
     }
+    public void SetAnima() => a_Animator.SetFloat(BossMove, 0);
 
     //----------------ここから攻撃処理の中身
     float nextTime = 0;
@@ -136,7 +138,7 @@ public class BossAttackManager : MonoBehaviour
             var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
             var RandomPosX = UnityEngine.Random.Range(-22, 22);
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
-            // SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
+            SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
             obj.transform.parent = null;
             obj.transform.position = new Vector3(RandomPosX, RandomPosY, 0);
             SetBulletInfo(obj);
@@ -144,11 +146,15 @@ public class BossAttackManager : MonoBehaviour
     }
     public void Attack2()
     {
-
+        a_Animator.SetInteger(BossAttackType, 4);
+        NextFrame.Run(this, 2, () =>
+        {
+            a_Animator.SetInteger(BossAttackType, 0);
+        });
     }
     public void Attack3(int attacktype)//この引数は何の意味もない
     {
-        m_IsBossMove = true;
+        m_IsBossCoroutine = true;
         StartCoroutine(Attack1Move(attacktype));
     }
     IEnumerator Attack1Move(int attacktype)
@@ -156,38 +162,42 @@ public class BossAttackManager : MonoBehaviour
         GameObject pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player);
         float speed = 8f;
         Vector3 StartPos = transform.position;
-        a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
+        CurrentAnime = BossMove;
         while (true)
         {
+            if (!m_IsBossCoroutine)
+            {
+                yield return null;
+                continue;
+            }
+
             Vector3 oppPos = pl.transform.position;
             float dis = Vector3.Distance(oppPos, transform.position);
 
-            if (dis <= 3f)
+            if (dis <= 7f)
                 break;
-
-            if (m_IsBossMove)
-            {
-                Vector3 dir = (oppPos - transform.position).normalized;
-                transform.Translate(dir * speed * Time.deltaTime);
-            }
-
+            a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
+            Vector3 dir = (oppPos - transform.position).normalized;
+            transform.position += dir * speed * Time.deltaTime;
             yield return null;
         }
         AttackEnter(attacktype);
         yield return new WaitUntil(()=>!c_BossMoveManager.GetIsAttackFlag());
-        a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
+        CurrentAnime = BossMove;
         while (true)
         {
+            if (!m_IsBossCoroutine)
+            {
+                yield return null;
+                continue;
+            }
             float dis = Vector3.Distance(StartPos, transform.position);
 
             if (dis <= 0.7f)
                 break;
-
-            if (m_IsBossMove)
-            {
-                Vector3 dir = (StartPos - transform.position).normalized;
-                transform.Translate(dir * speed * Time.deltaTime);
-            }
+            a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
+            Vector3 dir = (StartPos - transform.position).normalized;
+            transform.position += dir * speed * Time.deltaTime;
 
             yield return null;
         }

@@ -52,7 +52,7 @@ public class BossBulletManager : MonoBehaviour
         m_Time = 0;
         DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
     }
-    public void StopClock()
+    public void StopClock()//ŠÔ‚ª—ˆ‚½
     {
         m_IsStop = true;
         if (a_Anima != null)
@@ -65,10 +65,10 @@ public class BossBulletManager : MonoBehaviour
         c_AttackInfo.m_CurrentTime = m_Time;
         gameObject.SetActive(false);
     }
-    public void RestartClock()
+    public void RestartClock()//ó‹µ‚ğƒZƒbƒg‚·‚é‚Æ‚«
     {
         gameObject.SetActive(true);
-        if (a_Anima != null)
+        if (a_Anima != null&&!m_IsFirst)
         {
             a_Anima.Play(c_AttackInfo.m_Animahash, 0, c_AttackInfo.m_CurrentAnimaTime);
             m_AnimaTime = c_AttackInfo.m_AnimaTime;
