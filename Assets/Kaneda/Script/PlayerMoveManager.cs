@@ -11,20 +11,23 @@ public class PlayerMoveManager : CharaBase
     const float M_Speed = 8f;
 
     //ジャンプ初速
-    const float J_Power = 6f;
+    const float J_Power = -7f;
 
     //重力
-    const float GRAVITY = -20f;
+    const float GRAVITY = -25f;
 
-    //地面移動範囲
+    //地面の前後移動範囲
     const float g_Min = -6f;
     const float g_Max = -4f;
 
-    //ジャンプ速度
+    //ジャンプ中の速度
     float j_Velocity = 0f;
 
-    //地面判定
+    //地面にいるかどうか
     bool is_Ground = true;
+
+    //地面の高さ
+    const float GROUND_Y = 0f;
 
     public override void Start()
     {
@@ -34,18 +37,17 @@ public class PlayerMoveManager : CharaBase
         c_PlayerInput = GetComponent<PlayerInputManager>();
     }
 
-    // PlayerManagerから呼ばれる移動更新
+    //PlayerManagerから呼ばれる更新処理
     public virtual void MoveUpdate()
     {
-        Move();
-        Jump();
-        UpdateAnimation();
+        Move();             //移動処理
+        Jump();             //ジャンプ処理
+        UpdateAnimation();  //アニメーション更新
     }
 
-    // プレイヤー移動処理
+    //移動処理
     void Move()
     {
-        //移動範囲制限
         CheckGround(g_Min, g_Max);
 
         //攻撃中は移動しない
@@ -55,25 +57,42 @@ public class PlayerMoveManager : CharaBase
         float h = c_PlayerInput.GetHorizontal();
         float v = c_PlayerInput.GetVertical();
 
-        //ベルトスクロール移動
-        Vector3 move = new Vector3(h, 0, v);
+        //移動ベクトル
+        Vector3 move = new Vector3(h, v, 0);
 
         //移動
         transform.Translate(move * M_Speed * Time.deltaTime);
-    }
 
-    // ジャンプ処理
-    void Jump()
+        // 向き変更処理
+        Vector3 scale = transform.localScale;
+
+        //左向き
+        if (h < 0)
+        {
+            scale.x = -Mathf.Abs(scale.x);
+        }
+
+        //右向き
+        if (h > 0)
+        {
+            scale.x = Mathf.Abs(scale.x);
+        }
+
+        transform.localScale = scale;
+    }
+        //ジャンプ処理
+        void Jump()
     {
         //ジャンプ開始
         if (c_PlayerInput.GetJump() && is_Ground)
         {
+            //地面状態を解除
             is_Ground = false;
 
-            //ジャンプ初速
+            //ジャンプ初速設定
             j_Velocity = J_Power;
 
-            //ジャンプアニメーション
+            //ジャンプアニメーション再生
             if (a_Animator != null)
             {
                 a_Animator.SetTrigger("Jump");
@@ -83,40 +102,57 @@ public class PlayerMoveManager : CharaBase
         //空中処理
         if (!is_Ground)
         {
-            //重力
+            //重力を加算
             j_Velocity += GRAVITY * Time.deltaTime;
 
-            //ジャンプ移動
-            transform.Translate(Vector3.up * j_Velocity * Time.deltaTime);
+            //現在位置取得
+            Vector3 pos = transform.position;
 
-            //地面に戻る
-            if (transform.position.y <= g_Min)
+            //高さ更新
+            pos.y += j_Velocity * Time.deltaTime;
+
+            //位置反映
+            transform.position = pos;
+
+            //地面に着地した場合
+            if (pos.y <= GROUND_Y)
             {
-                Vector3 pos = transform.position;
-                pos.y = g_Min;
+                //地面位置に戻す
+                pos.y = GROUND_Y;
                 transform.position = pos;
 
+                //地面状態に戻す
                 is_Ground = true;
+
+                //ジャンプ速度リセット
                 j_Velocity = 0;
             }
         }
     }
 
-    // アニメーション更新
+    //アニメーション更新
     void UpdateAnimation()
     {
+        //移動入力取得
         float h = Mathf.Abs(c_PlayerInput.GetHorizontal());
         float v = Mathf.Abs(c_PlayerInput.GetVertical());
 
-        float moveSpeed = h + v;
+        //移動速度計算
+        float speed = h + v;
 
         if (a_Animator != null)
         {
-            //Dashアニメーション
-            a_Animator.SetFloat("MoveSpeed", moveSpeed);
+            //Idle / Run アニメーション切り替え
+            a_Animator.SetFloat("MoveSpeed", speed);
 
-            //地面状態
+            //地面判定アニメーション
             a_Animator.SetBool("Ground", is_Ground);
         }
+    }
+
+    //地面判定取得（PlayerManagerから呼ばれる）
+    public bool IsGround()
+    {
+        return is_Ground;
     }
 }
