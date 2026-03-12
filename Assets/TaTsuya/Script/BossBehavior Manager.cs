@@ -60,7 +60,7 @@ public class BossBehaviorManager : MonoBehaviour
         {
             new AttackEvent(){m_Weight = 60,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack1},
              new AttackEvent(){m_Weight = 30,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.Attack3, e_BossAttackType = BossAttackType.Attack3},
+              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack3},
         };
 
     }

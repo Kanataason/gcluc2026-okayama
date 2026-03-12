@@ -96,6 +96,7 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)//‚±‚±‚Å‡”Ô‚ğŠm”F
         {
+            owner.b_IsLoading = false;
             manager = stateMachine.owner;
             var data = manager.c_SaveData.c_CurrentData;
             manager.OnGetStageInfo?.Invoke(data);
@@ -116,7 +117,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = (int)UnityEngine.Random.Range(10,15);
+            m_RandamNum = (int)UnityEngine.Random.Range(30,61);
         }
         protected override void OnUpdata()
         {
@@ -135,6 +136,7 @@ public class BattleManager : MonoBehaviour
         }   
         protected override void OnExit(State nextstate)
         {
+            owner.b_IsLoading = true;
             base.OnExit(nextstate);
         }
     }

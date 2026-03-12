@@ -78,6 +78,7 @@ public class BossBaseManager : CharaBase
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
         float animevalue = AnimeName;
+        
 
         if (c_BossAttackManager.m_IsBossCoroutine)//ボス専用
         {
@@ -95,6 +96,7 @@ public class BossBaseManager : CharaBase
     }
     public override void ChangePlayer()//切り替え処理
     {
+        a_Animator.speed = 0;
         SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
@@ -138,7 +140,6 @@ public class BossBaseManager : CharaBase
         NextFrame.OneFrame(this, () =>
         {
             data.InitState();
-            BattleManager.Instance.b_IsLoading = false;
         });
     }
     public override void TakeDamage(int damage)//ダメージ

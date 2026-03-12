@@ -52,12 +52,11 @@ public class CharaBase : MonoBehaviour
         c_SaveState.q_IniRotate = transform.rotation;
         c_SaveState.b_IsAttack = GetIsAttackFlag();
         c_SaveState.m_AnimeHashName = animeName;
-
+        if(a_Animator != null) a_Animator.speed = 1;
         SaveManager.Instance.SetSaveData(state, c_SaveState);
     }
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
-        BattleManager.Instance.b_IsLoading = true;//継承先でこれのスイッチを書く
         SaveState save = null;
         if(e_CharaState == CharaState.Player) { save = SaveManager.Instance.c_CurrentData.GetPlayerState(data); }
         else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.c_CurrentData.GetBossState(data); }

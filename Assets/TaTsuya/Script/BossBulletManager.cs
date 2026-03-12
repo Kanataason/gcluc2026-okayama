@@ -31,6 +31,7 @@ public class BossBulletManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (BattleManager.Instance.b_IsLoading) return;
         if (!m_IsFirst) m_AnimaTime += Time.deltaTime;
         if (m_AnimaTime >= m_StartAnima)
         {
@@ -61,6 +62,7 @@ public class BossBulletManager : MonoBehaviour
             c_AttackInfo.m_CurrentAnimaTime = info.normalizedTime;
             c_AttackInfo.m_Animahash = info.fullPathHash;
             c_AttackInfo.m_AnimaTime = m_AnimaTime;
+            a_Anima.speed = 0;
         }
         c_AttackInfo.m_CurrentTime = m_Time;
         gameObject.SetActive(false);
@@ -68,10 +70,11 @@ public class BossBulletManager : MonoBehaviour
     public void RestartClock()//èÛãµÇÉZÉbÉgÇ∑ÇÈÇ∆Ç´
     {
         gameObject.SetActive(true);
-        if (a_Anima != null&&!m_IsFirst)
+        if (a_Anima != null)
         {
             a_Anima.Play(c_AttackInfo.m_Animahash, 0, c_AttackInfo.m_CurrentAnimaTime);
             m_AnimaTime = c_AttackInfo.m_AnimaTime;
+            a_Anima.speed = 1;
         }
         else
         {

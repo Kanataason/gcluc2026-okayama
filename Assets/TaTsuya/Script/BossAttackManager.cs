@@ -96,6 +96,7 @@ public class BossAttackManager : MonoBehaviour
         a_Animator.SetFloat(BossMove, 0);
     }
     public void SetAnima() => a_Animator.SetFloat(BossMove, 0);
+    public void SetIsMove() => m_IsBossCoroutine = true;
 
     //----------------‚±‚±‚©‚çUŒ‚ˆ—‚Ì’†g
     float nextTime = 0;
@@ -154,7 +155,7 @@ public class BossAttackManager : MonoBehaviour
     }
     public void Attack3(int attacktype)//‚±‚Ìˆø”‚Í‰½‚ÌˆÓ–¡‚à‚È‚¢
     {
-        m_IsBossCoroutine = true;
+        SetIsMove();
         StartCoroutine(Attack1Move(attacktype));
     }
     IEnumerator Attack1Move(int attacktype)
@@ -182,7 +183,7 @@ public class BossAttackManager : MonoBehaviour
             yield return null;
         }
         AttackEnter(attacktype);
-        yield return new WaitUntil(()=>!c_BossMoveManager.GetIsAttackFlag());
+        m_IsBossCoroutine = false;
         CurrentAnime = BossMove;
         while (true)
         {
