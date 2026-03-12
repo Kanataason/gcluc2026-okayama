@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1487.3, y: 0}
+  m_AnchoredPosition: {x: 2862, y: 0}
   m_SizeDelta: {x: 1000, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &66562719
@@ -1764,7 +1764,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u6B21\u306F\uFF12\n\u73FE\u5728\uFF15\u30AB\u30A6\u30F3\u30C8\u76EE"
+  m_text: "\u6B21\u306F"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 52f991f2b438dee4b8b3db3ffb71b271, type: 2}
   m_sharedMaterial: {fileID: -1493514964618599439, guid: 52f991f2b438dee4b8b3db3ffb71b271, type: 2}
@@ -2235,6 +2235,7 @@ MonoBehaviour:
       v_IniPosition: {x: 0, y: 0, z: 0}
       q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
       b_IsAttack: 0
+      b_IsNextFrame: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -2249,10 +2250,12 @@ MonoBehaviour:
       v_IniPosition: {x: 0, y: 0, z: 0}
       q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
       b_IsAttack: 0
+      b_IsNextFrame: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
       l_ObjList: []
+    m_TotalRound: 0
 --- !u!4 &1566103428
 Transform:
   m_ObjectHideFlags: 0
@@ -2436,7 +2439,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 487.29733, y: 0}
+  m_AnchoredPosition: {x: -696, y: 0}
   m_SizeDelta: {x: 1000, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1862622321
@@ -2892,13 +2895,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   m_StageMax: -2.5
   m_StageMin: -10
-  m_TotalRound: 0
   m_CurrentRound: 1
   m_TimeLimit: 0
   m_CurrentTime: 0
   b_IsLoading: 0
   debagte: {fileID: 1122098549}
-  Stage: {fileID: 1075051138}
+  Stage: {fileID: 1363331029}
   a_CanvasAnima: {fileID: 2073141663}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -15,8 +15,8 @@ public class BossBulletManager : MonoBehaviour
 
     public Animator a_Anima;
     public SpriteRenderer s_Sprite;
-    public VisualEffect c_Vfx;
     public Renderer r_Renderer;
+    public VfxInfo c_VfxInfo;
 
     public event Action<GameObject,int,int> DestroyObjEvent;
 
@@ -75,14 +75,21 @@ public class BossBulletManager : MonoBehaviour
             a_Anima.speed = 0;
         }
         c_AttackInfo.m_CurrentTime = m_Time;
-        if (c_Vfx == null) gameObject.SetActive(false);
-        else { c_Vfx.pause = false; r_Renderer.enabled = true; }
+
+        bool IsPause = true;
+        bool IsEnable = false;
+        float Delay = 0.5f;
+        float VfxValue = 0;
+        ObjActive(IsPause, IsEnable,Delay, VfxValue);
     }
     public void RestartClock()//状況をセットするとき
     {
-        if (c_Vfx == null) gameObject.SetActive(true);
-        else { c_Vfx.pause = false; r_Renderer.enabled = true; }
-        
+        bool IsPause = false;
+        bool IsEnable = true;
+        float Delay = 0f;
+        float VfxValue = c_VfxInfo.m_VfxValue;
+        ObjActive(IsPause, IsEnable,Delay, VfxValue);
+
         if (a_Anima != null)
         {
             a_Anima.Play(c_AttackInfo.m_Animahash, 0, c_AttackInfo.m_CurrentAnimaTime);
@@ -94,7 +101,25 @@ public class BossBulletManager : MonoBehaviour
         c_AttackInfo.Init();
   
     }
+    public void ObjActive(bool IsPause,bool IsEnable,float Delay,float VfxValue)
+    {
+        if (c_VfxInfo.c_Vfx == null) gameObject.SetActive(IsEnable);
+        else
+        {
+            c_VfxInfo.c_Vfx.pause = IsPause;
+            if (!string.IsNullOrEmpty(c_VfxInfo.m_PropertiesName))
+                c_VfxInfo.c_Vfx.SetFloat(c_VfxInfo.m_PropertiesName, VfxValue);
 
+            if (Delay == 0) r_Renderer.enabled = IsEnable;
+            else
+            {
+                NextFrame.Run(this, Delay, () =>
+                {
+                    r_Renderer.enabled = IsEnable;
+                });
+            }
+        }
+    }
 }
 [Serializable]
 public class AttackInfo//セーブ用
@@ -117,4 +142,11 @@ public class AttackInfo//セーブ用
         m_CurrentAnimaTime = 0;
         m_Animahash = 0;
     }
+}
+[Serializable]
+public class VfxInfo
+{
+    public VisualEffect c_Vfx;
+    public string m_PropertiesName;
+    public float m_VfxValue;
 }

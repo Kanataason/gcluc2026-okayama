@@ -33,7 +33,6 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    public int m_TotalRound;
     public int m_CurrentRound = 1;
     public float m_TimeLimit;
     public float m_CurrentTime;
@@ -57,7 +56,6 @@ public class BattleManager : MonoBehaviour
     private void InitRoundInfo()
     {
         m_CurrentRound = 1;
-        m_TotalRound = m_CurrentRound;
         m_CurrentTime = 0;
     }
     private void InitTransition()//ここで状態を追加
@@ -107,7 +105,6 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)//ここで順番を確認
         {
-            owner.Stage.text = owner.m_CurrentRound.ToString();
             owner.b_IsLoading = false;
             manager = stateMachine.owner;
             var data = manager.c_SaveData.c_CurrentData;
@@ -172,16 +169,17 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)
         {
+            StageSaveData CurrentData = owner.c_SaveData.c_CurrentData;
+            CurrentData.m_TotalRound++;
+            manager = stateMachine.owner;
+            manager.m_CurrentRound++;
+            if (manager.m_CurrentRound > 2) manager.m_CurrentRound = 1;
+
+            owner.Stage.text = $"次はPlayer{owner.m_CurrentRound}\n 現在{CurrentData.m_TotalRound}ラウンド目";
+                
             owner.c_SaveData.SetCurrenBossInfo(owner.c_BossBehaviorManager.e_AwakeHp, owner.c_BossBehaviorManager.m_CurrentActionTime);
             owner.OnSetStageInfo?.Invoke();
             Debug.Log("切り替え");
-            manager = stateMachine.owner;
-            manager.m_CurrentRound++;
-            manager.m_TotalRound++;
-            if (manager.m_CurrentRound > 2)
-            {
-                manager.m_CurrentRound = 1;
-            }
             manager.c_SaveData.CheckRound();
             owner.SetAnima(0);
 

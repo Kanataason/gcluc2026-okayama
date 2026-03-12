@@ -52,7 +52,6 @@ public class CharaBase : MonoBehaviour
         c_SaveState.q_IniRotate = transform.rotation;
         c_SaveState.b_IsAttack = GetIsAttackFlag();
         c_SaveState.m_AnimeHashName = animeName;
-        if(a_Animator != null) a_Animator.speed = 1;
         SaveManager.Instance.SetSaveData(state, c_SaveState);
     }
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
@@ -67,7 +66,7 @@ public class CharaBase : MonoBehaviour
         //     a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
         Debug.Log(save.m_AnimeHash);
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
-
+        if (a_Animator != null ) a_Animator.speed = 1;
         m_hp = save.m_Inihp;
         SetPos(save.v_IniPosition);
         transform.rotation = save.q_IniRotate;
@@ -138,6 +137,7 @@ public class SaveState
     public Vector3 v_IniPosition;//現在の自分の場所
     public Quaternion q_IniRotate;//現在の回転値
     public bool b_IsAttack;//攻撃フラグ
+    public bool b_IsNextFrame;//次のフレームにアクションイベントを呼ぶ
 
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間

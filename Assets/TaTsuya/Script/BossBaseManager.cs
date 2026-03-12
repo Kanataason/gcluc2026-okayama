@@ -39,10 +39,6 @@ public class BossBaseManager : CharaBase
     public override void Update()
     {
         CheckGround(BattleManager.Instance.m_StageMin,BattleManager.Instance.m_StageMax);
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
-        }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Debug.Log($"ob{GetIsAttackFlag()}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
@@ -54,7 +50,7 @@ public class BossBaseManager : CharaBase
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log($"hp{m_hp}/pos{transform.position}/rotete{transform.rotation}");
+            Debug.Log($"{a_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime}");
         }
     }
     public override void FixedUpdate()
@@ -62,7 +58,7 @@ public class BossBaseManager : CharaBase
        if(g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
         ReverseSprite(CharaState.Player,v_Scale);
     }
-    public override void SetStatus(CharaState state,int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
+    public override void SetStatus(CharaState state, int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
         if (c_BossAttackManager.l_BulletList != null&& c_BossAttackManager.l_BulletList.Count >0)
         {
@@ -96,14 +92,26 @@ public class BossBaseManager : CharaBase
     }
     public override void ChangePlayer()//切り替え処理
     {
-        a_Animator.speed = 0;
-        SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
+        if (c_SaveState.b_IsNextFrame)
+        {
+            NextFrame.OneFrame(this, () =>
+            {
+                a_Animator.speed = 0;
+                SetNextFrameActionEvent(1);
+            });
+        }
+        else
+        {
+            a_Animator.speed = 0;
+        }
+            SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
         c_BossBehaviorManager.e_AwakeHp = data.c_BossData.e_BossAwake;
         c_BossBehaviorManager.m_CurrentActionTime = data.c_BossData.m_ActionTime;
+
         c_BossAttackManager.m_IsBossCoroutine = data.c_BossData.b_IsMove;
         c_SaveState.b_IsMove = false;
 
@@ -153,5 +161,7 @@ public class BossBaseManager : CharaBase
         base.SetIsAttackFlag(active);
     }
     public int GetHp() { return m_hp; }
+
+    public void SetNextFrameActionEvent(int NextFrame) => c_SaveState.b_IsNextFrame = NextFrame == 0?true:false;
 
 }

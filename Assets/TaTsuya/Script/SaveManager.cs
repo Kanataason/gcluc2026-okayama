@@ -96,6 +96,8 @@ public class StageSaveData//‘S‘Ì‚Ìsave
 {
     public SaveState c_PlayerData = new SaveState();
     public SaveState c_BossData = new SaveState();
+
+    public int m_TotalRound;
     public void InitState()
     {
         c_PlayerData.Init();

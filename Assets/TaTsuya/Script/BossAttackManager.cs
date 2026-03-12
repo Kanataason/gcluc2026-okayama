@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
+using static BossBehaviorManager;
 public class BossAttackManager : MonoBehaviour
 {
     public enum AnimaType
@@ -13,6 +16,8 @@ public class BossAttackManager : MonoBehaviour
     private readonly int BossAttack = Animator.StringToHash("Attack");
     private readonly int BossAttackType = Animator.StringToHash("AttackType");
     Animator a_Animator;
+    private int m_EventIndex;
+
     public List<BossBulletManager> l_BulletList = new();
     public Transform SpownPos;
 
@@ -22,6 +27,8 @@ public class BossAttackManager : MonoBehaviour
 
     private BossBaseManager c_BossMoveManager;
     private ObjctPool c_ObjectPool;
+   // public List<AnimaInfo> c_AnimaList;
+
     void Start()
     {
         CurrentAnime = BossMove;
@@ -32,9 +39,27 @@ public class BossAttackManager : MonoBehaviour
     }
     void Init()
     {
+        m_EventIndex = 0;
     }
+    //private void Update()
+    //{
+    //    if (!c_BossMoveManager.GetIsAttackFlag()) return;
 
+    //    AnimatorStateInfo state = a_Animator.GetCurrentAnimatorStateInfo(0);
 
+    //    var anima = c_AnimaList[a_Animator.GetInteger(BossAttackType)-1];
+
+    //    if (m_EventIndex < anima.m_AnimeEventtime.Length &&
+    //        state.normalizedTime > anima.m_AnimeEventtime[m_EventIndex])
+    //    {
+    //        anima.u_Evnet.Invoke();
+    //        m_EventIndex++;
+    //    }
+    //    if (state.normalizedTime > 0.99f)
+    //    {
+    //        ResetAttackFlag();
+    //    }
+    //}
     public void AttackEnter(int AttackType)
     {
         c_BossMoveManager.SetIsAttackFlag(true);
@@ -45,13 +70,11 @@ public class BossAttackManager : MonoBehaviour
         c_BossMoveManager.SetAnimaType((int)e_AnimaType);
         Debug.Log("あったっく");
     }
-    public void SpawnEfect(AnimationEvent evt)//p1 b2 o3    Die1 slash2 hit3 shot4
+    public void SpawnEfect(int EventType)//p1 b2 o3    Die1 slash2 hit3 shot4
     {
         //文字列で分けてintに変換
-        CharaState e_CharaType = (CharaState)evt.floatParameter;
-        ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)evt.intParameter;
-        Debug.Log($"{evt.intParameter}f{evt.floatParameter}");
-        GameObject obj = c_ObjectPool.GetObject(e_CharaType, e_EfectType);
+        ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)EventType;
+        GameObject obj = c_ObjectPool.GetObject(CharaState.Boss, e_EfectType);
 
         obj.transform.localPosition = SpownPos.localPosition;
         SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
@@ -87,6 +110,7 @@ public class BossAttackManager : MonoBehaviour
     //--------------------ここからアニメーションの値参照
     public void ResetAttackFlag()
     {
+        m_EventIndex = 0;
         a_Animator.SetInteger(BossAttackType, 0);
         c_BossMoveManager.SetIsAttackFlag(false);
     }//リセットフラグ
@@ -97,6 +121,7 @@ public class BossAttackManager : MonoBehaviour
     }
     public void SetAnima() => a_Animator.SetFloat(BossMove, 0);
     public void SetIsMove() => m_IsBossCoroutine = true;
+
 
     //----------------ここから攻撃処理の中身
     float nextTime = 0;
@@ -152,7 +177,7 @@ public class BossAttackManager : MonoBehaviour
             a_Animator.SetInteger(BossAttackType, 0);
         });
     }
-    public void Attack3(int attacktype)//この引数は何の意味もない
+    public void Attack3(int attacktype)
     {
         SetIsMove();
         StartCoroutine(Attack1Move(attacktype));
@@ -204,5 +229,10 @@ public class BossAttackManager : MonoBehaviour
         ReserAnima();
     }
 }
-
-
+[Serializable]
+public class AnimaInfo
+{
+    public int m_HashInfo;
+    public float[] m_AnimeEventtime;
+    public UnityEvent u_Evnet;
+}

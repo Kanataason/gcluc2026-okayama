@@ -67,6 +67,9 @@ VisualEffect:
       - m_Value: 0.27
         m_Name: lifeTime
         m_Overridden: 1
+      - m_Value: 10
+        m_Name: Speed
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
@@ -158,7 +161,10 @@ MonoBehaviour:
     v_IniPos: {x: 0, y: 0, z: 0}
   a_Anima: {fileID: 0}
   s_Sprite: {fileID: 0}
-  c_Vfx: {fileID: 1634011842979457337}
   r_Renderer: {fileID: 3874571612185108771}
+  c_VfxInfo:
+    c_Vfx: {fileID: 1634011842979457337}
+    m_PropertiesName: Speed
+    m_VfxValue: 10
   m_CharaType: 2
   m_EfectType: 2
