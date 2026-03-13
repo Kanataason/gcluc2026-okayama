@@ -90,6 +90,7 @@ public class SaveManager : MonoBehaviour
             Debug.Log("íœ");
         }
     }
+    public StageSaveData GetCurrentData(int CurrentRound) => CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
 }
 [System.Serializable]
 public class StageSaveData//‘S‘Ì‚Ìsave
@@ -97,7 +98,7 @@ public class StageSaveData//‘S‘Ì‚Ìsave
     public SaveState c_PlayerData = new SaveState();
     public SaveState c_BossData = new SaveState();
 
-    public int m_TotalRound;
+    public int m_TotalRound =1;
     public void InitState()
     {
         c_PlayerData.Init();

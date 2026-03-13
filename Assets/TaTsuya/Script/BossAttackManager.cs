@@ -162,7 +162,7 @@ public class BossAttackManager : MonoBehaviour
         for (int i = 0; i < InstantiateValue; i++)
         {
             var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
-            var RandomPosX = UnityEngine.Random.Range(-22, 22);
+            var RandomPosX = UnityEngine.Random.Range(-22, 22);//‚±‚±‚à•Ï‚¦‚é
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
             obj.transform.parent = null;
             obj.transform.position = new Vector3(RandomPosX, RandomPosY, 0);
@@ -184,10 +184,11 @@ public class BossAttackManager : MonoBehaviour
     }
     IEnumerator Attack1Move(int attacktype)
     {
+        AttackEnter((int)BossBehaviorManager.BossAttackType.Attack2);
+        a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
         GameObject pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player);
         float speed = 8f;
         Vector3 StartPos = transform.position;
-        CurrentAnime = BossMove;
         while (true)
         {
             if (!m_IsBossCoroutine)
@@ -201,7 +202,6 @@ public class BossAttackManager : MonoBehaviour
 
             if (dis <= 7f)
                 break;
-            a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
             Vector3 dir = (oppPos - transform.position).normalized;
             transform.position += dir * speed * Time.deltaTime;
             yield return null;

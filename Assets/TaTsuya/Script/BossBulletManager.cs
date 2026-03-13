@@ -5,6 +5,8 @@ using static UnityEngine.AdaptivePerformance.Provider.AdaptivePerformanceSubsyst
 
 public class BossBulletManager : MonoBehaviour
 {
+    private static readonly int m_AttackHash = Animator.StringToHash("Attack");
+
     public float m_DestroyTime = 0.5f;
     public float m_StartAnima = 1.5f;
     private float m_Time = 0;
@@ -49,7 +51,7 @@ public class BossBulletManager : MonoBehaviour
             m_AnimaTime = 0;
             m_IsStop = false;
             if (a_Anima != null)
-                a_Anima.SetTrigger("Attack");
+                a_Anima.SetTrigger(m_AttackHash);
         }
         if (m_IsStop) return;
         if (m_Time > m_DestroyTime)
@@ -103,21 +105,27 @@ public class BossBulletManager : MonoBehaviour
     }
     public void ObjActive(bool IsPause,bool IsEnable,float Delay,float VfxValue)
     {
-        if (c_VfxInfo.c_Vfx == null) gameObject.SetActive(IsEnable);
+        bool IsNoVfx = c_VfxInfo.c_Vfx == null;
+        bool IsDelay = Delay == 0;
+
+        if (IsNoVfx)
+        {
+            if (IsDelay)
+                gameObject.SetActive(IsEnable);
+            else
+                NextFrame.Run(this, Delay, () => { gameObject.SetActive(IsEnable); });
+        }
         else
         {
             c_VfxInfo.c_Vfx.pause = IsPause;
+
             if (!string.IsNullOrEmpty(c_VfxInfo.m_PropertiesName))
                 c_VfxInfo.c_Vfx.SetFloat(c_VfxInfo.m_PropertiesName, VfxValue);
 
-            if (Delay == 0) r_Renderer.enabled = IsEnable;
+            if (IsDelay)
+                r_Renderer.enabled = IsEnable;
             else
-            {
-                NextFrame.Run(this, Delay, () =>
-                {
-                    r_Renderer.enabled = IsEnable;
-                });
-            }
+                NextFrame.Run(this, Delay, () => { r_Renderer.enabled = IsEnable; });
         }
     }
 }

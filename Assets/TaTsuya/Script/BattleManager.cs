@@ -75,7 +75,7 @@ public class BattleManager : MonoBehaviour
         c_BattleManager.Updata();
     }
 
-    public void SetAnima(int Anima)//0true  1 false
+    public void SetAnimaEvent(int Anima)//0true  1 false これは切り替え時の演出用
     {
         bool IsStart = Anima == 0 ? true : false;
 
@@ -140,7 +140,7 @@ public class BattleManager : MonoBehaviour
             if (m_UpdataTimer >= 0.1f)
             {
                 m_UpdataTimer = 0;
-                owner.debagte.SetText("time : {0:0}", m_RandamNum);
+                owner.debagte.SetText("切り替え時間 : {0:0}", m_RandamNum);
             }
         }   
         protected override void OnExit(State nextstate)
@@ -169,19 +169,18 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)
         {
-            StageSaveData CurrentData = owner.c_SaveData.c_CurrentData;
-            CurrentData.m_TotalRound++;
             manager = stateMachine.owner;
+            StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
+            CurrentData.m_TotalRound++;
             manager.m_CurrentRound++;
             if (manager.m_CurrentRound > 2) manager.m_CurrentRound = 1;
 
-            owner.Stage.text = $"次はPlayer{owner.m_CurrentRound}\n 現在{CurrentData.m_TotalRound}ラウンド目";
-                
             owner.c_SaveData.SetCurrenBossInfo(owner.c_BossBehaviorManager.e_AwakeHp, owner.c_BossBehaviorManager.m_CurrentActionTime);
-            owner.OnSetStageInfo?.Invoke();
-            Debug.Log("切り替え");
+            owner.OnSetStageInfo?.Invoke();//セーブ
+
             manager.c_SaveData.CheckRound();
-            owner.SetAnima(0);
+            owner.Stage.text = $"次はPlayer{owner.m_CurrentRound}\n 現在{manager.c_SaveData.c_CurrentData.m_TotalRound}ラウンド目";
+            owner.SetAnimaEvent(0);
 
         }
         protected override void OnUpdata()
