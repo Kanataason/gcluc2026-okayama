@@ -19,9 +19,10 @@ public class BossAttackManager : MonoBehaviour
     private int m_EventIndex;
 
     public List<BossBulletManager> l_BulletList = new();
-    public Transform SpownPos;
+    public Transform t_SpownPos;
+    private SpriteRenderer r_SpriteRen;
 
-    public int CurrentAnime;
+    public int m_CurrentAnime;
     public AnimaType e_AnimaType;
     public bool m_IsBossCoroutine = false;
 
@@ -31,10 +32,11 @@ public class BossAttackManager : MonoBehaviour
 
     void Start()
     {
-        CurrentAnime = BossMove;
+        m_CurrentAnime = BossMove;
         c_ObjectPool = GetComponentInChildren<ObjctPool>();
         c_BossMoveManager = GetComponent<BossBaseManager>();
         a_Animator = GetComponent<Animator>();
+        r_SpriteRen = GetComponent<SpriteRenderer>();
         Init();
     }
     void Init()
@@ -63,7 +65,7 @@ public class BossAttackManager : MonoBehaviour
     public void AttackEnter(int AttackType)
     {
         c_BossMoveManager.SetIsAttackFlag(true);
-        CurrentAnime = BossAttack;
+        m_CurrentAnime = BossAttack;
         a_Animator.SetInteger(BossAttackType, AttackType);
         a_Animator.SetTrigger(BossAttack);
         e_AnimaType = AnimaType.Attack;
@@ -76,7 +78,7 @@ public class BossAttackManager : MonoBehaviour
         ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)EventType;
         GameObject obj = c_ObjectPool.GetObject(CharaState.Boss, e_EfectType);
 
-        obj.transform.localPosition = SpownPos.localPosition;
+        obj.transform.localPosition = t_SpownPos.localPosition;
         SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
         SetBulletInfo(obj);
     }
@@ -116,7 +118,6 @@ public class BossAttackManager : MonoBehaviour
     }//リセットフラグ
     public void ReserAnima()
     {
-        m_IsBossCoroutine = false;
         a_Animator.SetFloat(BossMove, 0);
     }
     public void SetAnima() => a_Animator.SetFloat(BossMove, 0);
@@ -143,7 +144,7 @@ public class BossAttackManager : MonoBehaviour
         if (move != Vector3.zero)
         {
             e_AnimaType = AnimaType.Move;
-            CurrentAnime = BossMove;
+            m_CurrentAnime = BossMove;
             c_BossMoveManager.SetAnimaType((int)e_AnimaType);
 
             a_Animator.SetFloat("Move", 1f, 0.05f, Time.deltaTime);
@@ -180,15 +181,16 @@ public class BossAttackManager : MonoBehaviour
     public void Attack3(int attacktype)
     {
         SetIsMove();
-        StartCoroutine(Attack1Move(attacktype));
+        StartCoroutine(Attack3Move(attacktype));
     }
-    IEnumerator Attack1Move(int attacktype)
+    IEnumerator Attack3Move(int attacktype)
     {
-        AttackEnter((int)BossBehaviorManager.BossAttackType.Attack2);
         a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
-        GameObject pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player);
-        float speed = 8f;
-        Vector3 StartPos = transform.position;
+        Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
+        Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection*6),pl.y,pl.z);
+
+        Color col = r_SpriteRen.color;
+
         while (true)
         {
             if (!m_IsBossCoroutine)
@@ -197,35 +199,25 @@ public class BossAttackManager : MonoBehaviour
                 continue;
             }
 
-            Vector3 oppPos = pl.transform.position;
-            float dis = Vector3.Distance(oppPos, transform.position);
+            col.a = Mathf.PingPong(Time.time, 1);//値から才最大値まで往復
+            r_SpriteRen.color = col;
+ 
+            // αがほぼ0になった瞬間
+            if (col.a < 0.01f)
+            {
+                transform.position = oppPos; // 瞬間移動
 
-            if (dis <= 7f)
+                col.a = 1f;                  // すぐ表示
+                r_SpriteRen.color = col;
+
                 break;
-            Vector3 dir = (oppPos - transform.position).normalized;
-            transform.position += dir * speed * Time.deltaTime;
+            }
+
             yield return null;
         }
-        AttackEnter(attacktype);
+        a_Animator.SetInteger(BossAttackType,attacktype);
         m_IsBossCoroutine = false;
-        CurrentAnime = BossMove;
-        while (true)
-        {
-            if (!m_IsBossCoroutine)
-            {
-                yield return null;
-                continue;
-            }
-            float dis = Vector3.Distance(StartPos, transform.position);
 
-            if (dis <= 0.7f)
-                break;
-            a_Animator.SetFloat(BossMove, 1f, 0.05f, Time.deltaTime);
-            Vector3 dir = (StartPos - transform.position).normalized;
-            transform.position += dir * speed * Time.deltaTime;
-
-            yield return null;
-        }
         ReserAnima();
     }
 }

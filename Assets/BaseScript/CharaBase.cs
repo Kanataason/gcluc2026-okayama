@@ -30,9 +30,9 @@ public class CharaBase : MonoBehaviour
     {
         var target = SaveManager.Instance.c_CurrentData.GetCharacter(targetstate);
         if (target == null) return;
-        int dir = transform.position.x > target.transform.position.x ? 1 : 0;
+        int dir = transform.position.x > target.transform.position.x ? 1 : -1;
         Func<int, bool> func = targetstate == CharaState.Boss
-            ? (v => v == 0)
+            ? (v => v == -1)
             : (v => v == 1);
 
         if (dir != CurrentDirection)
@@ -120,7 +120,7 @@ public class CharaBase : MonoBehaviour
     private bool m_IsAttack = false;//UŒ‚‚ğ‚µ‚Ä‚¢‚é‚©
     private bool m_IsHit = false;//UŒ‚‚ª“–‚½‚Á‚Ä‚¢‚é‚©
 
-    private int CurrentDirection;
+    public int CurrentDirection;
 }
 [System.Serializable]
 public class SaveState

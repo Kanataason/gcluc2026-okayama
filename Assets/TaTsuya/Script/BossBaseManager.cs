@@ -34,7 +34,7 @@ public class BossBaseManager : CharaBase
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_BossAttackManager = GetComponent<BossAttackManager>();
         m_hp = 150;
-        SetStatus(e_CharaState,c_BossAttackManager.CurrentAnime);
+        SetStatus(e_CharaState,c_BossAttackManager.m_CurrentAnime);
     }
     public override void Update()
     {
@@ -104,7 +104,7 @@ public class BossBaseManager : CharaBase
         {
             a_Animator.speed = 0;
         }
-            SetStatus(e_CharaState, c_BossAttackManager.CurrentAnime);
+            SetStatus(e_CharaState, c_BossAttackManager.m_CurrentAnime);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {

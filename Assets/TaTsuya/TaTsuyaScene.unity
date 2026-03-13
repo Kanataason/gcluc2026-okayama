@@ -1951,6 +1951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e630c3bfdd3016441aa69526545f7a76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestPlayerMovess
+  CurrentDirection: 0
   v_scale: {x: 10, y: 10, z: 1}
 --- !u!95 &1377462210
 Animator:
@@ -2085,6 +2086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c94972055441d9e469eeb8d80fc951e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossMoveManager
+  CurrentDirection: 0
   g_Player: {fileID: 0}
   v_Scale: {x: 15, y: 15, z: 1}
   m_IsAwake1: 0
@@ -2124,8 +2126,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossAttackManager
   l_BulletList: []
-  SpownPos: {fileID: 913712397}
-  CurrentAnime: 0
+  t_SpownPos: {fileID: 913712397}
+  m_CurrentAnime: 0
   e_AnimaType: 0
   m_IsBossCoroutine: 0
 --- !u!114 &1424122298
@@ -2562,7 +2564,7 @@ SpriteRenderer:
   m_SortingOrder: 6
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.13207549, g: 0.1263439, b: 0.1263439, a: 1}
+  m_Color: {r: 0.13207549, g: 0.1263439, b: 0.1263439, a: 0.8627451}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2653,7 +2655,7 @@ SpriteRenderer:
   m_SortingOrder: 7
   m_MaskInteraction: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0.13207549, g: 0.1263439, b: 0.1263439, a: 1}
+  m_Color: {r: 0.13207549, g: 0.1263439, b: 0.1263439, a: 0.9019608}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

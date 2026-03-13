@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class StateManager : StateMachineBehaviour
 {
+    private static readonly int Hash = Animator.StringToHash("AttackType");
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Debug.Log("èIÇÌÇË");
+        animator.SetInteger(Hash, 0);
     }
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
