@@ -129,6 +129,7 @@ public class BossAttackManager : MonoBehaviour
  
     public void Attack1(int InstantiateValue)//è¢ä´ñÇñ@
     {
+        c_BossMoveManager.SetIsAttackFlag(true);
         for (int i = 0; i < InstantiateValue; i++)
         {
             var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
@@ -141,6 +142,7 @@ public class BossAttackManager : MonoBehaviour
     }
     public void Attack2()
     {
+        c_BossMoveManager.SetIsAttackFlag(true);
         a_Animator.SetInteger(BossAttackType, 4);
         NextFrame.Run(this, 2, () =>
         {
@@ -149,6 +151,7 @@ public class BossAttackManager : MonoBehaviour
     }
     public void Attack3(int attacktype)
     {
+        c_BossMoveManager.SetIsAttackFlag(true);
         SetIsMove();
         StartCoroutine(Attack3Move(attacktype));
     }
