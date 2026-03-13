@@ -20,7 +20,8 @@ public class BossAttackManager : MonoBehaviour
 
     public List<BossBulletManager> l_BulletList = new();
     public Transform t_SpownPos;
-    private SpriteRenderer r_SpriteRen;
+   [SerializeField] private SpriteRenderer r_SpriteRen;
+   [SerializeField] private SpriteRenderer r_Shadow;
 
     public int m_CurrentAnime;
     public AnimaType e_AnimaType;
@@ -36,7 +37,6 @@ public class BossAttackManager : MonoBehaviour
         c_ObjectPool = GetComponentInChildren<ObjctPool>();
         c_BossMoveManager = GetComponent<BossBaseManager>();
         a_Animator = GetComponent<Animator>();
-        r_SpriteRen = GetComponent<SpriteRenderer>();
         Init();
     }
     void Init()
@@ -118,7 +118,7 @@ public class BossAttackManager : MonoBehaviour
     }//リセットフラグ
     public void ReserAnima()
     {
-        a_Animator.SetFloat(BossMove, 0);
+        m_IsBossCoroutine = false;
     }
     public void SetAnima() => a_Animator.SetFloat(BossMove, 0);
     public void SetIsMove() => m_IsBossCoroutine = true;
@@ -126,38 +126,7 @@ public class BossAttackManager : MonoBehaviour
 
     //----------------ここから攻撃処理の中身
     float nextTime = 0;
-    public Vector3 Move(float currentTime, float duration, Vector3 direction)
-    {
-        if (c_BossMoveManager.GetIsAttackFlag()) return Vector3.zero;
-
-        Vector3 move = direction;
-
-        if (currentTime >= nextTime)
-        {
-            nextTime += duration;
-            if (nextTime > 7) { nextTime = 0; return Vector3.zero; }
-
-            Vector3[] dirs = { Vector3.up, Vector3.down, Vector3.left, Vector3.right };
-            move = dirs[UnityEngine.Random.Range(0, dirs.Length)];
-        }
-
-        if (move != Vector3.zero)
-        {
-            e_AnimaType = AnimaType.Move;
-            m_CurrentAnime = BossMove;
-            c_BossMoveManager.SetAnimaType((int)e_AnimaType);
-
-            a_Animator.SetFloat("Move", 1f, 0.05f, Time.deltaTime);
-
-            transform.Translate(move * 8f * Time.deltaTime);
-        }
-        else
-        {
-            a_Animator.SetFloat("Move", 0f, 0.05f, Time.deltaTime);
-        }
-
-        return move;
-    }
+ 
     public void Attack1(int InstantiateValue)//召喚魔法
     {
         for (int i = 0; i < InstantiateValue; i++)
@@ -185,30 +154,44 @@ public class BossAttackManager : MonoBehaviour
     }
     IEnumerator Attack3Move(int attacktype)
     {
+        float offset = 6f;
         a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
         Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
-        Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection*6),pl.y,pl.z);
+        Vector3 oppPos = new Vector3(pl.x + (-c_BossMoveManager.CurrentDirection*offset),pl.y,pl.z);
 
         Color col = r_SpriteRen.color;
+        Color col1 = r_Shadow.color;
 
+        float t = 1;
         while (true)
         {
             if (!m_IsBossCoroutine)
             {
-                yield return null;
-                continue;
-            }
 
-            col.a = Mathf.PingPong(Time.time, 1);//値から才最大値まで往復
+                col.a = 1;//値から才最大値まで往復
+                col1.a = 1;
+
+                r_SpriteRen.color = col;
+                r_Shadow.color = col1;
+
+                yield return new WaitUntil(()=>m_IsBossCoroutine);
+            }
+            t -= Time.deltaTime;
+
+            col.a = Mathf.PingPong(t, 1);//値から才最大値まで往復
+            col1.a = Mathf.PingPong(t, 1);
             r_SpriteRen.color = col;
+            r_Shadow.color = col1;
  
             // αがほぼ0になった瞬間
             if (col.a < 0.01f)
             {
                 transform.position = oppPos; // 瞬間移動
 
-                col.a = 1f;                  // すぐ表示
+                col.a = 1f;
+                col1.a = 1f;// すぐ表示
                 r_SpriteRen.color = col;
+                r_Shadow.color = col1;
 
                 break;
             }
@@ -216,7 +199,6 @@ public class BossAttackManager : MonoBehaviour
             yield return null;
         }
         a_Animator.SetInteger(BossAttackType,attacktype);
-        m_IsBossCoroutine = false;
 
         ReserAnima();
     }

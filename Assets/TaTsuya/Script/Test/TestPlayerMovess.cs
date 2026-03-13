@@ -1,4 +1,5 @@
 using UnityEngine;
+using static BossAttackManager;
 
 public class TestPlayerMovess :CharaBase
 {
@@ -14,7 +15,8 @@ public class TestPlayerMovess :CharaBase
     }
     public override void Update()
     {
-        ReverseSprite(CharaState.Boss, v_scale);
+       // ReverseSprite(CharaState.Boss, v_scale);
         CheckGround(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
+
     }
 }
