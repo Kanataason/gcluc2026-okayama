@@ -95,8 +95,8 @@ public class BossBulletManager : MonoBehaviour
         float height = Camera.main.orthographicSize;
         float width = height * Camera.main.aspect;
         int Direction = g_Player.CurrentDirection == 1 ? 1 : -1;//1reft -1 right
-        Vector3 reft = new Vector3(width * Direction, BattleManager.Instance.m_StageMin / 2, 0);
-        Vector3 right = new Vector3(width * -Direction, BattleManager.Instance.m_StageMin / 2, 0);
+        Vector3 reft = new Vector3(width * Direction, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
+        Vector3 right = new Vector3(width * -Direction, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
         v_CurrentDirection = Direction != 1 ? (right - reft).normalized : (reft - right).normalized;
 
         b_IsMove = true;

@@ -13,8 +13,6 @@ public class BossBaseManager : CharaBase
     public GameObject g_Player;
     public Vector3 v_Scale;
 
-    public bool m_IsAwake1 = false;
-    public bool m_IsAwake2 = false;
     public override void Start()
     {
         e_CharaState = CharaState.Boss;
@@ -38,7 +36,8 @@ public class BossBaseManager : CharaBase
     }
     public override void Update()
     {
-        CheckGround(BattleManager.Instance.m_StageMin,BattleManager.Instance.m_StageMax);
+        if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
+        CheckGround(TatuGameManager.Instance.m_StageScaleMinY,TatuGameManager.Instance.m_StageScaleMaxY);
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Debug.Log($"ob{GetIsAttackFlag()}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
@@ -55,8 +54,9 @@ public class BossBaseManager : CharaBase
     }
     public override void FixedUpdate()
     {
-    //   if(g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
-      if(!GetIsAttackFlag()) ReverseSprite(CharaState.Player,v_Scale);
+        if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
+      if (g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
+      if(GetIsAttackFlag() != true) ReverseSprite(CharaState.Player,v_Scale);
     }
     public override void SetStatus(CharaState state, int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {

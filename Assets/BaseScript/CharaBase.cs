@@ -9,8 +9,9 @@ public class CharaBase : MonoBehaviour
     public virtual void OnDisable()
     {
         Debug.Log("イベント解除");
-        BattleManager.Instance.OnSetStageInfo -= ChangePlayer;
-        BattleManager.Instance.OnGetStageInfo -= GetStatus;
+      if(BattleManager.Instance != null)  BattleManager.Instance.OnSetStageInfo -= ChangePlayer;
+      if(BattleManager.Instance != null) BattleManager.Instance.OnGetStageInfo -= GetStatus;
+
     }
     public virtual void Start()
     {
@@ -78,12 +79,25 @@ public class CharaBase : MonoBehaviour
         c_SaveState.m_AnimeHash = animeName;
         c_SaveState.m_AnimeStateValue = animeValue;
     }
-    public virtual void CheckGround(float Min,float Max)//移動制限
+    public virtual void CheckGround(float Min, float Max)
     {
+        Camera cam = Camera.main;
+
+        float height = cam.orthographicSize;
+        float width = height * cam.aspect;
+
+        float offset = 1f;
+
         Vector3 pos = transform.position;
+
         float ClampY = Mathf.Clamp(pos.y, Min, Max);
-        float ClampX = Mathf.Clamp(pos.x, -23, 23);
-        transform.position = new Vector3(ClampX,ClampY,ClampY);
+
+        float camX = cam.transform.position.x;
+        float ClampX = Mathf.Clamp(pos.x,
+                                   camX - width + offset,
+                                   camX + width - offset);
+
+        transform.position = new Vector3(ClampX, ClampY, ClampY);
     }
     public virtual void CheckCollision(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos)//当たり判定 奥行きはｚで判定
     {

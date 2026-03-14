@@ -15,6 +15,7 @@ public class BossAttackManager : MonoBehaviour
     private readonly int BossMove = Animator.StringToHash("Move");
     private readonly int BossAttack = Animator.StringToHash("Attack");
     private readonly int BossAttackType = Animator.StringToHash("AttackType");
+    private readonly int BossFirstAnima = Animator.StringToHash("Teleport");
     Animator a_Animator;
 
     public List<BossBulletManager> l_BulletList = new();
@@ -27,19 +28,26 @@ public class BossAttackManager : MonoBehaviour
     public bool m_IsBossCoroutine1 = false;
 
     private BossBaseManager c_BossMoveManager;
+    private BossBehaviorManager c_BossBehaviorManager;
     private ObjctPool c_ObjectPool;
+
+    private void OnDisable()
+    {
+        TatuGameManager.Instance.OnBattle -= OnSetBattle;
+    }
 
     void Start()
     {
         m_CurrentAnime = BossMove;
+        c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_ObjectPool = GetComponentInChildren<ObjctPool>();
         c_BossMoveManager = GetComponent<BossBaseManager>();
         a_Animator = GetComponent<Animator>();
-        Init();
+        ActionEvent();
     }
-    void Init()
+    void ActionEvent()
     {
-
+        TatuGameManager.Instance.OnBattle += OnSetBattle;
     }
     //private void Update()
     //{
@@ -145,6 +153,17 @@ public class BossAttackManager : MonoBehaviour
     {
         m_IsBossCoroutine1 = true;
     }
+    private void OnSetBattle()
+    {
+        switch (c_BossBehaviorManager.e_AwakeHp)
+        {
+            case BossAwake.FirstForm:break;
+            case BossAwake.SecondForm:break;
+            case BossAwake.FinalForm:break;
+        }
+        a_Animator.SetTrigger(BossFirstAnima);
+        TatuGameManager.Instance.SetMoveFlag(true);
+    }
 
     //----------------Ç±Ç±Ç©ÇÁçUåÇèàóùÇÃíÜêg
     float nextTime = 0;
@@ -155,7 +174,7 @@ public class BossAttackManager : MonoBehaviour
         CharaBase pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<CharaBase>();
         for (int i = 0; i < InstantiateValue; i++)
         {
-            var RandomPosY = UnityEngine.Random.Range(BattleManager.Instance.m_StageMin, BattleManager.Instance.m_StageMax);
+            var RandomPosY = UnityEngine.Random.Range(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
             var RandomPosX = UnityEngine.Random.Range(-22, 22);//Ç±Ç±Ç‡ïœÇ¶ÇÈ
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
             obj.transform.parent = null;
@@ -174,7 +193,7 @@ public class BossAttackManager : MonoBehaviour
     }
     public void Attack3(int attacktype)
     {
-        c_BossMoveManager.SetIsAttackFlag(true);
+        c_BossMoveManager.SetIsAttackFlag(false);
         SetIsMove();
         StartCoroutine(Attack3Move(attacktype));
     }
@@ -203,7 +222,7 @@ public class BossAttackManager : MonoBehaviour
                 CurrentTime = 0f;
                 var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Fire);
                 obj.transform.position = new Vector3(width * CurrentDirection,
-                                                      BattleManager.Instance.m_StageMin / 2, 0);
+                                                      TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
                 obj.transform.parent = null;
                 SetBulletInfo(obj,pl);
 
@@ -220,7 +239,8 @@ public class BossAttackManager : MonoBehaviour
         float offset = 6f;
         a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
         Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
-        Vector3 oppPos = new Vector3(pl.x + (-c_BossMoveManager.CurrentDirection*offset),pl.y,pl.z);
+        Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection*offset),pl.y,pl.z);
+        Vector3 ReversePos = new Vector3(pl.x + (-c_BossMoveManager.CurrentDirection * offset), pl.y, pl.z);
 
         Color col = r_SpriteRen.color;
         Color col1 = r_Shadow.color;
@@ -250,6 +270,7 @@ public class BossAttackManager : MonoBehaviour
             // ÉøÇ™ÇŸÇ⁄0Ç…Ç»Ç¡ÇΩèuä‘
             if (col.a < 0.01f)
             {
+                //Ç±Ç±Ç≈âÊñ äOÇÃèÍçáÇÕëOÇ…èoÇ∑
                 transform.position = oppPos; // èuä‘à⁄ìÆ
 
                 col.a = 1f;
@@ -262,6 +283,7 @@ public class BossAttackManager : MonoBehaviour
 
             yield return null;
         }
+        c_BossMoveManager.SetIsAttackFlag(true);
         a_Animator.SetInteger(BossAttackType,attacktype);
 
         ReserAnima();

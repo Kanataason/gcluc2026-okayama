@@ -4,8 +4,6 @@ using UnityEngine;
 using State = StateMachine<BattleManager>.State;
 public class BattleManager : MonoBehaviour
 {
-    public float m_StageMax;
-    public float m_StageMin;
     public enum BattleState
     {
         GameStating,
@@ -126,7 +124,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 15f;//(int)UnityEngine.Random.Range(10,14);
+            m_RandamNum = 150f;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {
