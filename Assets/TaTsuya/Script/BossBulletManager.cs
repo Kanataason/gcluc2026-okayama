@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
 using static UnityEngine.AdaptivePerformance.Provider.AdaptivePerformanceSubsystemDescriptor;
@@ -11,9 +12,16 @@ public class BossBulletManager : MonoBehaviour
     public float m_StartAnima = 1.5f;
     private float m_Time = 0;
     private float m_AnimaTime = 0;
-    private bool m_IsStop = false;
-    private bool m_IsFirst = false;
+
+    private bool b_IsMove = false;
+    private bool b_IsStop = false;
+    private bool b_IsFirst = false;
+
+    private GameObject g_Player = null;
+
     public AttackInfo c_AttackInfo = new AttackInfo();
+
+    public BossBehaviorManager.BossAttackType e_Attacktype;
 
     public Animator a_Anima;
     public SpriteRenderer s_Sprite;
@@ -28,45 +36,61 @@ public class BossBulletManager : MonoBehaviour
     void Start()
     {
         m_AnimaTime = 0;
-       if(a_Anima != null) m_IsStop = true;
+       if(a_Anima != null) b_IsStop = true;
     }
-    public void Init(float timer,bool IsStop)
+    public void Init(float timer,bool IsStop,bool IsFirst,GameObject player = null)
     {
+        g_Player = player;
         m_StartAnima = timer;
-        m_IsStop = IsStop;
-        m_IsFirst = false;
-        SortOrderManager.Instance.SetSpriteOrder(s_Sprite);
+        b_IsStop = IsStop;
+        b_IsFirst = IsFirst;
+        m_Time = 0;
+        b_IsMove = false;
+       if(s_Sprite != null) SortOrderManager.Instance.SetSpriteOrder(s_Sprite);
     }
+
     // Update is called once per frame
     void Update()
     {
         if (BattleManager.Instance.b_IsLoading) return;
 
-        if (!m_IsFirst) m_AnimaTime += Time.deltaTime;
+        if (!b_IsFirst) m_AnimaTime += Time.deltaTime;
         else m_Time += Time.deltaTime;
 
         if (m_AnimaTime >= m_StartAnima)
         {
-            m_IsFirst = true;
+            b_IsFirst = true;
             m_AnimaTime = 0;
-            m_IsStop = false;
+            b_IsStop = false;
             if (a_Anima != null)
                 a_Anima.SetTrigger(m_AttackHash);
         }
-        if (m_IsStop) return;
+        if (b_IsStop) return;
         if (m_Time > m_DestroyTime)
         {
             DestroyInfo();
         }
+
+        if (b_IsMove)
+        {
+            if (g_Player == null) return;
+            Vector3 dir = (transform.position - g_Player.transform.position).normalized;
+            transform.Translate(-dir * 10 * Time.deltaTime);
+        }
     }
     private void DestroyInfo()
     {
-        m_Time = 0;
+        Init(0,true, false);
         DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
+    }
+    public void Move(GameObject player)
+    {
+        g_Player = player;
+        b_IsMove = true;
     }
     public void StopClock()//ŽžŠÔ‚ª—ˆ‚½Žž
     {
-        m_IsStop = true;
+        b_IsStop = true;
 
         if (a_Anima != null)
         {
@@ -98,7 +122,7 @@ public class BossBulletManager : MonoBehaviour
             m_AnimaTime = c_AttackInfo.m_AnimaTime;
             a_Anima.speed = 1;
         }
-        m_IsStop = false;
+        b_IsStop = false;
         m_Time = c_AttackInfo.m_CurrentTime;
         c_AttackInfo.Init();
   
@@ -110,6 +134,7 @@ public class BossBulletManager : MonoBehaviour
 
         if (IsNoVfx)
         {
+            Debug.Log("s");
             if (IsDelay)
                 gameObject.SetActive(IsEnable);
             else

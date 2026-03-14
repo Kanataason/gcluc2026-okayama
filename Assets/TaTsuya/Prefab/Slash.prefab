@@ -159,6 +159,7 @@ MonoBehaviour:
     g_Obj: {fileID: 0}
     m_CurrentTime: 0
     v_IniPos: {x: 0, y: 0, z: 0}
+  e_Attacktype: 3
   a_Anima: {fileID: 0}
   s_Sprite: {fileID: 0}
   r_Renderer: {fileID: 3874571612185108771}

@@ -29,7 +29,7 @@ public class BossAttackManager : MonoBehaviour
 
     private BossBaseManager c_BossMoveManager;
     private ObjctPool c_ObjectPool;
-   // public List<AnimaInfo> c_AnimaList;
+    public GameObject P;
 
     void Start()
     {
@@ -42,6 +42,14 @@ public class BossAttackManager : MonoBehaviour
     void Init()
     {
         m_EventIndex = 0;
+
+        float height = Camera.main.orthographicSize;
+        float width = height * Camera.main.aspect;
+        NextFrame.Run(this, 0.5f, () =>
+        {
+            var o = Instantiate(P);
+            o.transform.position = new Vector3(width, BattleManager.Instance.m_StageMin / 2, 0);
+        });
     }
     //private void Update()
     //{
@@ -84,16 +92,30 @@ public class BossAttackManager : MonoBehaviour
     }
 
     //攻撃&セット処理
-    private void SetBulletInfo(GameObject obj)
+    private void SetBulletInfo(GameObject obj,GameObject player = null)
     {
         var script = obj.GetComponent<BossBulletManager>();
         l_BulletList.Add(script);
-        if (script.a_Anima != null)
-        {
-            float Duration = 2;
-            script.Init(Duration, true);
-        }
         script.DestroyObjEvent += DestroyInfoList;
+
+        switch (script.e_Attacktype)
+        {
+            case BossBehaviorManager.BossAttackType.Attack1:
+                {
+                    float Duration = 2;
+                    script.Init(Duration, true,false);
+                    break;
+                }
+            case BossBehaviorManager.BossAttackType.Attack2: 
+                {
+                    script.Init(0f, false,true,player);
+                    script.Move(player);
+                    break;
+                } 
+            case BossBehaviorManager.BossAttackType.Attack3:break;
+            default:break;
+        }
+
     }
     private void DestroyInfoList(GameObject obj, int CharaType, int EfectType)
     {
@@ -104,7 +126,7 @@ public class BossAttackManager : MonoBehaviour
         CharaState e_CharaType = (CharaState)CharaType;
         ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)EfectType;
 
-        l_BulletList.Clear();
+        l_BulletList.Remove(script);
         Debug.Log("消すことに成功");
         c_ObjectPool.ReturnObject(e_CharaType, e_EfectType, obj);
 
@@ -140,20 +162,48 @@ public class BossAttackManager : MonoBehaviour
             SetBulletInfo(obj);
         }
     }
-    public void Attack2()
+    public void Attack2(int InstantiateValue)//ジャンプが必要な攻撃
     {
         c_BossMoveManager.SetIsAttackFlag(true);
         a_Animator.SetInteger(BossAttackType, 4);
-        NextFrame.Run(this, 2, () =>
-        {
-            a_Animator.SetInteger(BossAttackType, 0);
-        });
+        SetIsMove();
+
+        StartCoroutine(Attack2Instantiate(InstantiateValue));
+
     }
     public void Attack3(int attacktype)
     {
         c_BossMoveManager.SetIsAttackFlag(true);
         SetIsMove();
         StartCoroutine(Attack3Move(attacktype));
+    }
+    IEnumerator Attack2Instantiate(int Value)
+    {
+        float Duration = 2f;
+        float CurrentTime = 2f;
+        GameObject pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player);
+        while (Value >= 0)
+        {
+            if (!m_IsBossCoroutine)
+            {
+                yield return null;
+                continue;
+            }
+            CurrentTime += Time.deltaTime;
+            if (CurrentTime >= Duration)
+            {
+                CurrentTime = 0f;
+                var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Fire);
+                obj.transform.position = transform.position;
+                obj.transform.parent = null;
+                SetBulletInfo(obj,pl);
+
+                Value--;
+            }
+            yield return null;
+        }
+        a_Animator.SetInteger(BossAttackType, 0);
+        c_BossMoveManager.SetIsAttackFlag(false);
     }
     IEnumerator Attack3Move(int attacktype)
     {

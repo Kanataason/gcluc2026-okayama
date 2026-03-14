@@ -126,7 +126,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 9;//(int)UnityEngine.Random.Range(10,14);
+            m_RandamNum = 15f;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {
