@@ -42,7 +42,7 @@ public class BossBaseManager : CharaBase
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Debug.Log($"ob{GetIsAttackFlag()}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
-                $"att{c_BossAttackManager.m_IsBossCoroutine}");
+                $"att{c_BossAttackManager.m_IsBossCoroutine1}");
         }
 
         if (Input.GetKeyDown(KeyCode.H)) 
@@ -55,8 +55,8 @@ public class BossBaseManager : CharaBase
     }
     public override void FixedUpdate()
     {
-       if(g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
-       ReverseSprite(CharaState.Player,v_Scale);
+    //   if(g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
+      if(!GetIsAttackFlag()) ReverseSprite(CharaState.Player,v_Scale);
     }
     public override void SetStatus(CharaState state, int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
@@ -76,9 +76,9 @@ public class BossBaseManager : CharaBase
         float animevalue = AnimeName;
         
 
-        if (c_BossAttackManager.m_IsBossCoroutine)//ボス専用
+        if (c_BossAttackManager.m_IsBossCoroutine1)//ボス専用
         {
-            c_SaveState.b_IsMove = c_BossAttackManager.m_IsBossCoroutine;
+            c_SaveState.b_IsMove = c_BossAttackManager.m_IsBossCoroutine1;
             c_BossAttackManager.ReserAnima();
         }
 
@@ -112,7 +112,7 @@ public class BossBaseManager : CharaBase
         c_BossBehaviorManager.e_AwakeHp = data.c_BossData.e_BossAwake;
         c_BossBehaviorManager.m_CurrentActionTime = data.c_BossData.m_ActionTime;
 
-        c_BossAttackManager.m_IsBossCoroutine = data.c_BossData.b_IsMove;
+        c_BossAttackManager.m_IsBossCoroutine1 = data.c_BossData.b_IsMove;
         c_SaveState.b_IsMove = false;
 
         if (e_CharaState == CharaState.Player)
@@ -125,7 +125,8 @@ public class BossBaseManager : CharaBase
                     obj.RestartClock();
                 }
 
-                data.c_BossData.l_ObjList.Clear();
+                c_BossAttackManager.l_BulletList = data.c_PlayerData.l_ObjList.ToList();
+                data.c_PlayerData.l_ObjList.Clear();
                 c_SaveState.l_ObjList?.Clear();
                 SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
             }  
@@ -139,7 +140,7 @@ public class BossBaseManager : CharaBase
                 {
                     obj.RestartClock();
                 }
-
+                c_BossAttackManager.l_BulletList = data.c_BossData.l_ObjList.ToList();
                 data.c_BossData.l_ObjList.Clear();
                 c_SaveState.l_ObjList?.Clear();
                 SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);

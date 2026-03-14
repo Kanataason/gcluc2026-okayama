@@ -60,8 +60,8 @@ public class BossBehaviorManager : MonoBehaviour
         l_AttackEvent = new()
         {
             new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
-             new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 10,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
+             new AttackEvent(){m_Weight = 60,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
+              new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
         };
     }
     private void ChangeValue(int[] values)//ämó¶ÇïœÇ¶ÇÈÇΩÇﬂÇÃïœêî
@@ -147,7 +147,7 @@ public class BossBehaviorManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
-           // if (owner.c_AttackManager.m_IsBossCoroutine) return;
+            if (owner.c_AttackManager.m_IsBossCoroutine1) return;
 
             if (BattleManager.Instance.b_IsLoading) SetTime();
             m_CurrentTime += Time.deltaTime;

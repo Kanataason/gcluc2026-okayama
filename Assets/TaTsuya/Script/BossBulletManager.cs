@@ -8,16 +8,20 @@ public class BossBulletManager : MonoBehaviour
 {
     private static readonly int m_AttackHash = Animator.StringToHash("Attack");
 
+    public float m_MyScaleX;
+    public float m_MyScaleY;
+
     public float m_DestroyTime = 0.5f;
     public float m_StartAnima = 1.5f;
     private float m_Time = 0;
     private float m_AnimaTime = 0;
+    private Vector3 v_CurrentDirection;
 
     private bool b_IsMove = false;
     private bool b_IsStop = false;
     private bool b_IsFirst = false;
 
-    private GameObject g_Player = null;
+    private CharaBase g_Player = null;
 
     public AttackInfo c_AttackInfo = new AttackInfo();
 
@@ -38,9 +42,9 @@ public class BossBulletManager : MonoBehaviour
         m_AnimaTime = 0;
        if(a_Anima != null) b_IsStop = true;
     }
-    public void Init(float timer,bool IsStop,bool IsFirst,GameObject player = null)
+    public void Init(float timer,bool IsStop,bool IsFirst,CharaBase Chara = null)
     {
-        g_Player = player;
+        g_Player = Chara;
         m_StartAnima = timer;
         b_IsStop = IsStop;
         b_IsFirst = IsFirst;
@@ -74,8 +78,9 @@ public class BossBulletManager : MonoBehaviour
         if (b_IsMove)
         {
             if (g_Player == null) return;
-            Vector3 dir = (transform.position - g_Player.transform.position).normalized;
-            transform.Translate(-dir * 10 * Time.deltaTime);
+
+          //  g_Player.CheckCollision(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position);
+            transform.Translate(v_CurrentDirection * 10f * Time.deltaTime);
         }
     }
     private void DestroyInfo()
@@ -83,9 +88,17 @@ public class BossBulletManager : MonoBehaviour
         Init(0,true, false);
         DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
     }
-    public void Move(GameObject player)
+    public void Move(CharaBase Chara)
     {
-        g_Player = player;
+        g_Player = Chara;
+
+        float height = Camera.main.orthographicSize;
+        float width = height * Camera.main.aspect;
+        int Direction = g_Player.CurrentDirection == 1 ? 1 : -1;//1reft -1 right
+        Vector3 reft = new Vector3(width * Direction, BattleManager.Instance.m_StageMin / 2, 0);
+        Vector3 right = new Vector3(width * -Direction, BattleManager.Instance.m_StageMin / 2, 0);
+        v_CurrentDirection = Direction != 1 ? (right - reft).normalized : (reft - right).normalized;
+
         b_IsMove = true;
     }
     public void StopClock()//ŽžŠÔ‚ª—ˆ‚½Žž
