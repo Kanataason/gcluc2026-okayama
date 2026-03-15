@@ -230,7 +230,7 @@ public class BossAttackManager : MonoBehaviour
                 if (Value <= 0) break;
                 CurrentTime = 0f;
                 var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Fire);
-                obj.transform.position = new Vector3(width * CurrentDirection,
+                obj.transform.position = new Vector3(Camera.main.transform.position.x + width * CurrentDirection,
                                                       TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
                 obj.transform.parent = null;
                 SetBulletInfo(obj,pl);
