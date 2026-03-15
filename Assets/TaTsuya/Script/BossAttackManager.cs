@@ -12,10 +12,11 @@ public class BossAttackManager : MonoBehaviour
         Move = 0,
         Attack
     }
-    private readonly int BossMove = Animator.StringToHash("Move");
-    private readonly int BossAttack = Animator.StringToHash("Attack");
-    private readonly int BossAttackType = Animator.StringToHash("AttackType");
-    private readonly int BossFirstAnima = Animator.StringToHash("Teleport");
+    public readonly int BossMove = Animator.StringToHash("Move");
+    public readonly int BossAttack = Animator.StringToHash("Attack");
+    public readonly int BossAttackType = Animator.StringToHash("AttackType");
+    public readonly int BossFirstAnima = Animator.StringToHash("Teleport");
+    public readonly int BossTransparent = Animator.StringToHash("Transparent");
     Animator a_Animator;
 
     public List<BossBulletManager> l_BulletList = new();
@@ -155,6 +156,7 @@ public class BossAttackManager : MonoBehaviour
     }
     private void OnSetBattle()
     {
+        a_Animator.SetBool(BossTransparent,true);
         switch (c_BossBehaviorManager.e_AwakeHp)
         {
             case BossAwake.FirstForm:break;

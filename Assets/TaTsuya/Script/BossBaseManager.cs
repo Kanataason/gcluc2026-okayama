@@ -69,12 +69,14 @@ public class BossBaseManager : CharaBase
             }
             c_BossAttackManager.l_BulletList.Clear();
         }
+      
         
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
         float animevalue = AnimeName;
-        
+        c_SaveState.b_IsTransparent = a_Animator.GetBool(c_BossAttackManager.BossTransparent);
+
 
         if (c_BossAttackManager.m_IsBossCoroutine1)//É{ÉXêÍóp
         {
@@ -114,6 +116,7 @@ public class BossBaseManager : CharaBase
 
         c_BossAttackManager.m_IsBossCoroutine1 = data.c_BossData.b_IsMove;
         c_SaveState.b_IsMove = false;
+        a_Animator.SetBool(c_BossAttackManager.BossTransparent, data.c_BossData.b_IsTransparent);
 
         if (e_CharaState == CharaState.Player)
         {

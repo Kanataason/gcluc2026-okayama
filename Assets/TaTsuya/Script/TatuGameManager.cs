@@ -57,10 +57,14 @@ public class TatuGameManager : MonoBehaviour
     }
     public void SetMoveFlag(bool IsTrue)
     {
-        m_StopMoveCamera = false;
-        m_BossTeleport = false;
+        m_StopMoveCamera = IsTrue;
+        m_BossTeleport = IsTrue;
     }
     public bool GetCameraMoveflag() => m_StopMoveCamera;
+    public void ChangeAwake(BossBehaviorManager.BossAwake awake)
+    {
+        e_Awake = awake;
+    }
 }
 [Serializable]
 public class StageInfo

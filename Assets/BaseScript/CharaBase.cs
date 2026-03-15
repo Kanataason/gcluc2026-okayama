@@ -157,7 +157,8 @@ public class SaveState
     public float m_ActionTime;//現在のアニメーションの時間
     public BossBehaviorManager.BossAwake e_BossAwake;
     public bool b_IsMove;
-    
+    public bool b_IsTransparent;
+
     public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 
     public void Init()
@@ -172,6 +173,6 @@ public class SaveState
         q_IniRotate = Quaternion.identity;
         b_IsAttack = false;
         b_IsMove = false;
-
+        b_IsTransparent = false;
     }
 }

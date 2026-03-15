@@ -17,7 +17,7 @@ public class TestPlayerMovess :CharaBase
     {
         if (TatuGameManager.Instance == null) return;
        // ReverseSprite(CharaState.Boss, v_scale);
-        CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
+    //   CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
 
     }
 }

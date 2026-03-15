@@ -98,7 +98,11 @@ public class StageSaveData//全体のsave
     public SaveState c_PlayerData = new SaveState();
     public SaveState c_BossData = new SaveState();
 
+    //ラウンドごとの数値
     public int m_TotalRound =1;
+    public bool b_IsTeleport;
+    public Vector3 v_CameraPos = new Vector3(0, 0, -11);
+    public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;
     public void InitState()
     {
         c_PlayerData.Init();
@@ -136,6 +140,7 @@ public class StageSaveData//全体のsave
 
         c_BossData.g_Character = data.g_Character;
         c_BossData.b_IsMove = data.b_IsMove;
+        c_BossData.b_IsTransparent = data.b_IsTransparent;
 
         c_BossData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
     }
@@ -176,6 +181,8 @@ public class StageSaveData//全体のsave
 
         save.m_ActionTime = data.c_BossData.m_ActionTime;
         save.e_BossAwake = data.c_BossData.e_BossAwake;
+        save.b_IsTransparent = data.c_BossData.b_IsTransparent;
+
         return save;
     }
 

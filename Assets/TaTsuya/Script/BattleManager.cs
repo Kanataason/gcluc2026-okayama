@@ -106,6 +106,9 @@ public class BattleManager : MonoBehaviour
             owner.b_IsLoading = false;
             manager = stateMachine.owner;
             var data = manager.c_SaveData.c_CurrentData;
+            Camera.main.transform.position = data.v_CameraPos;
+            TatuGameManager.Instance.SetMoveFlag(data.b_IsTeleport);
+            TatuGameManager.Instance.ChangeAwake(data.e_Awake);
             manager.OnGetStageInfo?.Invoke(data);
         }
         protected override void OnUpdata()
@@ -124,10 +127,11 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 150f;//(int)UnityEngine.Random.Range(10,14);
+            m_RandamNum = 10f;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {
+            if (TatuGameManager.Instance.GetCameraMoveflag()) return;
             m_RandamNum -= Time.deltaTime;
             m_UpdataTimer += Time.deltaTime;
             if (m_RandamNum <= 0.5f)
@@ -167,13 +171,8 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)
         {
-            manager = stateMachine.owner;
-            StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
-            CurrentData.m_TotalRound++;
-            manager.m_CurrentRound++;
-            if (manager.m_CurrentRound > 2) manager.m_CurrentRound = 1;
+            SetData();
 
-            owner.c_SaveData.SetCurrenBossInfo(owner.c_BossBehaviorManager.e_AwakeHp, owner.c_BossBehaviorManager.m_CurrentActionTime);
             owner.OnSetStageInfo?.Invoke();//ƒZ[ƒu
 
             manager.c_SaveData.CheckRound();
@@ -187,6 +186,22 @@ public class BattleManager : MonoBehaviour
         protected override void OnExit(State nextstate)
         {
             base.OnExit(nextstate);
+        }
+        private void SetData()
+        {
+            manager = stateMachine.owner;
+            StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
+
+            CurrentData.m_TotalRound++;
+            CurrentData.b_IsTeleport = TatuGameManager.Instance.m_BossTeleport;
+            CurrentData.v_CameraPos = Camera.main.transform.position;
+            CurrentData.e_Awake = TatuGameManager.Instance.e_Awake;
+            TatuGameManager.Instance.SetMoveFlag(false);
+
+            manager.m_CurrentRound++;
+            if (manager.m_CurrentRound > 2) manager.m_CurrentRound = 1;
+
+            owner.c_SaveData.SetCurrenBossInfo(owner.c_BossBehaviorManager.e_AwakeHp, owner.c_BossBehaviorManager.m_CurrentActionTime);
         }
     }
 }
