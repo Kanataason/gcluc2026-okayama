@@ -4,7 +4,7 @@ using UnityEngine;
 using State = StateMachine<BossBehaviorManager>.State;
 public class BossBehaviorManager : MonoBehaviour
 {
-    enum BossState
+   public enum BossState
     {
         Idle = 1,
         Attack = 2,
@@ -48,6 +48,7 @@ public class BossBehaviorManager : MonoBehaviour
 
     void Start()
     {
+        TeleportPos();
         c_BaseManager = GetComponent<BossBaseManager>();
         c_AttackManager = GetComponent<BossAttackManager>();
         c_BossBehaviorManager = new StateMachine<BossBehaviorManager>(this);
@@ -55,13 +56,30 @@ public class BossBehaviorManager : MonoBehaviour
         InitTransition();
 
     }
+    public void TeleportPos()//これはアニメーションイベントから呼ばれたり最初に呼ばれる
+    {
+        Vector3 CurrentPos = Vector3.zero;
+        switch (e_AwakeHp)
+        {
+            case BossAwake.FirstForm:
+                CurrentPos = TatuGameManager.Instance.l_Infolist[0].v_TeleportPos;break;
+            case BossAwake.SecondForm:
+                CurrentPos = TatuGameManager.Instance.l_Infolist[1].v_TeleportPos;
+                c_AttackManager.PlayorStopTransparent(false,false); break;
+            case BossAwake.FinalForm:
+                CurrentPos = TatuGameManager.Instance.l_Infolist[2].v_TeleportPos;
+                c_AttackManager.PlayorStopTransparent(false,false); break;
+        }
+        transform.position = CurrentPos;
+    }
+    public void ChangeClass(BossState state) { c_BossBehaviorManager.Dispatch((int)state); }
     private void InitDictionary()//リスト初期化 攻撃を追加するときはここに追加
     {
         l_AttackEvent = new()
         {
             new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
-             new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
+             new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
+              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
         };
     }
     private void ChangeValue(int[] values)//確率を変えるための変数
@@ -81,6 +99,7 @@ public class BossBehaviorManager : MonoBehaviour
     {
         c_BossBehaviorManager.AddTransition<Idle,Attack>((int)BossState.Attack);
         c_BossBehaviorManager.AddTransition<Attack,Idle>((int)BossState.Idle);
+        c_BossBehaviorManager.AddTransition<Invincible, Idle>((int)BossState.Idle);
         c_BossBehaviorManager.AnyAddTrasition<Die>((int)BossState.Die);
         c_BossBehaviorManager.AnyAddTrasition<Invincible>((int)BossState.Invincible);
         NextFrame.Run(this, 0.5f, () =>
@@ -105,30 +124,39 @@ public class BossBehaviorManager : MonoBehaviour
         }
         return null;
     }
-    public int CheckBossAwakening(int CurrentHp)//覚醒するかの確認
+    public float CheckBossAwakening(float CurrentHp)//覚醒するかの確認
     {
+        if (CurrentHp <= 0) return 0;
         switch (e_AwakeHp)
         {
             case BossAwake.FirstForm:
-                if (CurrentHp < m_AwakeningHp[1])
+                if (CurrentHp < m_AwakeningHp[0])
                 {
+                    Debug.Log("覚醒");
                     e_AwakeHp = BossAwake.SecondForm;
-                    return m_AwakeningHp[1];
+                    TatuGameManager.Instance.SetMoveFlag(false);
+                    c_AttackManager.PlayorStopTransparent(false,true);
+                    ChangeClass(BossState.Invincible);
+                    return m_AwakeningHp[0];
                 }
                 break;
 
             case BossAwake.SecondForm:
-                if (CurrentHp < m_AwakeningHp[2])
+                if (CurrentHp < m_AwakeningHp[1])
                 {
                     e_AwakeHp = BossAwake.FinalForm;
                     int[] nums = { 40, 45, 30 };
+                    TatuGameManager.Instance.SetMoveFlag(false);
+                    c_AttackManager.PlayorStopTransparent(false, true);
+                    ChangeClass(BossState.Invincible);
                     ChangeValue(nums);
-                    return m_AwakeningHp[2];
+                    return m_AwakeningHp[1];
                 }
                 break;
             default:break;
         }
         return CurrentHp;
+
     }
     private class Idle : State
     {

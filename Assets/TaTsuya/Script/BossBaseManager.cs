@@ -15,6 +15,7 @@ public class BossBaseManager : CharaBase
 
     public override void Start()
     {
+        m_MaxHp = 300;
         e_CharaState = CharaState.Boss;
         c_SaveState.g_Character = this.gameObject;
         EventEnter();
@@ -31,7 +32,6 @@ public class BossBaseManager : CharaBase
     {
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_BossAttackManager = GetComponent<BossAttackManager>();
-        m_hp = 150;
         SetStatus(e_CharaState,c_BossAttackManager.m_CurrentAnime);
     }
     public override void Update()
@@ -45,7 +45,7 @@ public class BossBaseManager : CharaBase
         }
 
         if (Input.GetKeyDown(KeyCode.H)) 
-        { c_BossAttackManager.Attack1(6); }
+        { TakeDamage(6); }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -154,17 +154,21 @@ public class BossBaseManager : CharaBase
             data.InitState();
         });
     }
-    public override void TakeDamage(int damage)//ダメージ
+    public override void TakeDamage(float damage)//ダメージ
     {
         base.TakeDamage(damage);
         m_hp = c_BossBehaviorManager.CheckBossAwakening(m_hp);
+        if(m_hp == 0)
+        {
+            Die();
+        }
     }
 
     public override void SetIsAttackFlag(bool active)//攻撃開始時のフラグ
     {
         base.SetIsAttackFlag(active);
     }
-    public int GetHp() { return m_hp; }
+    public float GetHp() { return m_hp; }
 
     public void SetNextFrameActionEvent(int NextFrame) => c_SaveState.b_IsNextFrame = NextFrame == 0?true:false;
 

@@ -17,6 +17,7 @@ public class BossAttackManager : MonoBehaviour
     public readonly int BossAttackType = Animator.StringToHash("AttackType");
     public readonly int BossFirstAnima = Animator.StringToHash("Teleport");
     public readonly int BossTransparent = Animator.StringToHash("Transparent");
+    public readonly int BossHide = Animator.StringToHash("Hide");
     Animator a_Animator;
 
     public List<BossBulletManager> l_BulletList = new();
@@ -154,12 +155,18 @@ public class BossAttackManager : MonoBehaviour
     {
         m_IsBossCoroutine1 = true;
     }
+    public void PlayorStopTransparent(bool IsTrue,bool IsHide)
+    {
+        a_Animator.SetBool(BossTransparent, IsTrue);
+        a_Animator.SetBool(BossHide, IsHide);
+    }
     private void OnSetBattle()
     {
-        a_Animator.SetBool(BossTransparent,true);
+        PlayorStopTransparent(true,false);
         switch (c_BossBehaviorManager.e_AwakeHp)
         {
-            case BossAwake.FirstForm:break;
+            case BossAwake.FirstForm:c_BossMoveManager.TakeDamage(0);
+                c_BossBehaviorManager.ChangeClass(BossState.Idle); break;
             case BossAwake.SecondForm:break;
             case BossAwake.FinalForm:break;
         }

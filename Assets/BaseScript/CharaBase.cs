@@ -19,6 +19,8 @@ public class CharaBase : MonoBehaviour
         s_Sprite = GetComponent<SpriteRenderer>();
         a_Animator = GetComponent<Animator>();
 
+        m_hp = m_MaxHp;
+
         SortOrderManager.Instance.SetList(s_Sprite);
     }
     public virtual void Update() { }//キーの取得だけ
@@ -113,7 +115,13 @@ public class CharaBase : MonoBehaviour
         }
     }
 
-    public virtual void TakeDamage(int damage) { m_hp -= damage; }//攻撃を食らったときの関数
+    public virtual void TakeDamage(float damage)//攻撃を食らったときの関数
+    {
+        m_hp -= damage;
+        var value = m_hp / m_MaxHp;
+        var clamp = Mathf.Clamp01(value);
+        OnHpBar?.Invoke(e_CharaState,clamp);
+    }
     public virtual void Die() { Debug.Log("死んだ"); }//死んだとき
 
     public virtual void SetIsAttackFlag(bool active) { m_IsAttack = active; }//攻撃初めのフラグ
@@ -127,14 +135,17 @@ public class CharaBase : MonoBehaviour
 
     protected SpriteRenderer s_Sprite;
     protected Animator a_Animator;
-    protected int m_hp;
-    protected int m_AnimeHashType;
+    protected float m_hp;//マックスhpを参照する
+    protected float m_MaxHp;//自分の設定する
+    protected int m_AnimeHashType;//
     protected SaveState c_SaveState = new SaveState();//自分にあったSaveManagerにあるものに書き込む
     protected CharaState e_CharaState;//自分が何のキャラクターかしまう変数
     private bool m_IsAttack = false;//攻撃をしているか
     private bool m_IsHit = false;//攻撃が当たっているか
 
-    public int CurrentDirection;
+    public int CurrentDirection;//現在の向き
+
+    public event Action<CharaState,float> OnHpBar;
 }
 [System.Serializable]
 public class SaveState
@@ -147,7 +158,7 @@ public class SaveState
     public int m_AnimeHashName;//アニメーション単体の名前
     public float m_AnimeStateValue;//現在のアニメのステートの値
 
-    public int m_Inihp;//現在のhp
+    public float m_Inihp;//現在のhp
     public Vector3 v_IniPosition;//現在の自分の場所
     public Quaternion q_IniRotate;//現在の回転値
     public bool b_IsAttack;//攻撃フラグ
@@ -155,9 +166,9 @@ public class SaveState
 
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間
-    public BossBehaviorManager.BossAwake e_BossAwake;
-    public bool b_IsMove;
-    public bool b_IsTransparent;
+    public BossBehaviorManager.BossAwake e_BossAwake;//段階
+    public bool b_IsMove;//コルーチンのフラグ
+    public bool b_IsTransparent;//現在透明化かどうか
 
     public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 

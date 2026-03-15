@@ -127,11 +127,11 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 10f;//(int)UnityEngine.Random.Range(10,14);
+            m_RandamNum = 15f;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {
-            if (TatuGameManager.Instance.GetCameraMoveflag()) return;
+            if (!TatuGameManager.Instance.GetCameraMoveflag()) return;
             m_RandamNum -= Time.deltaTime;
             m_UpdataTimer += Time.deltaTime;
             if (m_RandamNum <= 0.5f)
