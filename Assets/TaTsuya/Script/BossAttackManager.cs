@@ -85,9 +85,10 @@ public class BossAttackManager : MonoBehaviour
         //•¶Žš—ñ‚Å•ª‚¯‚Äint‚É•ÏŠ·
         ObjctPool.EfectType e_EfectType = (ObjctPool.EfectType)EventType;
         GameObject obj = c_ObjectPool.GetObject(CharaState.Boss, e_EfectType);
-
-        obj.transform.localPosition = t_SpownPos.localPosition;
         SortOrderManager.Instance.SetSortOrder(obj.GetComponent<Renderer>());
+        obj.transform.parent = null;
+        Vector3 pos = t_SpownPos.position;
+        obj.transform.position = new Vector3(pos.x, pos.y, transform.position.y);
         CharaBase pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<CharaBase>();
         SetBulletInfo(obj,pl);
     }
@@ -101,7 +102,7 @@ public class BossAttackManager : MonoBehaviour
 
         bool IsStop = false;
         bool IsFirst = true;
-        bool IsAttack = false;
+        int IsAttack = 0;
         float Duration = 0f;
 
         switch (script.e_Attacktype)
@@ -191,7 +192,7 @@ public class BossAttackManager : MonoBehaviour
             var RandomPosX = UnityEngine.Random.Range(Camera.main.transform.position.x + width, Camera.main.transform.position.x + -width);//‚±‚±‚à•Ï‚¦‚é
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
             obj.transform.parent = null;
-            obj.transform.position = new Vector3(RandomPosX, RandomPosY, 0);
+            obj.transform.position = new Vector3(RandomPosX, RandomPosY,RandomPosY);
             SetBulletInfo(obj,pl);
         }
     }
@@ -235,7 +236,7 @@ public class BossAttackManager : MonoBehaviour
                 CurrentTime = 0f;
                 var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Fire);
                 obj.transform.position = new Vector3(Camera.main.transform.position.x + (width * CurrentDirection),
-                                                      TatuGameManager.Instance.m_StageScaleMinY / 1.6f, 0);
+                                                      TatuGameManager.Instance.m_StageScaleMinY / 1.6f, TatuGameManager.Instance.m_StageScaleMinY / 1.6f);
                 obj.transform.parent = null;
                 SetBulletInfo(obj,pl);
 

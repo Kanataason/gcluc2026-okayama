@@ -44,7 +44,7 @@ public class BossBulletManager : MonoBehaviour
         m_AnimaTime = 0;
        if(a_Anima != null) b_IsStop = true;
     }
-    public void Init(float timer,bool IsStop,bool IsFirst,CharaBase Chara = null,bool IsAttack =true)
+    public void Init(float timer,bool IsStop,bool IsFirst,CharaBase Chara = null,int IsAttack =1)
     {
         g_Player = Chara;
         m_StartAnima = timer;
@@ -71,7 +71,6 @@ public class BossBulletManager : MonoBehaviour
             b_IsStop = false;
             if (a_Anima != null)
                 a_Anima.SetTrigger(m_AttackHash);
-            ActiveCollider(true);
         }
         if (b_IsStop) return;
         if (m_Time > m_DestroyTime)
@@ -81,15 +80,19 @@ public class BossBulletManager : MonoBehaviour
 
         if (b_IsMove)
         {
-            if (g_Player == null) return;
-
-           if(b_IsCollider) g_Player.CheckCollision(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position);
             transform.Translate(v_CurrentDirection * 10f * Time.deltaTime);
         }
+
+    }
+    private void FixedUpdate()
+    {
+        if (g_Player == null) return;
+
+        if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position);
     }
     private void DestroyInfo()
     {
-        Init(0,true, false,null,false);
+        Init(0,true, false,null,0);
         DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
     }
     public void Move(CharaBase Chara)
@@ -126,7 +129,7 @@ public class BossBulletManager : MonoBehaviour
 
         bool IsPause = true;
         bool IsEnable = false;
-        bool IsAttack = false;
+        int IsAttack = 0;
         float Delay = 0.5f;
         float VfxValue = 0;
         ObjActive(IsPause, IsEnable,Delay, VfxValue);
@@ -136,7 +139,7 @@ public class BossBulletManager : MonoBehaviour
     {
         bool IsPause = false;
         bool IsEnable = true;
-        bool IsAttack = true;
+        int IsAttack = 1;
         float Delay = 0f;
         float VfxValue = c_VfxInfo.m_VfxValue;
         ObjActive(IsPause, IsEnable,Delay, VfxValue);
@@ -178,7 +181,7 @@ public class BossBulletManager : MonoBehaviour
                 NextFrame.Run(this, Delay, () => { r_Renderer.enabled = IsEnable; });
         }
     }
-    public void ActiveCollider(bool IsTrue) { b_IsCollider = IsTrue; }//sinceアニメーションイベント
+    public void ActiveCollider(int IsTrue) { b_IsCollider = IsTrue == 1 ? true:false; }//sinceアニメーションイベント
 }
 [Serializable]
 public class AttackInfo//セーブ用

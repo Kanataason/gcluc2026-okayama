@@ -101,17 +101,27 @@ public class CharaBase : MonoBehaviour
 
         transform.position = new Vector3(ClampX, ClampY, ClampY);
     }
-    public virtual void CheckCollision(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos)//当たり判定 奥行きはｚで判定
+    public virtual void CheckCollisionBox(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos)//当たり判定 奥行きはｚで判定
     {
         //ジャンプは別の変数で管理をしてそれを判定する
         if (GetIsHitFlag()) return;
 
         float dx = Mathf.Abs(MyPos.x - OppPos.x);
         float dz = Mathf.Abs(MyPos.z - OppPos.z);
-
         if (dx < ScaleX && dz < ScaleY)
         {
+            Debug.Log("当たった");
             SetIsHitFlag(true);
+        }
+    }
+    public virtual void CheckCollision2DSphere(float Range, Vector3 MyPos, Vector3 OppPos)
+    {
+        Vector3 Distance = (MyPos - OppPos);
+        Debug.Log(Distance.sqrMagnitude);
+
+        if(Distance.sqrMagnitude < Range * Range)
+        {
+            Debug.Log("あった田");
         }
     }
 

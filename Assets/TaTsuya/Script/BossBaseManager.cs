@@ -55,7 +55,7 @@ public class BossBaseManager : CharaBase
     public override void FixedUpdate()
     {
         if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
-      if (g_Player != null) CheckCollision(1f,1.2f,transform.position, g_Player.transform.position);
+      if (g_Player != null) CheckCollisionBox(1f,1.2f,transform.position, g_Player.transform.position);
       if(GetIsAttackFlag() != true) ReverseSprite(CharaState.Player,v_Scale);
     }
     public override void SetStatus(CharaState state, int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
