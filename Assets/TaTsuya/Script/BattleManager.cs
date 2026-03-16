@@ -34,6 +34,7 @@ public class BattleManager : MonoBehaviour
     public int m_CurrentRound = 1;
     public float m_TimeLimit;
     public float m_CurrentTime;
+    public float m_TimeScore;
     public bool b_IsLoading = false;
 
     public event Action<StageSaveData> OnGetStageInfo;
@@ -104,12 +105,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)//ここで順番を確認
         {
             owner.b_IsLoading = false;
-            manager = stateMachine.owner;
-            var data = manager.c_SaveData.c_CurrentData;
-            Camera.main.transform.position = data.v_CameraPos;
-            TatuGameManager.Instance.SetMoveFlag(data.b_IsTeleport);
-            TatuGameManager.Instance.ChangeAwake(data.e_Awake);
-            manager.OnGetStageInfo?.Invoke(data);
+            Load();
         }
         protected override void OnUpdata()
         {
@@ -118,6 +114,16 @@ public class BattleManager : MonoBehaviour
         protected override void OnExit(State nextstate)
         {
              Debug.Log("終わり");  
+        }
+        private void Load()
+        {
+            manager = stateMachine.owner;
+            var data = manager.c_SaveData.c_CurrentData;
+            owner.m_TimeScore = data.m_TimeScore;
+            Camera.main.transform.position = data.v_CameraPos;
+            TatuGameManager.Instance.SetMoveFlag(data.b_IsTeleport);
+            TatuGameManager.Instance.ChangeAwake(data.e_Awake);
+            manager.OnGetStageInfo?.Invoke(data);
         }
     }
     private class GameStay : State//ランダムで切り替え時間を設定
@@ -134,6 +140,7 @@ public class BattleManager : MonoBehaviour
             if (!TatuGameManager.Instance.GetCameraMoveflag()) return;
             m_RandamNum -= Time.deltaTime;
             m_UpdataTimer += Time.deltaTime;
+            owner.m_TimeScore += Time.deltaTime;
             if (m_RandamNum <= 0.5f)
             {
                 m_UpdataTimer = 1;
@@ -193,6 +200,7 @@ public class BattleManager : MonoBehaviour
             StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
 
             CurrentData.m_TotalRound++;
+            CurrentData.m_TimeScore = owner.m_TimeScore;
             CurrentData.b_IsTeleport = TatuGameManager.Instance.m_BossTeleport;
             CurrentData.v_CameraPos = Camera.main.transform.position;
             CurrentData.e_Awake = TatuGameManager.Instance.e_Awake;

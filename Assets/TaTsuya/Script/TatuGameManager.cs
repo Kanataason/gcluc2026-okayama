@@ -26,7 +26,7 @@ public class TatuGameManager : MonoBehaviour
     public class Hpbars
     {
         public UiSliderState e_SliderState;
-        public Image s_Slider;
+        public Image s_Image;
     }
     public List<Texts> l_TextList;
     public List<Hpbars> l_SliderList;
@@ -50,6 +50,8 @@ public class TatuGameManager : MonoBehaviour
 
     private CharaBase c_Boss;
     private CharaBase c_Player;
+
+
 
     private void Awake()
     {
@@ -88,7 +90,7 @@ public class TatuGameManager : MonoBehaviour
         }
         foreach (var slider in l_SliderList)
         {
-            d_SliderDictionary[slider.e_SliderState] = slider.s_Slider;
+            d_SliderDictionary[slider.e_SliderState] = slider.s_Image;
         }
     }
     private void EventEnter()
@@ -136,6 +138,13 @@ public class TatuGameManager : MonoBehaviour
         var slider = state == CharaState.Player ? GetSlider(UiSliderState.PlayerHpbar) :
                                                GetSlider(UiSliderState.BossHpBar);
         slider.fillAmount = hp;
+    }
+    public void ActiveHpbar(CharaState state,bool IsActive)
+    {
+        var slider = state == CharaState.Player ? GetSlider(UiSliderState.PlayerHpbar) :
+                                       GetSlider(UiSliderState.BossHpBar);
+
+        slider.transform.parent.gameObject.SetActive(IsActive);
     }
     public Image GetSlider(UiSliderState state)
     {

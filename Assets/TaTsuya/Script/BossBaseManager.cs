@@ -163,6 +163,11 @@ public class BossBaseManager : CharaBase
             Die();
         }
     }
+    public override void Die()
+    {
+        Debug.Log(SaveManager.Instance.c_CurrentData.m_TimeScore);
+        c_BossAttackManager.PlayorStopTransparent(false, true);
+    }
 
     public override void SetIsAttackFlag(bool active)//攻撃開始時のフラグ
     {

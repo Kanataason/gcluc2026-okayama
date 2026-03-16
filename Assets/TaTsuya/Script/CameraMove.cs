@@ -12,6 +12,7 @@ public class CameraMove : MonoBehaviour
     }
     private void LateUpdate()
     {
+        if (transform.position.x > 130) return;
         if (TatuGameManager.Instance == null) return;
         if (TatuGameManager.Instance.GetCameraMoveflag()) return;
         if (g_Player == null) return;

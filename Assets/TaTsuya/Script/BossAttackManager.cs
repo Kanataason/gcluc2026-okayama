@@ -101,6 +101,7 @@ public class BossAttackManager : MonoBehaviour
 
         bool IsStop = false;
         bool IsFirst = true;
+        bool IsAttack = false;
         float Duration = 0f;
 
         switch (script.e_Attacktype)
@@ -110,7 +111,7 @@ public class BossAttackManager : MonoBehaviour
                     Duration = 1.6f;
                     IsStop = true;
                     IsFirst = false;
-                    script.Init(Duration, IsStop, IsFirst, Chara);
+                    script.Init(Duration, IsStop, IsFirst, Chara,IsAttack);
                     return;
                 }
             case BossBehaviorManager.BossAttackType.Attack2:
@@ -162,6 +163,7 @@ public class BossAttackManager : MonoBehaviour
     }
     private void OnSetBattle()
     {
+        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, true);
         PlayorStopTransparent(true,false);
         switch (c_BossBehaviorManager.e_AwakeHp)
         {
@@ -181,10 +183,12 @@ public class BossAttackManager : MonoBehaviour
     {
         c_BossMoveManager.SetIsAttackFlag(true);
         CharaBase pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<CharaBase>();
+        float height = Camera.main.orthographicSize;
+        float width = height * Camera.main.aspect;
         for (int i = 0; i < InstantiateValue; i++)
         {
             var RandomPosY = UnityEngine.Random.Range(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
-            var RandomPosX = UnityEngine.Random.Range(-22, 22);//‚±‚±‚à•Ï‚¦‚é
+            var RandomPosX = UnityEngine.Random.Range(Camera.main.transform.position.x + width, Camera.main.transform.position.x + -width);//‚±‚±‚à•Ï‚¦‚é
             var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Shot);
             obj.transform.parent = null;
             obj.transform.position = new Vector3(RandomPosX, RandomPosY, 0);
@@ -230,8 +234,8 @@ public class BossAttackManager : MonoBehaviour
                 if (Value <= 0) break;
                 CurrentTime = 0f;
                 var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Fire);
-                obj.transform.position = new Vector3(Camera.main.transform.position.x + width * CurrentDirection,
-                                                      TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
+                obj.transform.position = new Vector3(Camera.main.transform.position.x + (width * CurrentDirection),
+                                                      TatuGameManager.Instance.m_StageScaleMinY / 1.6f, 0);
                 obj.transform.parent = null;
                 SetBulletInfo(obj,pl);
 

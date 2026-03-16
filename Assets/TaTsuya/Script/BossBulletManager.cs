@@ -20,8 +20,10 @@ public class BossBulletManager : MonoBehaviour
     private bool b_IsMove = false;
     private bool b_IsStop = false;
     private bool b_IsFirst = false;
+    private bool b_IsCollider = false;
 
     private CharaBase g_Player = null;
+    private CharaBase g_Boss = null;
 
     public AttackInfo c_AttackInfo = new AttackInfo();
 
@@ -42,7 +44,7 @@ public class BossBulletManager : MonoBehaviour
         m_AnimaTime = 0;
        if(a_Anima != null) b_IsStop = true;
     }
-    public void Init(float timer,bool IsStop,bool IsFirst,CharaBase Chara = null)
+    public void Init(float timer,bool IsStop,bool IsFirst,CharaBase Chara = null,bool IsAttack =true)
     {
         g_Player = Chara;
         m_StartAnima = timer;
@@ -50,6 +52,7 @@ public class BossBulletManager : MonoBehaviour
         b_IsFirst = IsFirst;
         m_Time = 0;
         b_IsMove = false;
+        ActiveCollider(IsAttack);
        if(s_Sprite != null) SortOrderManager.Instance.SetSpriteOrder(s_Sprite);
     }
 
@@ -68,6 +71,7 @@ public class BossBulletManager : MonoBehaviour
             b_IsStop = false;
             if (a_Anima != null)
                 a_Anima.SetTrigger(m_AttackHash);
+            ActiveCollider(true);
         }
         if (b_IsStop) return;
         if (m_Time > m_DestroyTime)
@@ -79,25 +83,30 @@ public class BossBulletManager : MonoBehaviour
         {
             if (g_Player == null) return;
 
-          //  g_Player.CheckCollision(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position);
+           if(b_IsCollider) g_Player.CheckCollision(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position);
             transform.Translate(v_CurrentDirection * 10f * Time.deltaTime);
         }
     }
     private void DestroyInfo()
     {
-        Init(0,true, false);
+        Init(0,true, false,null,false);
         DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
     }
     public void Move(CharaBase Chara)
     {
-        g_Player = Chara;
+        if(g_Player == null) g_Player = Chara;
+        if(g_Boss == null) g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<CharaBase>();
 
         float height = Camera.main.orthographicSize;
         float width = height * Camera.main.aspect;
-        int Direction = g_Player.CurrentDirection == 1 ? 1 : -1;//1reft -1 right
-        Vector3 reft = new Vector3(width * Direction, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
-        Vector3 right = new Vector3(width * -Direction, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
-        v_CurrentDirection = Direction != 1 ? (right - reft).normalized : (reft - right).normalized;
+
+        int Direction = g_Boss.CurrentDirection == 1 ? 1 : -1; // 1:left -1:right
+
+        Vector3 left = new Vector3(Camera.main.transform.position.x - width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
+        Vector3 right = new Vector3(Camera.main.transform.position.x + width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
+        v_CurrentDirection = Direction == 1
+            ? (left - right).normalized
+            : (right - left).normalized;
 
         b_IsMove = true;
     }
@@ -117,18 +126,21 @@ public class BossBulletManager : MonoBehaviour
 
         bool IsPause = true;
         bool IsEnable = false;
+        bool IsAttack = false;
         float Delay = 0.5f;
         float VfxValue = 0;
         ObjActive(IsPause, IsEnable,Delay, VfxValue);
+        ActiveCollider(IsAttack);
     }
     public void RestartClock()//状況をセットするとき
     {
         bool IsPause = false;
         bool IsEnable = true;
+        bool IsAttack = true;
         float Delay = 0f;
         float VfxValue = c_VfxInfo.m_VfxValue;
         ObjActive(IsPause, IsEnable,Delay, VfxValue);
-
+        ActiveCollider(IsAttack);
         if (a_Anima != null)
         {
             a_Anima.Play(c_AttackInfo.m_Animahash, 0, c_AttackInfo.m_CurrentAnimaTime);
@@ -166,6 +178,7 @@ public class BossBulletManager : MonoBehaviour
                 NextFrame.Run(this, Delay, () => { r_Renderer.enabled = IsEnable; });
         }
     }
+    public void ActiveCollider(bool IsTrue) { b_IsCollider = IsTrue; }//sinceアニメーションイベント
 }
 [Serializable]
 public class AttackInfo//セーブ用

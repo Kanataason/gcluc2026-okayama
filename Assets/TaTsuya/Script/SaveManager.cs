@@ -100,6 +100,7 @@ public class StageSaveData//全体のsave
 
     //ラウンドごとの数値
     public int m_TotalRound =1;
+    public float m_TimeScore =0;
     public bool b_IsTeleport;
     public Vector3 v_CameraPos = new Vector3(0, 0, -11);
     public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;

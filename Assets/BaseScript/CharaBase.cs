@@ -29,7 +29,7 @@ public class CharaBase : MonoBehaviour
     public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//セット
     public virtual Vector3 GetPos() { return transform.position; }//保存
 
-    public virtual void ReverseSprite(CharaState targetstate,Vector3 CharaScale)//向きを変える 1左 -1右
+    public virtual void ReverseSprite(CharaState targetstate,Vector3 CharaScale)//向きを変える -1左1右
     {
         var target = SaveManager.Instance.c_CurrentData.GetCharacter(targetstate);
         if (target == null) return;
