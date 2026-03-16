@@ -1,59 +1,112 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-//入力管理
+// プレイヤー入力管理クラス
+// Input System の入力取得のみを担当する
 public class PlayerInputManager : MonoBehaviour
 {
-    PlayerControls controls;
+    // InputActions
+    PlayerControls c_PlayerControls;
 
-    Vector2 moveInput;
-    bool jumpPressed;
+    // 移動入力
+    Vector2 v_MoveInput;
+
+    // ジャンプ入力バッファ時間
+    const float JUMP_BUFFER_TIME = 0.15f;
+
+    // 攻撃入力バッファ時間
+    const float ATTACK_BUFFER_TIME = 0.15f;
+
+    // ジャンプ入力バッファ
+    float f_JumpBufferTimer;
+
+    // 攻撃入力バッファ
+    float f_AttackBufferTimer;
 
     void Awake()
     {
-        controls = new PlayerControls();
+        c_PlayerControls = new PlayerControls();
+
+        // 移動入力
+        c_PlayerControls.Player.Move.performed += context =>
+        {
+            v_MoveInput = context.ReadValue<Vector2>();
+        };
+
+        c_PlayerControls.Player.Move.canceled += context =>
+        {
+            v_MoveInput = Vector2.zero;
+        };
+
+        // ジャンプ入力
+        c_PlayerControls.Player.Jump.performed += context =>
+        {
+            f_JumpBufferTimer = JUMP_BUFFER_TIME;
+        };
+
+        // 攻撃入力
+        c_PlayerControls.Player.Attack.performed += context =>
+        {
+            f_AttackBufferTimer = ATTACK_BUFFER_TIME;
+        };
     }
 
     void OnEnable()
     {
-        controls.Enable();
-
-        //移動入力
-        controls.Player.Move.performed += ctx =>
-        {
-            moveInput = ctx.ReadValue<Vector2>();
-        };
-
-        controls.Player.Move.canceled += ctx =>
-        {
-            moveInput = Vector2.zero;
-        };
-
-        //ジャンプ入力
-        controls.Player.Jump.performed += ctx =>
-        {
-            jumpPressed = true;
-        };
+        c_PlayerControls.Enable();
     }
 
-    void LateUpdate()
+    void OnDisable()
     {
-        //1フレームでリセット
-        jumpPressed = false;
+        c_PlayerControls.Disable();
     }
 
+    void Update()
+    {
+        if (f_JumpBufferTimer > 0f)
+        {
+            f_JumpBufferTimer -= Time.deltaTime;
+        }
+
+        if (f_AttackBufferTimer > 0f)
+        {
+            f_AttackBufferTimer -= Time.deltaTime;
+        }
+    }
+
+    // 横入力取得
     public float GetHorizontal()
     {
-        return moveInput.x;
+        return v_MoveInput.x;
     }
 
+    // 縦入力取得
     public float GetVertical()
     {
-        return moveInput.y;
+        return v_MoveInput.y;
     }
 
+    // ジャンプ入力取得
     public bool GetJump()
     {
-        return jumpPressed;
+        if (f_JumpBufferTimer > 0f)
+        {
+            f_JumpBufferTimer = 0f;
+            return true;
+        }
+
+        return false;
+    }
+
+    // 攻撃入力取得
+    public bool GetAttack()
+    {
+        if (f_AttackBufferTimer > 0f)
+        {
+            f_AttackBufferTimer = 0f;
+            return true;
+        }
+
+        return false;
     }
 }

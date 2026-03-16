@@ -375,11 +375,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1024666199 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7336779617478824753, guid: 29561c15873fe1848955ac63cd354eda, type: 3}
+  m_PrefabInstance: {fileID: 4643258347080779607}
+  m_PrefabAsset: {fileID: 0}
 --- !u!212 &1545446911 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 7701523295266908055, guid: 29561c15873fe1848955ac63cd354eda, type: 3}
   m_PrefabInstance: {fileID: 4643258347080779607}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1545446917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024666199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1a516484f583d44eac81a1b08670746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackManager
 --- !u!1001 &1717455437
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -602,7 +619,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7336779617478824753, guid: 29561c15873fe1848955ac63cd354eda, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1545446917}
   m_SourcePrefab: {fileID: 100100000, guid: 29561c15873fe1848955ac63cd354eda, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

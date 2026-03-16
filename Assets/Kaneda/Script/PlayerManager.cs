@@ -1,112 +1,175 @@
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 // プレイヤー管理クラス
-// プレイヤーの状態を管理する
+// 状態管理のみを担当する
 public class PlayerManager : CharaBase
 {
-    //移動管理クラス
-    PlayerMoveManager c_PlayerMove;
+    public enum PlayerState
+    {
+        Idle,
+        Move,
+        Jump,
+        Attack,
+        Damage,
+        Die
+    }
 
-    //入力管理クラス
-    PlayerInputManager c_PlayerInput;
+    // 入力管理
+    PlayerInputManager c_PlayerInputManager;
 
-    //現在のプレイヤー状態
-    Player.PlayerState s_PlayerState;
+    // 移動管理
+    PlayerMoveManager c_PlayerMoveManager;
+
+    // 攻撃管理
+    PlayerAttackManager c_PlayerAttackManager;
+
+    // 現在の状態
+    PlayerState s_PlayerState;
 
     public override void Start()
     {
         base.Start();
 
-        //スクリプト取得
-        c_PlayerMove = GetComponent<PlayerMoveManager>();
-        c_PlayerInput = GetComponent<PlayerInputManager>();
+        c_PlayerInputManager = GetComponent<PlayerInputManager>();
+        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
+        c_PlayerAttackManager = GetComponent<PlayerAttackManager>();
 
-        //初期状態
-        s_PlayerState = Player.PlayerState.Idle;
+        s_PlayerState = PlayerState.Idle;
     }
 
     public override void Update()
     {
-        //状態更新
         StateUpdate();
     }
 
-    //状態ごとの処理
+    // 状態更新
     void StateUpdate()
     {
         switch (s_PlayerState)
         {
-            case Player.PlayerState.Idle:
+            case PlayerState.Idle:
                 IdleUpdate();
                 break;
 
-            case Player.PlayerState.Move:
+            case PlayerState.Move:
                 MoveUpdate();
                 break;
 
-            case Player.PlayerState.Attack:
-                break;
-
-            case Player.PlayerState.Damage:
-                break;
-
-            case Player.PlayerState.Die:
-                break;
-
-            case Player.PlayerState.Jump:
+            case PlayerState.Jump:
                 JumpUpdate();
                 break;
+
+            case PlayerState.Attack:
+                AttackUpdate();
+                break;
+
+            case PlayerState.Damage:
+                break;
+
+            case PlayerState.Die:
+                break;
         }
     }
 
-    //待機状態
+    // 待機状態
     void IdleUpdate()
     {
-        //入力取得
-        float h = c_PlayerInput.GetHorizontal();
-        float v = c_PlayerInput.GetVertical();
-
-        //移動入力があればMove状態
-        if (h != 0 || v != 0)
+        if (c_PlayerAttackManager.HasAttackInput())
         {
-            s_PlayerState = Player.PlayerState.Move;
+            s_PlayerState = PlayerState.Attack;
+            c_PlayerAttackManager.AttackEnter();
+            return;
         }
 
-        //ジャンプ入力があればJump状態
-        if (c_PlayerInput.GetJump())
+        if (c_PlayerInputManager.GetJump())
         {
-            s_PlayerState = Player.PlayerState.Jump;
+            s_PlayerState = PlayerState.Jump;
+            c_PlayerMoveManager.JumpEnter();
+            return;
+        }
+
+        float horizontal = c_PlayerInputManager.GetHorizontal();
+        float vertical = c_PlayerInputManager.GetVertical();
+
+        if (horizontal != 0f || vertical != 0f)
+        {
+            s_PlayerState = PlayerState.Move;
         }
     }
 
-    //移動状態
+    // 移動状態
     void MoveUpdate()
     {
-        //移動処理
-        c_PlayerMove.MoveUpdate();
-
-        //入力取得
-        float h = c_PlayerInput.GetHorizontal();
-        float v = c_PlayerInput.GetVertical();
-
-        //入力が無くなったらIdleに戻る
-        if (h == 0 && v == 0)
+        if (c_PlayerAttackManager.HasAttackInput())
         {
-            s_PlayerState = Player.PlayerState.Idle;
+            s_PlayerState = PlayerState.Attack;
+            c_PlayerAttackManager.AttackEnter();
+            return;
         }
 
-        //ジャンプ入力があればJump状態
-        if (c_PlayerInput.GetJump())
+        if (c_PlayerInputManager.GetJump())
         {
-            s_PlayerState = Player.PlayerState.Jump;
+            s_PlayerState = PlayerState.Jump;
+            c_PlayerMoveManager.JumpEnter();
+            return;
+        }
+
+        c_PlayerMoveManager.MoveUpdate();
+
+        float horizontal = c_PlayerInputManager.GetHorizontal();
+        float vertical = c_PlayerInputManager.GetVertical();
+
+        if (horizontal == 0f && vertical == 0f)
+        {
+            s_PlayerState = PlayerState.Idle;
         }
     }
 
-    //ジャンプ状態
+    // ジャンプ状態
     void JumpUpdate()
     {
-        //ジャンプ中も移動処理を実行
-        c_PlayerMove.MoveUpdate();
+        c_PlayerMoveManager.MoveUpdate();
+
+        if (c_PlayerMoveManager.GetIsGround())
+        {
+            float horizontal = c_PlayerInputManager.GetHorizontal();
+            float vertical = c_PlayerInputManager.GetVertical();
+
+            if (horizontal != 0f || vertical != 0f)
+            {
+                s_PlayerState = PlayerState.Move;
+            }
+            else
+            {
+                s_PlayerState = PlayerState.Idle;
+            }
+        }
+    }
+
+    // 攻撃状態
+    void AttackUpdate()
+    {
+        c_PlayerAttackManager.AttackUpdate();
+
+        if (!GetIsAttackFlag())
+        {
+            if (c_PlayerMoveManager.GetIsJumping())
+            {
+                s_PlayerState = PlayerState.Jump;
+                return;
+            }
+
+            float horizontal = c_PlayerInputManager.GetHorizontal();
+            float vertical = c_PlayerInputManager.GetVertical();
+
+            if (horizontal != 0f || vertical != 0f)
+            {
+                s_PlayerState = PlayerState.Move;
+            }
+            else
+            {
+                s_PlayerState = PlayerState.Idle;
+            }
+        }
     }
 }
