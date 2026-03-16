@@ -1,59 +1,59 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-// プレイヤー入力管理クラス
-// WASD入力を取得する
+//入力管理
 public class PlayerInputManager : MonoBehaviour
 {
-    //横入力
-    float h_Input;
+    PlayerControls controls;
 
-    //縦入力
-    float v_Input;
-    
-    //ジャンプ入力
-    bool j_Input;
-    void Update()
+    Vector2 moveInput;
+    bool jumpPressed;
+
+    void Awake()
     {
-        //入力リセット
-        h_Input = 0;
-        v_Input = 0;
-        //Aキー（左移動）
-        if (Input.GetKey(KeyCode.A))
-        {
-            h_Input = -1;
-        }
-        //Dキー（右移動）
-        if (Input.GetKey(KeyCode.D))
-        {
-            h_Input = 1;
-        }
-        //Wキー（上移動）
-        if (Input.GetKey(KeyCode.W))
-        {
-            v_Input = 1;
-        }
-        //Sキー（下移動）
-        if (Input.GetKey(KeyCode.S))
-        {
-            v_Input = -1;
-        }
-
-        //ジャンプ
-        j_Input = Input.GetKeyDown(KeyCode.Space);
+        controls = new PlayerControls();
     }
-    // 横入力取得
+
+    void OnEnable()
+    {
+        controls.Enable();
+
+        //移動入力
+        controls.Player.Move.performed += ctx =>
+        {
+            moveInput = ctx.ReadValue<Vector2>();
+        };
+
+        controls.Player.Move.canceled += ctx =>
+        {
+            moveInput = Vector2.zero;
+        };
+
+        //ジャンプ入力
+        controls.Player.Jump.performed += ctx =>
+        {
+            jumpPressed = true;
+        };
+    }
+
+    void LateUpdate()
+    {
+        //1フレームでリセット
+        jumpPressed = false;
+    }
+
     public float GetHorizontal()
     {
-        return h_Input;
+        return moveInput.x;
     }
-    // 縦入力取得
+
     public float GetVertical()
     {
-        return v_Input;
+        return moveInput.y;
     }
 
     public bool GetJump()
     {
-        return j_Input;
+        return jumpPressed;
     }
 }

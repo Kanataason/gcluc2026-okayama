@@ -1,29 +1,23 @@
 using UnityEngine;
 
-// プレイヤー移動管理クラス
 public class PlayerMoveManager : CharaBase
 {
     PlayerInputManager c_PlayerInput;
 
-    //移動速度
     const float M_Speed = 8f;
 
-    //ジャンプ
-    const float J_Power = 7f;
+    const float JUMP_POWER = 15f;
     const float GRAVITY = -25f;
 
-    //前後移動範囲
-    const float g_Min = -6f;
-    const float g_Max = 4f;
+    float jumpVelocity = 0f;
 
-    //ジャンプ速度
-    float j_Velocity = 0f;
+    bool isGround = true;
+    bool isJumping = false;
 
-    //地面にいるか
-    bool is_Ground = true;
-
-    //地面の高さ（自動取得）
     float groundY;
+
+    const float g_Min = -6f;
+    const float g_Max = -4f;
 
     public override void Start()
     {
@@ -31,7 +25,6 @@ public class PlayerMoveManager : CharaBase
 
         c_PlayerInput = GetComponent<PlayerInputManager>();
 
-        //現在の高さを地面として保存
         groundY = transform.position.y;
     }
 
@@ -42,7 +35,6 @@ public class PlayerMoveManager : CharaBase
         UpdateAnimation();
     }
 
-    //移動処理
     void Move()
     {
         CheckGround(g_Min, g_Max);
@@ -56,60 +48,58 @@ public class PlayerMoveManager : CharaBase
 
         transform.Translate(move * M_Speed * Time.deltaTime);
 
-        //向き変更
         Vector3 scale = transform.localScale;
 
         if (h < 0)
-        {
             scale.x = -Mathf.Abs(scale.x);
-        }
 
         if (h > 0)
-        {
             scale.x = Mathf.Abs(scale.x);
-        }
 
         transform.localScale = scale;
     }
 
-    //ジャンプ処理
+    float jumpStartY;
+
     void Jump()
     {
         //ジャンプ開始
-        if (c_PlayerInput.GetJump() && is_Ground)
+        if (c_PlayerInput.GetJump() && isGround)
         {
-            is_Ground = false;
-            j_Velocity = J_Power;
+            isGround = false;
+            isJumping = true;
 
-            if (a_Animator != null)
-            {
-                a_Animator.SetTrigger("Jump");
-            }
+            jumpVelocity = JUMP_POWER;
+
+            //ジャンプ開始位置を保存
+            jumpStartY = transform.position.y;
+
+            a_Animator.SetTrigger("Jump");
         }
 
         //空中処理
-        if (!is_Ground)
+        if (isJumping)
         {
-            j_Velocity += GRAVITY * Time.deltaTime;
+            jumpVelocity += GRAVITY * Time.deltaTime;
 
             Vector3 pos = transform.position;
-            pos.y += j_Velocity * Time.deltaTime;
+            pos.y += jumpVelocity * Time.deltaTime;
 
             transform.position = pos;
 
             //着地
-            if (pos.y <= groundY)
+            if (pos.y <= jumpStartY)
             {
-                pos.y = groundY;
+                pos.y = jumpStartY;
                 transform.position = pos;
 
-                is_Ground = true;
-                j_Velocity = 0;
+                isGround = true;
+                isJumping = false;
+                jumpVelocity = 0;
             }
         }
     }
 
-    //アニメーション更新
     void UpdateAnimation()
     {
         float h = Mathf.Abs(c_PlayerInput.GetHorizontal());
@@ -117,16 +107,12 @@ public class PlayerMoveManager : CharaBase
 
         float speed = h + v;
 
-        if (a_Animator != null)
-        {
-            a_Animator.SetFloat("MoveSpeed", speed);
-            a_Animator.SetBool("Ground", is_Ground);
-        }
+        a_Animator.SetFloat("MoveSpeed", speed);
+        a_Animator.SetBool("Ground", isGround);
     }
 
-    //地面判定取得
     public bool IsGround()
     {
-        return is_Ground;
+        return isGround;
     }
 }
