@@ -1,16 +1,25 @@
 using UnityEngine;
 
 // プレイヤー移動管理クラス
-// 移動処理とジャンプ処理を担当する
-public class PlayerMoveManager : CharaBase
+// 移動処理・ジャンプ処理・移動アニメーションを担当する
+public class PlayerMoveManager : MonoBehaviour
 {
-    // 入力管理クラス
+    // 入力管理
     PlayerInputManager c_PlayerInputManager;
+
+    // プレイヤー管理
+    PlayerManager c_PlayerManager;
+
+    // Animator
+    Animator a_Animator;
+
+    // 通常スケール
+    Vector3 v_DefaultScale;
 
     // 移動速度
     const float MOVE_SPEED = 8f;
 
-    // 地面移動範囲
+    // 地面で動けるY範囲
     const float GROUND_MIN_Y = -6f;
     const float GROUND_MAX_Y = -4f;
 
@@ -20,7 +29,7 @@ public class PlayerMoveManager : CharaBase
     // 重力
     const float GRAVITY = -25f;
 
-    // 移動アニメーション値の最大
+    // Moveパラメータ最大値
     const float MOVE_ANIM_MAX = 1f;
 
     // ジャンプ速度
@@ -35,20 +44,27 @@ public class PlayerMoveManager : CharaBase
     // ジャンプ中か
     bool b_IsJumping = false;
 
-    // 向き
-    int m_CurrentDirection = 1;
-
-    // アニメーション用ハッシュ
+    // Animator パラメータ
     static readonly int MOVE_HASH = Animator.StringToHash("Move");
+    static readonly int JUMP_HASH = Animator.StringToHash("Jump");
+    static readonly int GROUND_HASH = Animator.StringToHash("Ground");
 
-    // ジャンプステート名
-    const string JUMP_STATE_NAME = "Jump";
-
-    public override void Start()
+    void Start()
     {
-        base.Start();
-
+        // 必要なコンポーネント取得
         c_PlayerInputManager = GetComponent<PlayerInputManager>();
+        c_PlayerManager = GetComponent<PlayerManager>();
+        a_Animator = GetComponent<Animator>();
+
+        // 初期スケール保存
+        v_DefaultScale = transform.localScale;
+    }
+
+    // 待機中更新
+    public void IdleUpdate()
+    {
+        UpdateMoveAnimation(0f);
+        UpdateGroundAnimation();
     }
 
     // 移動更新
@@ -56,20 +72,47 @@ public class PlayerMoveManager : CharaBase
     {
         Move();
         JumpUpdate();
-        UpdateMoveAnimation();
+        UpdateMoveAnimationFromInput();
+        UpdateGroundAnimation();
+    }
+
+    // ジャンプ開始
+    public void JumpEnter()
+    {
+        // 地面にいないならジャンプしない
+        if (!b_IsGround) return;
+
+        b_IsGround = false;
+        b_IsJumping = true;
+
+        // 今いる位置を着地点にする
+        f_JumpStartY = transform.position.y;
+
+        // ジャンプ初速セット
+        f_JumpVelocity = JUMP_POWER;
+
+        // ジャンプアニメーション開始
+        if (a_Animator != null)
+        {
+            a_Animator.SetTrigger(JUMP_HASH);
+            a_Animator.SetBool(GROUND_HASH, false);
+        }
     }
 
     // 移動処理
     void Move()
     {
-        if (GetIsAttackFlag()) return;
+        // 攻撃中は移動しない
+        if (c_PlayerManager.GetIsAttackFlag()) return;
 
         float horizontal = c_PlayerInputManager.GetHorizontal();
         float vertical = c_PlayerInputManager.GetVertical();
 
         Vector3 move;
 
-        // ジャンプ中は上下移動させない
+        // ジャンプ中は上下移動を切る
+        // 今の仕様ではY軸を地面移動とジャンプで共用しているため
+        // 空中中は左右移動だけにする
         if (b_IsJumping)
         {
             move = new Vector3(horizontal, 0f, 0f);
@@ -81,7 +124,7 @@ public class PlayerMoveManager : CharaBase
 
         transform.Translate(move * MOVE_SPEED * Time.deltaTime);
 
-        // 地面にいる時だけ歩ける範囲を制限
+        // 地面にいる時だけY範囲制限
         if (b_IsGround)
         {
             Vector3 position = transform.position;
@@ -89,40 +132,29 @@ public class PlayerMoveManager : CharaBase
             transform.position = position;
         }
 
+        // 向き変更
         UpdateDirection(horizontal);
     }
 
-    // 向き変更
+    // 向き更新
     void UpdateDirection(float horizontal)
     {
         if (horizontal > 0f)
         {
-            m_CurrentDirection = 1;
+            c_PlayerManager.CurrentDirection = 1;
         }
         else if (horizontal < 0f)
         {
-            m_CurrentDirection = -1;
+            c_PlayerManager.CurrentDirection = -1;
         }
 
         Vector3 scale = transform.localScale;
-        scale.x = Mathf.Abs(scale.x) * m_CurrentDirection;
+
+        scale.x = Mathf.Abs(v_DefaultScale.x) * c_PlayerManager.CurrentDirection;
+        scale.y = v_DefaultScale.y;
+        scale.z = v_DefaultScale.z;
+
         transform.localScale = scale;
-    }
-
-    // ジャンプ開始
-    public void JumpEnter()
-    {
-        if (!b_IsGround) return;
-
-        b_IsGround = false;
-        b_IsJumping = true;
-        f_JumpVelocity = JUMP_POWER;
-        f_JumpStartY = transform.position.y;
-
-        if (a_Animator != null)
-        {
-            a_Animator.Play(JUMP_STATE_NAME, 0, 0f);
-        }
     }
 
     // ジャンプ更新
@@ -130,13 +162,14 @@ public class PlayerMoveManager : CharaBase
     {
         if (!b_IsJumping) return;
 
+        // 重力計算
         f_JumpVelocity += GRAVITY * Time.deltaTime;
 
         Vector3 position = transform.position;
         position.y += f_JumpVelocity * Time.deltaTime;
         transform.position = position;
 
-        // 着地
+        // 着地判定
         if (position.y <= f_JumpStartY)
         {
             position.y = f_JumpStartY;
@@ -148,15 +181,17 @@ public class PlayerMoveManager : CharaBase
         }
     }
 
-    // 移動アニメーション更新
-    void UpdateMoveAnimation()
+    // 入力から移動アニメ更新
+    void UpdateMoveAnimationFromInput()
     {
-        if (a_Animator == null) return;
-        if (GetIsAttackFlag()) return;
-        if (b_IsJumping) return;
-
         float horizontal = Mathf.Abs(c_PlayerInputManager.GetHorizontal());
         float vertical = Mathf.Abs(c_PlayerInputManager.GetVertical());
+
+        // ジャンプ中は上下移動を見ない
+        if (b_IsJumping)
+        {
+            vertical = 0f;
+        }
 
         float moveValue = horizontal + vertical;
 
@@ -165,7 +200,24 @@ public class PlayerMoveManager : CharaBase
             moveValue = MOVE_ANIM_MAX;
         }
 
+        UpdateMoveAnimation(moveValue);
+    }
+
+    // Moveパラメータ更新
+    void UpdateMoveAnimation(float moveValue)
+    {
+        if (a_Animator == null) return;
+        if (c_PlayerManager.GetIsAttackFlag()) return;
+
         a_Animator.SetFloat(MOVE_HASH, moveValue);
+    }
+
+    // Groundパラメータ更新
+    void UpdateGroundAnimation()
+    {
+        if (a_Animator == null) return;
+
+        a_Animator.SetBool(GROUND_HASH, b_IsGround);
     }
 
     // 地面判定取得
@@ -174,15 +226,9 @@ public class PlayerMoveManager : CharaBase
         return b_IsGround;
     }
 
-    // ジャンプ中判定取得
+    // ジャンプ判定取得
     public bool GetIsJumping()
     {
         return b_IsJumping;
-    }
-
-    // 向き取得
-    public int GetCurrentDirection()
-    {
-        return m_CurrentDirection;
     }
 }

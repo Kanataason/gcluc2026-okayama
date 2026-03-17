@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // プレイヤー入力管理クラス
-// Input System の入力取得のみを担当する
+// Input System の入力取得だけを担当する
 public class PlayerInputManager : MonoBehaviour
 {
-    // InputActions
+    // Input Actions
     PlayerControls c_PlayerControls;
 
     // 移動入力
@@ -17,10 +17,10 @@ public class PlayerInputManager : MonoBehaviour
     // 攻撃入力バッファ時間
     const float ATTACK_BUFFER_TIME = 0.15f;
 
-    // ジャンプ入力バッファ
+    // ジャンプ入力タイマー
     float f_JumpBufferTimer;
 
-    // 攻撃入力バッファ
+    // 攻撃入力タイマー
     float f_AttackBufferTimer;
 
     void Awake()
@@ -33,6 +33,7 @@ public class PlayerInputManager : MonoBehaviour
             v_MoveInput = context.ReadValue<Vector2>();
         };
 
+        // 移動解除
         c_PlayerControls.Player.Move.canceled += context =>
         {
             v_MoveInput = Vector2.zero;
@@ -63,11 +64,13 @@ public class PlayerInputManager : MonoBehaviour
 
     void Update()
     {
+        // ジャンプ入力バッファ減少
         if (f_JumpBufferTimer > 0f)
         {
             f_JumpBufferTimer -= Time.deltaTime;
         }
 
+        // 攻撃入力バッファ減少
         if (f_AttackBufferTimer > 0f)
         {
             f_AttackBufferTimer -= Time.deltaTime;
