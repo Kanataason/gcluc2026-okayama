@@ -207,6 +207,7 @@ public class BossAttackManager : MonoBehaviour
     public void Attack2(int InstantiateValue)//ジャンプが必要な攻撃
     {
         c_BossMoveManager.SetIsAttackFlag(true);
+        c_BossMoveManager.SetIsHitFlag(true);
         a_Animator.SetInteger(BossAttackType, 4);
         SetIsMove();
 
@@ -252,6 +253,7 @@ public class BossAttackManager : MonoBehaviour
             }
             yield return null;
         }
+        c_BossMoveManager.SetIsHitFlag(false);
         a_Animator.SetInteger(BossAttackType, 0);
         c_BossMoveManager.SetIsAttackFlag(false);
         ReserAnima();

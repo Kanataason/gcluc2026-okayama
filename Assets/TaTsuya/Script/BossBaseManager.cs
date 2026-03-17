@@ -36,6 +36,7 @@ public class BossBaseManager : CharaBase
     }
     public override void Update()
     {
+        base.Update();
         if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
         CheckGround(TatuGameManager.Instance.m_StageScaleMinY,TatuGameManager.Instance.m_StageScaleMaxY);
         if (Input.GetKeyDown(KeyCode.Tab))

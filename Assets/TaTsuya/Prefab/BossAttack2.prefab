@@ -151,6 +151,7 @@ MonoBehaviour:
   m_CharaType: 2
   m_EfectType: 4
   m_Damage: 10
+  b_IsFlyAttack: 0
 --- !u!1 &7639455629261466334
 GameObject:
   m_ObjectHideFlags: 0

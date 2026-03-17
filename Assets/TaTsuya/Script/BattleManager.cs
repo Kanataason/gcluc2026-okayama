@@ -138,7 +138,7 @@ public class BattleManager : MonoBehaviour
             TatuGameManager.Instance.SetMoveFlag(data.b_IsTeleport);
             TatuGameManager.Instance.ChangeAwake(data.e_Awake);
             manager.OnGetStageInfo?.Invoke(data);
-            Debug.Log(data.m_CurrentAudioTime);
+            Debug.Log(data.m_CurrentAudioTime); 
             if (TatuGameManager.Instance.m_BossTeleport == true)
                 AudioManager.Instance.PlayBGMAudio("É{ÉX",data.m_CurrentAudioTime);
         }

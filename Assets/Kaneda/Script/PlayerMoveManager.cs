@@ -24,7 +24,7 @@ public class PlayerMoveManager : MonoBehaviour
     const float GROUND_MAX_Y = -4f;
 
     // ジャンプ初速
-    const float JUMP_POWER = 7f;
+    const float JUMP_POWER = 10f;
 
     // 重力
     const float GRAVITY = -25f;
@@ -141,7 +141,8 @@ public class PlayerMoveManager : MonoBehaviour
         if (b_IsGround)
         {
             Vector3 position = transform.position;
-            position.y = Mathf.Clamp(position.y, GROUND_MIN_Y, GROUND_MAX_Y);
+            position.y = Mathf.Clamp(position.y, TatuGameManager.Instance.m_StageScaleMinY,
+                                                    TatuGameManager.Instance.m_StageScaleMaxY);
             transform.position = position;
         }
 
@@ -177,7 +178,6 @@ public class PlayerMoveManager : MonoBehaviour
 
         // 重力計算
         f_JumpVelocity += GRAVITY * Time.deltaTime;
-
         Vector3 position = transform.position;
         position.y += f_JumpVelocity * Time.deltaTime;
         transform.position = position;
@@ -245,4 +245,8 @@ public class PlayerMoveManager : MonoBehaviour
         return b_IsJumping;
     }
 
+    public float JumpParame()
+    {
+        return f_JumpVelocity;
+    }
 }

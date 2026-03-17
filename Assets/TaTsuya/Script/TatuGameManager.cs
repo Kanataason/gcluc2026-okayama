@@ -18,7 +18,8 @@ public class TatuGameManager : MonoBehaviour
     public enum UiPanelState
     {
         Pose,
-        Score
+        Score,
+        tutorial,
     }
     //短くできると思うクラスを使えば ジェネリックがたにしたら行ける
     [Serializable]
@@ -46,10 +47,13 @@ public class TatuGameManager : MonoBehaviour
     private Dictionary<UiSliderState, Image> d_SliderDictionary = new();
     private Dictionary<UiPanelState, GameObject> d_PanelDictionary = new();
 
+    public List<GameObject> l_TutorialList;
+
     public static TatuGameManager Instance { get; private set; }
 
     public float m_StageScaleMaxY;
     public float m_StageScaleMinY;
+    public bool m_IsTutorial;
 
     private bool m_StopMoveCamera;
     public bool m_BossTeleport;
@@ -88,6 +92,7 @@ public class TatuGameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        m_IsTutorial = true;
         m_StopMoveCamera = false;
         g_Player = GameObject.FindWithTag("Player");
         g_Boss = GameObject.FindWithTag("Boss");
@@ -154,7 +159,6 @@ public class TatuGameManager : MonoBehaviour
     {
         var slider = state == CharaState.Player ? GetSlider(UiSliderState.PlayerHpbar) :
                                                GetSlider(UiSliderState.BossHpBar);
-        Debug.Log(slider.name);
         slider.fillAmount = hp;
     }
     public void ActiveHpbar(CharaState state,bool IsActive)
@@ -185,6 +189,35 @@ public class TatuGameManager : MonoBehaviour
         if (panel == null) return;
         panel.SetActive(true);
         text.text = Score;
+    }
+    int Count = -1;
+    public void Tutorial(int IsYes)//1 true
+    {
+        GetPanel(UiPanelState.tutorial).SetActive(false);
+        int prev = Count;
+        if (IsYes == 0)
+        {
+            if (Count == -1) { m_IsTutorial = false; return; }
+            Count--;
+            l_TutorialList[prev].SetActive(false);
+            l_TutorialList[Count].SetActive(true);
+            return;
+        }
+
+        Count++;
+
+        if (Count >= l_TutorialList.Count)
+        {
+            m_IsTutorial = false;
+            l_TutorialList[prev].SetActive(false);
+            GetPanel(UiPanelState.tutorial).SetActive(false);
+            return;
+        }
+        l_TutorialList[Count].SetActive(true);
+
+        if (prev == -1) return;
+        l_TutorialList[prev].SetActive(false);
+
     }
     public Image GetSlider(UiSliderState state)
     {

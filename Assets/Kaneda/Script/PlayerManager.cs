@@ -16,6 +16,9 @@ public class PlayerManager : CharaBase
     // Œ»Ý‚Ìó‘Ô
     Player.PlayerState s_PlayerState;
 
+    bool b_IsCollision;
+
+    BossBaseManager g_Boss;
     public override void Start()
     {
         base.Start();
@@ -33,11 +36,19 @@ public class PlayerManager : CharaBase
 
         // ‰Šúó‘Ô
         s_PlayerState = Player.PlayerState.Idle;
+
+        b_IsCollision = false;
+
+        NextFrame.Run(this, 1, () =>
+        {
+            g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<BossBaseManager>();
+        });
     }
 
     public override void Update()
     {
-        StateUpdate();
+        if(!TatuGameManager.Instance.m_IsTutorial &&!BattleManager.Instance.b_IsLoading)
+             StateUpdate();
     }
 
     // ó‘ÔXV
@@ -152,15 +163,23 @@ public class PlayerManager : CharaBase
             }
         }
     }
+    //UŒ‚‚Ìî•ñ
+    float ScaleX = 5.2f;
+    float ScaleY = 1;
+    float Damage = 5;
 
     // UŒ‚ó‘ÔXV
     void AttackUpdate()
     {
         c_PlayerAttackManager.AttackUpdate();
 
+        if (b_IsCollision && g_Boss != null)
+         g_Boss.CheckCollisionBox(ScaleX, ScaleY, transform.position, g_Boss.transform.position, Damage);
+
         // UŒ‚‚ªI‚í‚Á‚½‚ç–ß‚é
         if (!GetIsAttackFlag())
         {
+            SetCollider(0);
             float horizontal = c_PlayerInputManager.GetHorizontal();
             float vertical = c_PlayerInputManager.GetVertical();
 
@@ -174,4 +193,6 @@ public class PlayerManager : CharaBase
             }
         }
     }
+    //0false 1true
+    public void SetCollider(int IsTrue) => b_IsCollision = IsTrue == 1 ? true : false;
 }

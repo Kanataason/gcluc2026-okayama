@@ -129,7 +129,7 @@ public class CharaBase : MonoBehaviour
 
         transform.position = new Vector3(ClampX, ClampY, ClampY);
     }
-    public virtual void CheckCollisionBox(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos,float damage = 0)//当たり判定 奥行きはｚで判定
+    public virtual void CheckCollisionBox(float ScaleX, float ScaleY, Vector3 MyPos, Vector3 OppPos, float damage = 0,bool IsFly = false)//当たり判定 奥行きはｚで判定
     {
         //ジャンプは別の変数で管理をしてそれを判定する
         if (GetIsHitFlag()) return;
@@ -199,7 +199,7 @@ public class CharaBase : MonoBehaviour
 
     //時間の管理
     private float HitTime = 0;
-    private float Duraction = 1.5f;
+    private float Duraction = 1f;
 
 }
 [System.Serializable]

@@ -5,9 +5,11 @@ public class TestPlayerMovess :CharaBase
 {
     public Vector3 v_scale;
     private GameObject g_Boss;
+    private PlayerMoveManager c_PlayerMoveManager;
 
     public override void Start()
     {
+        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
         e_CharaState = CharaState.Player;
         m_MaxHp = 50;
         c_SaveState.g_Character = this.gameObject;
@@ -16,9 +18,9 @@ public class TestPlayerMovess :CharaBase
         //‚Ç‚±‚©‚Å‚Ç‚Á‚¿‚©‚çŽn‚ß‚é‚©‚ðÝ’è
         EventEnter();
         SetHp();
-        TatuGameManager.Instance.ActiveHpbar(CharaState.Player, true);
         NextFrame.Run(this, 0.5f, () =>
         {
+            TatuGameManager.Instance.ActiveHpbar(CharaState.Player, true);
             g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
         });
     }
@@ -54,6 +56,23 @@ public class TestPlayerMovess :CharaBase
             a_Animator.speed = 0;
         }
         SetStatus(e_CharaState, 0);
+    }
+    public override void CheckCollisionBox(float ScaleX, float ScaleY, Vector3 MyPos, Vector3 OppPos, float damage = 0, bool IsFly = false)
+    {
+        if (IsFly)
+        {
+            if (GetIsHitFlag() == true) return;
+            var jump = c_PlayerMoveManager.JumpParame();
+            Debug.Log(Mathf.Abs(jump)); 
+            var dx = Mathf.Abs(MyPos.x - OppPos.x);
+            if (dx < ScaleX && (Mathf.Abs(jump) < 0.01f || Mathf.Abs(jump) > 8.5f))
+            {
+                SetIsHitFlag(true);
+                TakeDamage(damage);
+            }
+            return;
+        }
+        base.CheckCollisionBox(ScaleX, ScaleY, MyPos, OppPos, damage);
     }
     public override void SetStatus(CharaState state, int animeName = 0)
     {

@@ -40,6 +40,7 @@ public class BossBulletManager : MonoBehaviour
     public int m_EfectType;
 
     public int m_Damage;
+    public bool b_IsFlyAttack;
     private void OnDestroy()
     {
         DestroyObjEvent = null;
@@ -93,7 +94,7 @@ public class BossBulletManager : MonoBehaviour
     {
         if (g_Player == null) return;
 
-        if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position,m_Damage);
+        if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position,m_Damage,b_IsFlyAttack);
     }
     private void DestroyInfo()
     {
