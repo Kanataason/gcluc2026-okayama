@@ -51,7 +51,7 @@ public class TatuGameManager : MonoBehaviour
     private CharaBase c_Boss;
     private CharaBase c_Player;
 
-
+    public List<GameObject> l_PanelList = new List<GameObject>();
 
     private void Awake()
     {
@@ -137,6 +137,7 @@ public class TatuGameManager : MonoBehaviour
     {
         var slider = state == CharaState.Player ? GetSlider(UiSliderState.PlayerHpbar) :
                                                GetSlider(UiSliderState.BossHpBar);
+        Debug.Log(slider.name);
         slider.fillAmount = hp;
     }
     public void ActiveHpbar(CharaState state,bool IsActive)

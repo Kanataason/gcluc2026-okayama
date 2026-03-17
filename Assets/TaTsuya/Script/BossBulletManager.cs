@@ -39,12 +39,13 @@ public class BossBulletManager : MonoBehaviour
     public int m_CharaType;
     public int m_EfectType;
 
+    public int m_Damage;
     void Start()
     {
         m_AnimaTime = 0;
        if(a_Anima != null) b_IsStop = true;
     }
-    public void Init(float timer,bool IsStop,bool IsFirst,CharaBase Chara = null,int IsAttack =1)
+    public void Init(float timer,bool IsStop,bool IsFirst,TestPlayerMovess Chara = null,int IsAttack =1)
     {
         g_Player = Chara;
         m_StartAnima = timer;
@@ -88,14 +89,14 @@ public class BossBulletManager : MonoBehaviour
     {
         if (g_Player == null) return;
 
-        if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position);
+        if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position,m_Damage);
     }
     private void DestroyInfo()
     {
         Init(0,true, false,null,0);
         DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
     }
-    public void Move(CharaBase Chara)
+    public void Move(TestPlayerMovess Chara)
     {
         if(g_Player == null) g_Player = Chara;
         if(g_Boss == null) g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<CharaBase>();
@@ -162,7 +163,6 @@ public class BossBulletManager : MonoBehaviour
 
         if (IsNoVfx)
         {
-            Debug.Log("s");
             if (IsDelay)
                 gameObject.SetActive(IsEnable);
             else

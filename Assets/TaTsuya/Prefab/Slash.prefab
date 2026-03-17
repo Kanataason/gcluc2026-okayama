@@ -171,3 +171,4 @@ MonoBehaviour:
     m_VfxValue: 10
   m_CharaType: 2
   m_EfectType: 2
+  m_Damage: 5

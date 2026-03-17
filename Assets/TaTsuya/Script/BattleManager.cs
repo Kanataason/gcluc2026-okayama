@@ -121,6 +121,7 @@ public class BattleManager : MonoBehaviour
             var data = manager.c_SaveData.c_CurrentData;
             owner.m_TimeScore = data.m_TimeScore;
             Camera.main.transform.position = data.v_CameraPos;
+            TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, data.b_IsTeleport);
             TatuGameManager.Instance.SetMoveFlag(data.b_IsTeleport);
             TatuGameManager.Instance.ChangeAwake(data.e_Awake);
             manager.OnGetStageInfo?.Invoke(data);
@@ -133,7 +134,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 10f;//(int)UnityEngine.Random.Range(10,14);
+            m_RandamNum = 100f;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {
@@ -205,6 +206,7 @@ public class BattleManager : MonoBehaviour
             CurrentData.v_CameraPos = Camera.main.transform.position;
             CurrentData.e_Awake = TatuGameManager.Instance.e_Awake;
             TatuGameManager.Instance.SetMoveFlag(false);
+            TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
 
             manager.m_CurrentRound++;
             if (manager.m_CurrentRound > 2) manager.m_CurrentRound = 1;

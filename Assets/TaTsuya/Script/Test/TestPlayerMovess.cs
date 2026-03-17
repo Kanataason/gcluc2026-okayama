@@ -1,10 +1,10 @@
 using System.Linq;
 using UnityEngine;
-using static BossAttackManager;
 
 public class TestPlayerMovess :CharaBase
 {
     public Vector3 v_scale;
+    private GameObject g_Boss;
 
     public override void Start()
     {
@@ -15,7 +15,12 @@ public class TestPlayerMovess :CharaBase
         SetStatus(e_CharaState);
         //Ç«Ç±Ç©Ç≈Ç«Ç¡ÇøÇ©ÇÁénÇﬂÇÈÇ©Çê›íË
         EventEnter();
-        NextFrame.Run(this, 0.2f, () => { TakeDamage(0); });
+        SetHp();
+        TatuGameManager.Instance.ActiveHpbar(CharaState.Player, true);
+        NextFrame.Run(this, 0.5f, () =>
+        {
+            g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
+        });
     }
     private void EventEnter()
     {
@@ -25,9 +30,11 @@ public class TestPlayerMovess :CharaBase
     }
     public override void Update()
     {
+        base.Update();
         if (TatuGameManager.Instance == null) return;
-       // ReverseSprite(CharaState.Boss, v_scale);
-    //   CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
+        // ReverseSprite(CharaState.Boss, v_scale);
+        if (g_Boss != null) CheckCollisionBox(2, 0.7f, transform.position, g_Boss.transform.position, 7);
+      CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
 
     }
     public override void ChangePlayer()//êÿÇËë÷Ç¶èàóù
@@ -69,5 +76,8 @@ public class TestPlayerMovess :CharaBase
             data.InitState();
         });
     }
-
+    public override void TakeDamage(float damage)
+    {
+        base.TakeDamage(damage);
+    }
 }

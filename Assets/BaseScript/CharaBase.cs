@@ -1,8 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Overlays;
 using UnityEngine;
+using UnityEngine.U2D;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI;
 [RequireComponent(typeof(SpriteRenderer),typeof(Animator))]
 public class CharaBase : MonoBehaviour
 {
@@ -23,7 +27,28 @@ public class CharaBase : MonoBehaviour
 
         SortOrderManager.Instance.SetList(s_Sprite);
     }
-    public virtual void Update() { }//キーの取得だけ
+    public virtual void Update() 
+    {
+        if (BattleManager.Instance.b_IsLoading) return;
+
+        if (GetIsHitFlag() == true)
+        {
+            HitTime += Time.deltaTime;
+
+            Color col = s_Sprite.color;
+            col.a = Mathf.PingPong(HitTime * 8f, 1f);
+            s_Sprite.color = col;
+
+            if (HitTime > Duraction)
+            {
+                Debug.Log("終わり");
+                HitTime = 0;
+                col.a = 1f;               // ← ここ追加（元に戻す）
+                s_Sprite.color = col;
+                SetIsHitFlag(false);
+            }
+        }
+    }//キーの取得だけ
 
     public virtual void FixedUpdate() { }//主な処理はこっち
     public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//セット
@@ -55,7 +80,9 @@ public class CharaBase : MonoBehaviour
         c_SaveState.q_IniRotate = transform.rotation;
         c_SaveState.b_IsAttack = GetIsAttackFlag();
         c_SaveState.m_AnimeHashName = animeName;
+        c_SaveState.m_HitTimer = HitTime;
         SaveManager.Instance.SetSaveData(state, c_SaveState);
+        HitTime = 0;
     }
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
@@ -65,14 +92,15 @@ public class CharaBase : MonoBehaviour
 
         if (save == null) return;
         Debug.Log($"name{gameObject.name} sacwe{save}");
-        //if (GetAnimeHashCode() != 0)
-        //     a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
+
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
         if (a_Animator != null ) a_Animator.speed = 1;
         m_hp = save.m_Inihp;
         SetPos(save.v_IniPosition);
+        SetHp();
         transform.rotation = save.q_IniRotate;
         m_IsAttack = save.b_IsAttack;
+        HitTime = save.m_HitTimer;
     }
     public virtual void SetAnimetion(float CurrentAnime, float animeValue, int animeName)//現在のアニメーションの進行度、アニメのステートの値、名前
     {
@@ -100,7 +128,7 @@ public class CharaBase : MonoBehaviour
 
         transform.position = new Vector3(ClampX, ClampY, ClampY);
     }
-    public virtual void CheckCollisionBox(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos)//当たり判定 奥行きはｚで判定
+    public virtual void CheckCollisionBox(float ScaleX,float ScaleY,Vector3 MyPos,Vector3 OppPos,float damage = 0)//当たり判定 奥行きはｚで判定
     {
         //ジャンプは別の変数で管理をしてそれを判定する
         if (GetIsHitFlag()) return;
@@ -111,6 +139,7 @@ public class CharaBase : MonoBehaviour
         {
             Debug.Log("当たった");
             SetIsHitFlag(true);
+            TakeDamage(damage);
         }
     }
     public virtual void CheckCollision2DSphere(float Range, Vector3 MyPos, Vector3 OppPos)
@@ -128,9 +157,7 @@ public class CharaBase : MonoBehaviour
     {
         Debug.Log("攻撃を受けた");
         m_hp -= damage;
-        var value = m_hp / m_MaxHp;
-        var clamp = Mathf.Clamp01(value);
-        OnHpBar?.Invoke(e_CharaState,clamp);
+        SetHp();
     }
     public virtual void Die() { Debug.Log("死んだ"); }//死んだとき
 
@@ -141,6 +168,12 @@ public class CharaBase : MonoBehaviour
     public virtual int GetAnimeHashCode() { return c_SaveState.m_AnimeHashName; }
     public virtual void SetAnimaType(int type) { m_AnimeHashType = type; }//アニメーションタイプを設定
 
+    public virtual void SetHp() 
+    {
+        var value = m_hp / m_MaxHp;
+        var clamp = Mathf.Clamp01(value);
+        OnHpBar?.Invoke(e_CharaState,clamp);
+    }
     public virtual void ChangePlayer() { }
 
     protected SpriteRenderer s_Sprite;
@@ -156,6 +189,11 @@ public class CharaBase : MonoBehaviour
     public int CurrentDirection;//現在の向き
 
     public event Action<CharaState,float> OnHpBar;
+
+    //時間の管理
+    private float HitTime = 0;
+    private float Duraction = 1.5f;
+
 }
 [System.Serializable]
 public class SaveState
@@ -173,7 +211,7 @@ public class SaveState
     public Quaternion q_IniRotate;//現在の回転値
     public bool b_IsAttack;//攻撃フラグ
     public bool b_IsNextFrame;//次のフレームにアクションイベントを呼ぶ
-
+    public float m_HitTimer;//無敵時間
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間
     public BossBehaviorManager.BossAwake e_BossAwake;//段階

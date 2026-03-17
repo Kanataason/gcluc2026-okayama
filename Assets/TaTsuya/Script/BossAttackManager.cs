@@ -89,12 +89,12 @@ public class BossAttackManager : MonoBehaviour
         obj.transform.parent = null;
         Vector3 pos = t_SpownPos.position;
         obj.transform.position = new Vector3(pos.x, pos.y, transform.position.y);
-        CharaBase pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<CharaBase>();
+        TestPlayerMovess pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<TestPlayerMovess>();
         SetBulletInfo(obj,pl);
     }
 
     //攻撃&セット処理
-    private void SetBulletInfo(GameObject obj,CharaBase Chara = null)
+    private void SetBulletInfo(GameObject obj, TestPlayerMovess Chara = null)
     {
         var script = obj.GetComponent<BossBulletManager>();
         l_BulletList.Add(script);
@@ -168,7 +168,7 @@ public class BossAttackManager : MonoBehaviour
         PlayorStopTransparent(true,false);
         switch (c_BossBehaviorManager.e_AwakeHp)
         {
-            case BossAwake.FirstForm:c_BossMoveManager.TakeDamage(0);
+            case BossAwake.FirstForm:c_BossMoveManager.SetHp();
                 c_BossBehaviorManager.ChangeClass(BossState.Idle); break;
             case BossAwake.SecondForm:break;
             case BossAwake.FinalForm:break;
@@ -183,7 +183,7 @@ public class BossAttackManager : MonoBehaviour
     public void Attack1(int InstantiateValue)//召喚魔法
     {
         c_BossMoveManager.SetIsAttackFlag(true);
-        CharaBase pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<CharaBase>();
+        TestPlayerMovess pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<TestPlayerMovess>();
         float height = Camera.main.orthographicSize;
         float width = height * Camera.main.aspect;
         for (int i = 0; i < InstantiateValue; i++)
@@ -220,7 +220,7 @@ public class BossAttackManager : MonoBehaviour
         float CurrentDirection = c_BossMoveManager.CurrentDirection;
         int CurrentRound = BattleManager.Instance.m_CurrentRound;
 
-        CharaBase pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<CharaBase>();
+        TestPlayerMovess pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<TestPlayerMovess>();
         while (true)
         {
             if (!m_IsBossCoroutine1||CurrentRound != BattleManager.Instance.m_CurrentRound)
