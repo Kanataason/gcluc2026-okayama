@@ -64,10 +64,9 @@ public class CharaBase : MonoBehaviour
         else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.c_CurrentData.GetBossState(data); }
 
         if (save == null) return;
-
+        Debug.Log($"name{gameObject.name} sacwe{save}");
         //if (GetAnimeHashCode() != 0)
         //     a_Animator.SetFloat(GetAnimeHashCode(), save.m_AnimeStateValue);
-        Debug.Log(save.m_AnimeHash);
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
         if (a_Animator != null ) a_Animator.speed = 1;
         m_hp = save.m_Inihp;
@@ -127,6 +126,7 @@ public class CharaBase : MonoBehaviour
 
     public virtual void TakeDamage(float damage)//UŒ‚‚ğH‚ç‚Á‚½‚Æ‚«‚ÌŠÖ”
     {
+        Debug.Log("UŒ‚‚ğó‚¯‚½");
         m_hp -= damage;
         var value = m_hp / m_MaxHp;
         var clamp = Mathf.Clamp01(value);

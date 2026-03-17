@@ -40,7 +40,7 @@ public class BossBaseManager : CharaBase
         CheckGround(TatuGameManager.Instance.m_StageScaleMinY,TatuGameManager.Instance.m_StageScaleMaxY);
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            Debug.Log($"ob{GetIsAttackFlag()}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
+            Debug.Log($"ob{SaveManager.Instance.c_CurrentData.c_PlayerData}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
                 $"att{c_BossAttackManager.m_IsBossCoroutine1}");
         }
 

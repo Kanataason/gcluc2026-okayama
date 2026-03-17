@@ -47,16 +47,19 @@ public class SaveManager : MonoBehaviour
             {
                  c_Stage1SaveData.SetPlayerState(data);
                  c_Stage2SaveData.SetPlayerState(data);
+                Debug.Log(state);
             }
             else if (state == CharaState.Boss)
             {
                 c_Stage1SaveData.SetBossState(data);
                 c_Stage2SaveData.SetBossState(data);
+                Debug.Log(state);
             }
-
             CheckRound();
+
             return;
         }
+
        // Debug.Log("セット");
         if (state == CharaState.Player)
         {
@@ -149,17 +152,17 @@ public class StageSaveData//全体のsave
     {
         SaveState save = new SaveState();
 
-        save.m_AnimeHash = data.c_BossData.m_AnimeHash;
-        save.m_AnimeTime = data.c_BossData.m_AnimeTime;
-        save.m_AnimeStateValue = data.c_BossData.m_AnimeStateValue;
-        save.m_AnimeHashName = data.c_BossData.m_AnimeHashName;
+        save.m_AnimeHash = data.c_PlayerData.m_AnimeHash;
+        save.m_AnimeTime = data.c_PlayerData.m_AnimeTime;
+        save.m_AnimeStateValue = data.c_PlayerData.m_AnimeStateValue;
+        save.m_AnimeHashName = data.c_PlayerData.m_AnimeHashName;
 
-        save.m_Inihp = data.c_BossData.m_Inihp;
-        save.v_IniPosition = data.c_BossData.v_IniPosition;
-        save.q_IniRotate = data.c_BossData.q_IniRotate;
-        save.b_IsAttack = data.c_BossData.b_IsAttack;
+        save.m_Inihp = data.c_PlayerData.m_Inihp;
+        save.v_IniPosition = data.c_PlayerData.v_IniPosition;
+        save.q_IniRotate = data.c_PlayerData.q_IniRotate;
+        save.b_IsAttack = data.c_PlayerData.b_IsAttack;
 
-        save.l_ObjList = data.c_BossData.l_ObjList;
+        save.l_ObjList = data.c_PlayerData.l_ObjList;
 
         return save;
     }

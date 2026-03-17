@@ -85,7 +85,7 @@ public class BattleManager : MonoBehaviour
     {
         protected override void OnEnter(State prevstate)
         {
-            NextFrame.Run(owner, 0.5f, () =>
+            NextFrame.Run(owner, 0.4f, () =>
             {
                 stateMachine.Dispatch((int)BattleState.GameStating);
             });
@@ -133,7 +133,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 120f;//(int)UnityEngine.Random.Range(10,14);
+            m_RandamNum = 10f;//(int)UnityEngine.Random.Range(10,14);
         }
         protected override void OnUpdata()
         {

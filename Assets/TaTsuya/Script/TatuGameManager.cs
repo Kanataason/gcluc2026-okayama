@@ -96,7 +96,7 @@ public class TatuGameManager : MonoBehaviour
     private void EventEnter()
     {
         c_Boss = g_Boss.GetComponent<CharaBase>();
-        c_Player = g_Player.GetComponent<CharaBase>();
+        c_Player = g_Player.GetComponent<TestPlayerMovess>();
 
         c_Boss.OnHpBar += OnUpdateHpbar;
         c_Player.OnHpBar += OnUpdateHpbar;
