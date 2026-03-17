@@ -128,8 +128,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c28eb0560c23149b6b0644c4dcb41f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletManager
-  m_MyScaleX: 2
-  m_MyScaleY: 3
+  m_MyScaleX: 2.5
+  m_MyScaleY: 2
   m_DestroyTime: 1.3
   m_StartAnima: 1.5
   c_AttackInfo:

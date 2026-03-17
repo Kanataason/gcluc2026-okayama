@@ -152,6 +152,14 @@ public class BossAttackManager : MonoBehaviour
     {
         m_IsBossCoroutine1 = false;
     }
+    public void StopSe()
+    {
+        AudioManager.Instance.StopSe();
+    }
+    public void PlaySe(string name)
+    {
+        AudioManager.Instance.PlaySeAudio(name);
+    }
     public void SetAnima() => a_Animator.SetFloat(BossMove, 0);
     public void SetIsMove()
     {

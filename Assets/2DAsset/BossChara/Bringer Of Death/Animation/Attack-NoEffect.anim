@@ -111,6 +111,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 2
     messageOptions: 0
+  - time: 1
+    functionName: PlaySe
+    data: "\u65AC\u6483"
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 1.0666667
     functionName: SetNextFrameActionEvent
     data: 

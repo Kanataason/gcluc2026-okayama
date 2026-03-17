@@ -32,6 +32,9 @@ public class TestPlayerMovess :CharaBase
     {
         base.Update();
         if (TatuGameManager.Instance == null) return;
+
+        if (Input.GetKeyDown(KeyCode.H))
+        { TakeDamage(6); }
         // ReverseSprite(CharaState.Boss, v_scale);
         if (g_Boss != null) CheckCollisionBox(2, 0.7f, transform.position, g_Boss.transform.position, 7);
       CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
@@ -51,6 +54,15 @@ public class TestPlayerMovess :CharaBase
             a_Animator.speed = 0;
         }
         SetStatus(e_CharaState, 0);
+    }
+    public override void SetStatus(CharaState state, int animeName = 0)
+    {
+        AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
+        float animetime = status.normalizedTime;
+        int animehash = status.fullPathHash;
+        float animevalue = animetime;
+        SetAnimetion(animetime, animevalue, animeName);
+        base.SetStatus(state, animeName);
     }
          public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
@@ -76,8 +88,31 @@ public class TestPlayerMovess :CharaBase
             data.InitState();
         });
     }
+    public void PlaySe(string name)
+    {
+        AudioManager.Instance.PlaySeAudio(name);
+    }
+    public void StopSe()
+    {
+        AudioManager.Instance.StopSe();
+    }
     public override void TakeDamage(float damage)
     {
         base.TakeDamage(damage);
+        if(m_hp <= 0)
+        {
+            Die();
+        }
+    }
+    public override void Die()
+    {
+        base.Die();
+        TatuGameManager.Instance.SetMoveFlag(false);
+        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
+        BattleManager.Instance.m_CleaStage++;
+        NextFrame.Run(this, 1, () =>
+        {
+            TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, true);
+        });
     }
 }

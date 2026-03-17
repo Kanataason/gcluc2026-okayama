@@ -36,6 +36,12 @@ public class TitleManager : MonoBehaviour
         }
         g_PrevObj = GetObject(UiState.Title);
     }
+    private void OnDestroy()
+    {
+        d_UiDictionary.Clear();
+        l_ButtonList.Clear();
+        l_UiList.Clear();
+    }
 
     public void ChangePanel(int StateValue)//アニメーションイベントから呼ばれる
     {
@@ -82,6 +88,14 @@ public class TitleManager : MonoBehaviour
     public void ChangeScene()
     {
         SceneManager.LoadScene("TaTsuyaScene");
+    }
+    public void ExitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
     }
     private void StartButton()
     {

@@ -147,6 +147,13 @@ AnimationClip:
     intParameter: 1
     messageOptions: 0
   - time: 0.5
+    functionName: PlaySe
+    data: AT1Last
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.5
     functionName: ActiveCollider
     data: 
     objectReferenceParameter: {fileID: 0}
@@ -159,4 +166,18 @@ AnimationClip:
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 1
+    messageOptions: 0
+  - time: 0.8
+    functionName: ActiveCollider
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.85
+    functionName: ActiveCollider
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
     messageOptions: 0

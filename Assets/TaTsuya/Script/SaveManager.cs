@@ -9,7 +9,6 @@ public class SaveManager : MonoBehaviour
         if(Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -104,6 +103,7 @@ public class StageSaveData//全体のsave
     //ラウンドごとの数値
     public int m_TotalRound =1;
     public float m_TimeScore =0;
+    public float m_CurrentAudioTime =0;
     public bool b_IsTeleport;
     public Vector3 v_CameraPos = new Vector3(0, 0, -11);
     public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;
@@ -162,7 +162,7 @@ public class StageSaveData//全体のsave
         save.q_IniRotate = data.c_PlayerData.q_IniRotate;
         save.b_IsAttack = data.c_PlayerData.b_IsAttack;
 
-        save.l_ObjList = data.c_PlayerData.l_ObjList;
+        save.l_ObjList = data.c_PlayerData.l_ObjList;//参照渡し
 
         return save;
     }
@@ -181,7 +181,7 @@ public class StageSaveData//全体のsave
         save.b_IsAttack = data.c_BossData.b_IsAttack;
         save.b_IsMove = data.c_BossData.b_IsMove;
 
-        save.l_ObjList = data.c_BossData.l_ObjList;
+        save.l_ObjList = data.c_BossData.l_ObjList;//参照渡し
 
         save.m_ActionTime = data.c_BossData.m_ActionTime;
         save.e_BossAwake = data.c_BossData.e_BossAwake;

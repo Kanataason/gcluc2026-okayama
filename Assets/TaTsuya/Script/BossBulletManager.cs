@@ -40,6 +40,10 @@ public class BossBulletManager : MonoBehaviour
     public int m_EfectType;
 
     public int m_Damage;
+    private void OnDestroy()
+    {
+        DestroyObjEvent = null;
+    }
     void Start()
     {
         m_AnimaTime = 0;
@@ -113,6 +117,14 @@ public class BossBulletManager : MonoBehaviour
             : (right - left).normalized;
 
         b_IsMove = true;
+    }
+    public void PlaySe(string name)
+    {
+        AudioManager.Instance.PlaySeAudio(name);
+    }
+    public void StopSe()
+    {
+        AudioManager.Instance.StopSe();
     }
     public void StopClock()//ŽžŠÔ‚ª—ˆ‚½Žž
     {

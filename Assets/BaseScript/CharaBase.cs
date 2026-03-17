@@ -15,7 +15,8 @@ public class CharaBase : MonoBehaviour
         Debug.Log("イベント解除");
       if(BattleManager.Instance != null)  BattleManager.Instance.OnSetStageInfo -= ChangePlayer;
       if(BattleManager.Instance != null) BattleManager.Instance.OnGetStageInfo -= GetStatus;
-
+        SortOrderManager.Instance.RemoveList(s_Sprite);
+        OnHpBar = null;
     }
     public virtual void Start()
     {
@@ -157,9 +158,14 @@ public class CharaBase : MonoBehaviour
     {
         Debug.Log("攻撃を受けた");
         m_hp -= damage;
+        AudioManager.Instance.PlaySeAudio("Hit");
         SetHp();
     }
-    public virtual void Die() { Debug.Log("死んだ"); }//死んだとき
+    public virtual void Die() { Debug.Log("死んだ"); SetDieFlag(true); }//死んだとき
+
+    public virtual void SetDieFlag(bool IsDie) { b_IsDie = IsDie; }
+
+    public virtual bool GetDieFlag() { return b_IsDie; }//死んだときのフラグ
 
     public virtual void SetIsAttackFlag(bool active) { m_IsAttack = active; }//攻撃初めのフラグ
     public virtual void SetIsHitFlag(bool active) { m_IsHit = active; }//攻撃が当たったときのフラグ
@@ -185,6 +191,7 @@ public class CharaBase : MonoBehaviour
     protected CharaState e_CharaState;//自分が何のキャラクターかしまう変数
     private bool m_IsAttack = false;//攻撃をしているか
     private bool m_IsHit = false;//攻撃が当たっているか
+    private bool b_IsDie = false;//死んだときのフラグ
 
     public int CurrentDirection;//現在の向き
 

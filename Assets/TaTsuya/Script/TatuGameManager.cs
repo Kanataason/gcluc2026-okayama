@@ -15,7 +15,12 @@ public class TatuGameManager : MonoBehaviour
         BossHpBar,
         PlayerHpbar
     }
-    //短くできると思うクラスを使えば
+    public enum UiPanelState
+    {
+        Pose,
+        Score
+    }
+    //短くできると思うクラスを使えば ジェネリックがたにしたら行ける
     [Serializable]
     public class Texts
     {
@@ -28,10 +33,18 @@ public class TatuGameManager : MonoBehaviour
         public UiSliderState e_SliderState;
         public Image s_Image;
     }
+    [Serializable]
+    public class Panel
+    {
+        public UiPanelState e_PanelState;
+        public GameObject g_Panel;
+    }
     public List<Texts> l_TextList;
     public List<Hpbars> l_SliderList;
+    public List<Panel> l_PanelList;
     private Dictionary<UiTextState, TextMeshProUGUI> d_TextDictionary = new();
     private Dictionary<UiSliderState, Image> d_SliderDictionary = new();
+    private Dictionary<UiPanelState, GameObject> d_PanelDictionary = new();
 
     public static TatuGameManager Instance { get; private set; }
 
@@ -51,7 +64,6 @@ public class TatuGameManager : MonoBehaviour
     private CharaBase c_Boss;
     private CharaBase c_Player;
 
-    public List<GameObject> l_PanelList = new List<GameObject>();
 
     private void Awake()
     {
@@ -59,7 +71,6 @@ public class TatuGameManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -72,6 +83,7 @@ public class TatuGameManager : MonoBehaviour
         if(c_Boss == null||c_Player == null) { Debug.Log("解除できなかった"); }
         if (c_Boss != null) c_Boss.OnHpBar -= OnUpdateHpbar;
         if (c_Player != null) c_Player.OnHpBar -= OnUpdateHpbar;
+        OnBattle = null;
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -91,6 +103,10 @@ public class TatuGameManager : MonoBehaviour
         foreach (var slider in l_SliderList)
         {
             d_SliderDictionary[slider.e_SliderState] = slider.s_Image;
+        }
+        foreach(var panel in l_PanelList)
+        {
+            d_PanelDictionary[panel.e_PanelState] = panel.g_Panel;
         }
     }
     private void EventEnter()
@@ -115,6 +131,7 @@ public class TatuGameManager : MonoBehaviour
 
         if (dx < ScaleX)//ここでリストのやつを更新
         {
+            AudioManager.Instance.PlayBGMAudio("ボス",0);
             Debug.Log("ssssss");
             if(e_Awake != BossBehaviorManager.BossAwake.SecondForm)
                 e_Awake = BossBehaviorManager.BossAwake.SecondForm;
@@ -147,11 +164,49 @@ public class TatuGameManager : MonoBehaviour
 
         slider.transform.parent.gameObject.SetActive(IsActive);
     }
+    public void ChangePanel(UiPanelState state,bool IsActive)
+    {
+        var panel = GetPanel(state);
+
+        if (panel == null) return;
+        panel.SetActive(IsActive);
+        var text = GetText(UiTextState.StageInfo);
+
+        var script = g_Boss.GetComponent<BossBaseManager>();
+        if (script.GetDieFlag() == true)
+            text.text = $"タイム\n\n {SaveManager.Instance.c_CurrentData.m_TimeScore}";
+        else text.text = "死んでしまった。";
+    }
+    public void ResaltPanel(string Score)
+    {
+        var panel = GetPanel(UiPanelState.Score);
+        var text = GetText(UiTextState.StageInfo);
+
+        if (panel == null) return;
+        panel.SetActive(true);
+        text.text = Score;
+    }
     public Image GetSlider(UiSliderState state)
     {
         if(d_SliderDictionary.TryGetValue(state, out var slider))
         {
             return slider;
+        }
+        return null;
+    }
+    public GameObject GetPanel(UiPanelState state)
+    {
+        if(d_PanelDictionary.TryGetValue(state, out var panel))
+        {
+            return panel;
+        }
+        return null;
+    }
+    public TextMeshProUGUI GetText(UiTextState state)
+    {
+        if (d_TextDictionary.TryGetValue(state, out var text))
+        {
+            return text;
         }
         return null;
     }

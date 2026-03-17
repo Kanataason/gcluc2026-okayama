@@ -44,8 +44,6 @@ public class BossBaseManager : CharaBase
                 $"att{c_BossAttackManager.m_IsBossCoroutine1}");
         }
 
-        if (Input.GetKeyDown(KeyCode.H)) 
-        { TakeDamage(6); }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
@@ -69,7 +67,7 @@ public class BossBaseManager : CharaBase
             }
             c_BossAttackManager.l_BulletList.Clear();
         }
-      
+        SetDieFlag(false);
         
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
@@ -165,8 +163,16 @@ public class BossBaseManager : CharaBase
     }
     public override void Die()
     {
+        base.Die();
         Debug.Log(SaveManager.Instance.c_CurrentData.m_TimeScore + BattleManager.Instance.m_TimeScore);
         c_BossAttackManager.PlayorStopTransparent(false, true);
+        TatuGameManager.Instance.SetMoveFlag(false);
+        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
+        BattleManager.Instance.m_CleaStage++;
+        NextFrame.Run(this, 3, () =>
+        {
+            TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, true);
+        });
     }
 
     public override void SetIsAttackFlag(bool active)//攻撃開始時のフラグ
