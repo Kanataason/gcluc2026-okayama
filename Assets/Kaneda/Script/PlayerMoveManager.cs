@@ -60,6 +60,19 @@ public class PlayerMoveManager : MonoBehaviour
         v_DefaultScale = transform.localScale;
     }
 
+    // 影用の地面Y位置を返す
+    public float GetShadowGroundY()
+    {
+        // ジャンプ中はジャンプ開始位置を返す
+        if (b_IsJumping)
+        {
+            return f_JumpStartY;
+        }
+
+        // 地面にいる時は現在のYを返す
+        return transform.position.y;
+    }
+
     // 待機中更新
     public void IdleUpdate()
     {
@@ -231,4 +244,5 @@ public class PlayerMoveManager : MonoBehaviour
     {
         return b_IsJumping;
     }
+
 }

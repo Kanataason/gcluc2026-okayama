@@ -634,6 +634,7 @@ GameObject:
   m_Component:
   - component: {fileID: 683951799784826418}
   - component: {fileID: 7122498729194590809}
+  - component: {fileID: 7122498729194590810}
   m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
@@ -822,6 +823,18 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &7122498729194590810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2941574964893375191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9142f9f987f1ba94dad4bb25d58450bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShadowFollow
 --- !u!114 &7881908055625329611
 MonoBehaviour:
   m_ObjectHideFlags: 0
