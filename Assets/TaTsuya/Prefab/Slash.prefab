@@ -171,5 +171,5 @@ MonoBehaviour:
     m_VfxValue: 10
   m_CharaType: 2
   m_EfectType: 2
-  m_Damage: 5
+  m_Damage: 15
   b_IsFlyAttack: 0

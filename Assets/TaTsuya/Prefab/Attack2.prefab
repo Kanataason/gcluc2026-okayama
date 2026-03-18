@@ -127,7 +127,7 @@ MonoBehaviour:
     m_VfxValue: 0
   m_CharaType: 2
   m_EfectType: 5
-  m_Damage: 7
+  m_Damage: 10
   b_IsFlyAttack: 1
 --- !u!1 &6924754554250975971
 GameObject:

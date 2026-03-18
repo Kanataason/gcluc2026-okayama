@@ -109,7 +109,7 @@ public class BossAttackManager : MonoBehaviour
         {
             case BossBehaviorManager.BossAttackType.Attack1:
                 {
-                    Duration = 1.6f;
+                    Duration = 1.2f;
                     IsStop = true;
                     IsFirst = false;
                     script.Init(Duration, IsStop, IsFirst, Chara,IsAttack);
@@ -222,8 +222,8 @@ public class BossAttackManager : MonoBehaviour
     }
     IEnumerator Attack2Instantiate(int Value)
     {
-        float Duration = 2f;
-        float CurrentTime = 2f;
+        float Duration = 1f;
+        float CurrentTime = 1f;
         float height = Camera.main.orthographicSize;
         float width = height * Camera.main.aspect;
         float CurrentDirection = c_BossMoveManager.CurrentDirection;
@@ -260,7 +260,7 @@ public class BossAttackManager : MonoBehaviour
     }
     IEnumerator Attack3Move(int attacktype)
     {
-        float offset = 6f;
+        float offset = 4f;
         a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
         Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
         Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection*offset),pl.y,pl.z);

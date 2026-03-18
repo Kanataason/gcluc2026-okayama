@@ -65,7 +65,7 @@ public class TestPlayerMovess :CharaBase
             var jump = c_PlayerMoveManager.JumpParame();
             Debug.Log(Mathf.Abs(jump)); 
             var dx = Mathf.Abs(MyPos.x - OppPos.x);
-            if (dx < ScaleX && (Mathf.Abs(jump) < 0.01f || Mathf.Abs(jump) > 8.5f))
+            if (dx < ScaleX && (c_PlayerMoveManager.GetIsGround() || Mathf.Abs(jump) > 8.5f))
             {
                 SetIsHitFlag(true);
                 TakeDamage(damage);

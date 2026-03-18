@@ -86,7 +86,7 @@ public class BossBulletManager : MonoBehaviour
 
         if (b_IsMove)
         {
-            transform.Translate(v_CurrentDirection * 10f * Time.deltaTime);
+            transform.Translate(v_CurrentDirection * 15f * Time.deltaTime);
         }
 
     }

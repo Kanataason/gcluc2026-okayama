@@ -166,7 +166,7 @@ public class PlayerManager : CharaBase
     //UŒ‚‚Ìî•ñ
     float ScaleX = 5.2f;
     float ScaleY = 1;
-    float Damage = 5;
+    float Damage = 7;
 
     // UŒ‚ó‘ÔXV
     void AttackUpdate()

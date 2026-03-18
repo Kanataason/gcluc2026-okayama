@@ -6713,11 +6713,11 @@ MonoBehaviour:
   - e_CharaState: 2
     e_EfectType: 4
     g_Prefab: {fileID: 5960244279577617363, guid: 7a89486a7183ff94da9441e080fce3d3, type: 3}
-    m_InstantiateNumber: 15
+    m_InstantiateNumber: 30
   - e_CharaState: 2
     e_EfectType: 5
     g_Prefab: {fileID: 3887532603152539652, guid: df3efa894fc8d20428b304bb97b6734f, type: 3}
-    m_InstantiateNumber: 10
+    m_InstantiateNumber: 15
 --- !u!1 &1566103426
 GameObject:
   m_ObjectHideFlags: 0
