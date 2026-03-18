@@ -261,8 +261,6 @@ public class BossAttackManager : MonoBehaviour
     {
         float offset = 3f;
         a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
-        Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
-        Vector3 ReversePos = new Vector3(pl.x + (-c_BossMoveManager.CurrentDirection * offset), pl.y, pl.z);
 
         Color col = r_SpriteRen.color;
         Color col1 = r_Shadow.color;
@@ -292,6 +290,9 @@ public class BossAttackManager : MonoBehaviour
             // ƒ¿‚ª‚Ù‚Ú0‚É‚È‚Á‚½uŠÔ
             if (col.a < 0.01f)
             {
+                Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
+
+                Vector3 ReversePos = new Vector3(pl.x + (-c_BossMoveManager.CurrentDirection * offset), pl.y, pl.z);
                 Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection * offset), pl.y, pl.z);
                 //‚±‚±‚Å‰æ–ÊŠO‚Ìê‡‚Í‘O‚Éo‚·
                 transform.position = oppPos; // uŠÔˆÚ“®

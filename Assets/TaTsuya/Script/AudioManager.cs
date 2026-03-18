@@ -39,7 +39,7 @@ public class AudioManager : MonoBehaviour
     }
     public float GetTime()
     {
-     return BGMaudio.timeSamples;
+        return BGMaudio.time;
     }
     public void PlayBGMAudio(string clipname,float time)
     {
@@ -53,7 +53,6 @@ public class AudioManager : MonoBehaviour
     public void PlaySeAudio(string name)
     {
         var clip = GetClip(name);
-        Seaudio.Stop();
         if (clip == null) return;
         Seaudio.PlayOneShot(clip);
     }

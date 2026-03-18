@@ -136,7 +136,8 @@ public class TatuGameManager : MonoBehaviour
 
         if (dx < ScaleX)//ここでリストのやつを更新
         {
-            AudioManager.Instance.PlayBGMAudio("ボス",0);
+            //swich
+            if(e_Awake == BossBehaviorManager.BossAwake.FirstForm) AudioManager.Instance.PlayBGMAudio("ボス", 0);
             Debug.Log("ssssss");
             if(e_Awake != BossBehaviorManager.BossAwake.SecondForm)
                 e_Awake = BossBehaviorManager.BossAwake.SecondForm;
@@ -178,7 +179,7 @@ public class TatuGameManager : MonoBehaviour
 
         var script = g_Boss.GetComponent<BossBaseManager>();
         if (script.GetDieFlag() == true)
-            text.text = $"タイム\n\n {SaveManager.Instance.c_CurrentData.m_TimeScore}";
+            text.text = $"タイム\n\n {(int)SaveManager.Instance.c_CurrentData.m_TimeScore}";
         else text.text = "死んでしまった。";
     }
     public void ResaltPanel(string Score)

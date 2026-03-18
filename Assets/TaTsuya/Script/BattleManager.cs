@@ -150,31 +150,30 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = (int)UnityEngine.Random.Range(30,100);
+            m_RandamNum = 10;//(int)UnityEngine.Random.Range(30,100);
         }
         protected override void OnUpdata()
         {
-            m_RandamNum -= Time.deltaTime;
             m_UpdataTimer += Time.deltaTime;
             owner.m_TimeScore += Time.deltaTime;
 
             if (owner.m_CleaStage > 0) return;
             if (!TatuGameManager.Instance.GetCameraMoveflag()) return;
 
+            m_RandamNum -= Time.deltaTime;
             if (m_RandamNum <= 0.5f)
             {
                 m_UpdataTimer = 1;
                 stateMachine.Dispatch((int)BattleState.GameEnd);
             }
-            if (m_UpdataTimer >= 0.1f)
-            {
-                m_UpdataTimer = 0;
-                owner.debagte.SetText("êÿÇËë÷Ç¶éûä‘ : {0:0}", m_RandamNum);
-            }
+            //if (m_UpdataTimer >= 0.1f)
+            //{
+            //    m_UpdataTimer = 0;
+            //    owner.debagte.SetText("êÿÇËë÷Ç¶éûä‘ : {0:0}", m_RandamNum);
+            //}
         }   
         protected override void OnExit(State nextstate)
         {
-            AudioManager.Instance.StopBGM();
             owner.b_IsLoading = true;
             base.OnExit(nextstate);
         }
@@ -200,7 +199,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             SetData();
-
+            Debug.Log(owner.m_CleaStage);
             owner.OnSetStageInfo?.Invoke();//ÉZÅ[Éu
 
             manager.c_SaveData.CheckRound();
@@ -212,8 +211,10 @@ public class BattleManager : MonoBehaviour
                     var stage1 = owner.c_SaveData.GetCurrentData(1);
                     var stage2 = owner.c_SaveData.GetCurrentData(2);
 
-                 var die = owner.c_BossBehaviorManager.GetComponent<BossBaseManager>().GetDieFlag();
-                    if (die == true)
+                    var St1Die = stage1.b_IsBossDie == true ? true : false;
+                    var St2Die = stage2.b_IsBossDie == true ? true : false;
+
+                    if (St1Die || St2Die)
                     {
                         if (stage1.m_TimeScore < stage2.m_TimeScore)
                         {
@@ -250,6 +251,7 @@ public class BattleManager : MonoBehaviour
             manager = stateMachine.owner;
             StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
             CurrentData.m_CurrentAudioTime = AudioManager.Instance.GetTime();
+            AudioManager.Instance.StopBGM();
             CurrentData.m_TotalRound++;
             CurrentData.m_TimeScore = owner.m_TimeScore;
             CurrentData.b_IsTeleport = TatuGameManager.Instance.m_BossTeleport;

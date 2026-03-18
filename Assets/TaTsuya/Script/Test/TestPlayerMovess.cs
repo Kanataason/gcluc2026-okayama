@@ -75,16 +75,36 @@ public class TestPlayerMovess :CharaBase
     }
     public override void SetStatus(CharaState state, int animeName = 0)
     {
+        if (c_PlayerMoveManager.GetIsJumping())
+        {
+            c_SaveState.m_JumpHeightValue = c_PlayerMoveManager.JumpParame();
+        }
+
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
         int animehash = status.fullPathHash;
         float animevalue = animetime;
+        c_SaveState.b_IsJumpFlag = c_PlayerMoveManager.GetIsJumping();
         SetAnimetion(animetime, animevalue, animeName);
         base.SetStatus(state, animeName);
     }
          public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
+
+        if(GetIsAttackFlag()== true)
+        {
+            Debug.Log("ssss");
+            a_Animator.Play(data.c_PlayerData.m_AnimeHash, 0, data.c_PlayerData.m_AnimeTime);
+        }
+        else
+        {
+            a_Animator.Play("Idle", 0, 0);
+        }
+        if (data.c_PlayerData.b_IsJumpFlag)
+        {
+            c_PlayerMoveManager.SetJump(data.c_PlayerData.m_JumpHeightValue);
+        }
         ReverseSprite(CharaState.Boss, v_scale);
         if (e_CharaState == CharaState.Player)
         {
@@ -117,7 +137,8 @@ public class TestPlayerMovess :CharaBase
     public override void TakeDamage(float damage)
     {
         base.TakeDamage(damage);
-        if(m_hp <= 0)
+        if (GetDieFlag() == true) return;
+        if (m_hp <= 0)
         {
             Die();
         }
@@ -127,7 +148,6 @@ public class TestPlayerMovess :CharaBase
         base.Die();
         TatuGameManager.Instance.SetMoveFlag(false);
         TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-        BattleManager.Instance.m_CleaStage++;
         NextFrame.Run(this, 1, () =>
         {
             TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, true);

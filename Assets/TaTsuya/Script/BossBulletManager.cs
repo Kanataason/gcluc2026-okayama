@@ -121,6 +121,7 @@ public class BossBulletManager : MonoBehaviour
     }
     public void PlaySe(string name)
     {
+        AudioManager.Instance.StopSe(); 
         AudioManager.Instance.PlaySeAudio(name);
     }
     public void StopSe()

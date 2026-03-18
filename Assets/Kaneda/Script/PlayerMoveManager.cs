@@ -249,4 +249,12 @@ public class PlayerMoveManager : MonoBehaviour
     {
         return f_JumpVelocity;
     }
+    public void SetJump(float value)
+    {
+        f_JumpVelocity = value;
+    }
+    public void SetJumpFlag(bool IsJump)
+    {
+        b_IsJumping = IsJump;
+    }
 }

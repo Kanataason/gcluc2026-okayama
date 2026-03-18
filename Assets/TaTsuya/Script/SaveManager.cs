@@ -107,6 +107,7 @@ public class StageSaveData//全体のsave
     public bool b_IsTeleport;
     public Vector3 v_CameraPos = new Vector3(0, 0, -11);
     public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;
+    public bool b_IsBossDie;
     public void InitState()
     {
         c_PlayerData.Init();
@@ -126,6 +127,7 @@ public class StageSaveData//全体のsave
         c_PlayerData.q_IniRotate = data.q_IniRotate;
         c_PlayerData.b_IsAttack = data.b_IsAttack;
 
+        c_PlayerData.m_JumpHeightValue = data.m_JumpHeightValue;
         c_PlayerData.g_Character = data.g_Character;
 
         c_PlayerData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
@@ -162,6 +164,7 @@ public class StageSaveData//全体のsave
         save.q_IniRotate = data.c_PlayerData.q_IniRotate;
         save.b_IsAttack = data.c_PlayerData.b_IsAttack;
 
+        save.m_JumpHeightValue = data.c_PlayerData.m_JumpHeightValue;
         save.l_ObjList = data.c_PlayerData.l_ObjList;//参照渡し
 
         return save;

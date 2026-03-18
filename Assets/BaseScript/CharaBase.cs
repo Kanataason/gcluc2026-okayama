@@ -99,7 +99,7 @@ public class CharaBase : MonoBehaviour
         SetPos(save.v_IniPosition);
         SetHp();
         transform.rotation = save.q_IniRotate;
-        m_IsAttack = save.b_IsAttack;
+        SetIsAttackFlag(save.b_IsAttack);
         HitTime = save.m_HitTimer;
     }
     public virtual void SetAnimetion(float CurrentAnime, float animeValue, int animeName)//現在のアニメーションの進行度、アニメのステートの値、名前
@@ -131,7 +131,7 @@ public class CharaBase : MonoBehaviour
     public virtual void CheckCollisionBox(float ScaleX, float ScaleY, Vector3 MyPos, Vector3 OppPos, float damage = 0,bool IsFly = false)//当たり判定 奥行きはｚで判定
     {
         //ジャンプは別の変数で管理をしてそれを判定する
-        if (GetIsHitFlag()) return;
+        if (GetIsHitFlag() == true) return;
 
         float dx = Mathf.Abs(MyPos.x - OppPos.x);
         float dz = Mathf.Abs(MyPos.z - OppPos.z);
@@ -160,7 +160,7 @@ public class CharaBase : MonoBehaviour
         AudioManager.Instance.PlaySeAudio("Hit");
         SetHp();
     }
-    public virtual void Die() { Debug.Log("死んだ"); SetDieFlag(true); }//死んだとき
+    public virtual void Die() { Debug.Log("死んだ"); SetDieFlag(true); BattleManager.Instance.m_CleaStage++; }//死んだとき
 
     public virtual void SetDieFlag(bool IsDie) { b_IsDie = IsDie; }
 
@@ -218,6 +218,11 @@ public class SaveState
     public bool b_IsAttack;//攻撃フラグ
     public bool b_IsNextFrame;//次のフレームにアクションイベントを呼ぶ
     public float m_HitTimer;//無敵時間
+
+    //プレイヤー専用
+    public float m_JumpHeightValue;
+    public bool b_IsJumpFlag;
+
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間
     public BossBehaviorManager.BossAwake e_BossAwake;//段階

@@ -158,7 +158,8 @@ public class BossBaseManager : CharaBase
     {
         base.TakeDamage(damage);
         m_hp = c_BossBehaviorManager.CheckBossAwakening(m_hp);
-        if(m_hp == 0)
+        if (GetDieFlag() == true) return;
+        if (m_hp == 0)
         {
             Die();
         }
@@ -170,7 +171,7 @@ public class BossBaseManager : CharaBase
         c_BossAttackManager.PlayorStopTransparent(false, true);
         TatuGameManager.Instance.SetMoveFlag(false);
         TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-        BattleManager.Instance.m_CleaStage++;
+        SaveManager.Instance.c_CurrentData.b_IsBossDie = true;
         NextFrame.Run(this, 3, () =>
         {
             TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, true);
