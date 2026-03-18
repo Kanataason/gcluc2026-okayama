@@ -15,7 +15,7 @@ public class BossBaseManager : CharaBase
 
     public override void Start()
     {
-        m_MaxHp = 200;
+        m_MaxHp = 250;
         e_CharaState = CharaState.Boss;
         c_SaveState.g_Character = this.gameObject;
         EventEnter();
@@ -43,6 +43,7 @@ public class BossBaseManager : CharaBase
         {
             Debug.Log($"ob{SaveManager.Instance.c_CurrentData.c_PlayerData}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
                 $"att{c_BossAttackManager.m_IsBossCoroutine1}");
+            Debug.Log($"load{BattleManager.Instance.b_IsLoading}cehavi{c_BossBehaviorManager.m_CurrentActionTime}");
         }
 
 

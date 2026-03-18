@@ -176,11 +176,11 @@ public class BossAttackManager : MonoBehaviour
         PlayorStopTransparent(true,false);
         switch (c_BossBehaviorManager.e_AwakeHp)
         {
-            case BossAwake.FirstForm:c_BossMoveManager.SetHp();
-                c_BossBehaviorManager.ChangeClass(BossState.Idle); break;
+            case BossAwake.FirstForm:c_BossMoveManager.SetHp(); break;
             case BossAwake.SecondForm:break;
             case BossAwake.FinalForm:break;
         }
+        c_BossBehaviorManager.ChangeClass(BossState.Idle);
         a_Animator.SetTrigger(BossFirstAnima);
         TatuGameManager.Instance.SetMoveFlag(true);
     }
@@ -240,7 +240,6 @@ public class BossAttackManager : MonoBehaviour
             CurrentTime += Time.deltaTime;
             if (CurrentTime >= Duration)
             {
-                Debug.Log($"value{Value}");
                 if (Value <= 0) break;
                 CurrentTime = 0f;
                 var obj = c_ObjectPool.GetObject(CharaState.Boss, ObjctPool.EfectType.Fire);
@@ -260,10 +259,9 @@ public class BossAttackManager : MonoBehaviour
     }
     IEnumerator Attack3Move(int attacktype)
     {
-        float offset = 4f;
+        float offset = 3f;
         a_Animator.SetInteger(BossAttackType, (int)BossBehaviorManager.BossAttackType.Attack3Hide);
         Vector3 pl = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).transform.position;
-        Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection*offset),pl.y,pl.z);
         Vector3 ReversePos = new Vector3(pl.x + (-c_BossMoveManager.CurrentDirection * offset), pl.y, pl.z);
 
         Color col = r_SpriteRen.color;
@@ -294,6 +292,7 @@ public class BossAttackManager : MonoBehaviour
             // ƒ¿‚ª‚Ù‚Ú0‚É‚È‚Á‚½uŠÔ
             if (col.a < 0.01f)
             {
+                Vector3 oppPos = new Vector3(pl.x + (c_BossMoveManager.CurrentDirection * offset), pl.y, pl.z);
                 //‚±‚±‚Å‰æ–ÊŠO‚Ìê‡‚Í‘O‚Éo‚·
                 transform.position = oppPos; // uŠÔˆÚ“®
 
