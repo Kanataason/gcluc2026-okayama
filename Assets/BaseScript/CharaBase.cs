@@ -218,7 +218,7 @@ public class SaveState
     public bool b_IsAttack;//攻撃フラグ
     public bool b_IsNextFrame;//次のフレームにアクションイベントを呼ぶ
     public float m_HitTimer;//無敵時間
-
+    public bool b_DieFlag;//死亡フラグ
     //プレイヤー専用
     public float m_JumpHeightValue;
     public bool b_IsJumpFlag;

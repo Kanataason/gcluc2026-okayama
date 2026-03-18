@@ -7158,7 +7158,7 @@ MonoBehaviour:
     m_InstantiateNumber: 30
   - e_CharaState: 2
     e_EfectType: 5
-    g_Prefab: {fileID: 7959399526325868181, guid: 5f598c92b6e563b4b916a82556418ea7, type: 3}
+    g_Prefab: {fileID: 3887532603152539652, guid: df3efa894fc8d20428b304bb97b6734f, type: 3}
     m_InstantiateNumber: 15
 --- !u!1 &1566103426
 GameObject:
@@ -7202,6 +7202,8 @@ MonoBehaviour:
       b_IsAttack: 0
       b_IsNextFrame: 0
       m_HitTimer: 0
+      m_JumpHeightValue: 0
+      b_IsJumpFlag: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -7219,6 +7221,8 @@ MonoBehaviour:
       b_IsAttack: 0
       b_IsNextFrame: 0
       m_HitTimer: 0
+      m_JumpHeightValue: 0
+      b_IsJumpFlag: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -7230,6 +7234,7 @@ MonoBehaviour:
     b_IsTeleport: 0
     v_CameraPos: {x: 0, y: 0, z: 0}
     e_Awake: 0
+    b_IsBossDie: 0
 --- !u!4 &1566103428
 Transform:
   m_ObjectHideFlags: 0

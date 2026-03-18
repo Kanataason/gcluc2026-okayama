@@ -91,6 +91,11 @@ public class BattleManager : MonoBehaviour
     }
     public void ChangeState(int state)
     {
+        var boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<BossBaseManager>();
+        var player = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Player).GetComponent<TestPlayerMovess>();
+
+        boss.SetDieFlag(false);
+        player.SetDieFlag(false);
         if (m_CleaStage > 2) SceneManager.LoadScene("title");
         c_BattleManager.Dispatch(state);
         TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, false); }
@@ -150,7 +155,7 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 10;//(int)UnityEngine.Random.Range(30,100);
+            m_RandamNum = (int)UnityEngine.Random.Range(30,100);
         }
         protected override void OnUpdata()
         {
@@ -211,23 +216,37 @@ public class BattleManager : MonoBehaviour
                     var stage1 = owner.c_SaveData.GetCurrentData(1);
                     var stage2 = owner.c_SaveData.GetCurrentData(2);
 
-                    var St1Die = stage1.b_IsBossDie == true ? true : false;
-                    var St2Die = stage2.b_IsBossDie == true ? true : false;
+                    var St1Die = stage1.c_BossData.b_DieFlag;
+                    var St2Die = stage2.c_BossData.b_DieFlag;
+
+                    var P1Die = stage1.c_PlayerData.b_DieFlag;
+                    var P2Die = stage2.c_PlayerData.b_DieFlag;
+
+                    if (P1Die && !P2Die)
+                    {
+                        TatuGameManager.Instance.ResaltPanel("プレイヤー２の勝ち");
+                        return;
+                    }
+                    if (!P1Die && P2Die)
+                    {
+                        TatuGameManager.Instance.ResaltPanel("プレイヤー１の勝ち");
+                        return;
+                    }
 
                     if (St1Die || St2Die)
                     {
                         if (stage1.m_TimeScore < stage2.m_TimeScore)
                         {
-                            TatuGameManager.Instance.ResaltPanel($"プレイヤー１の勝ち");
+                            TatuGameManager.Instance.ResaltPanel("プレイヤー１の勝ち");
                         }
                         else
                         {
-                            TatuGameManager.Instance.ResaltPanel($"プレイヤー２の勝ち");
+                            TatuGameManager.Instance.ResaltPanel("プレイヤー２の勝ち");
                         }
                     }
                     else
                     {
-                        TatuGameManager.Instance.ResaltPanel($"勝者無し");
+                        TatuGameManager.Instance.ResaltPanel("引き分け");
                     }
                 });
                 owner.m_CleaStage++;

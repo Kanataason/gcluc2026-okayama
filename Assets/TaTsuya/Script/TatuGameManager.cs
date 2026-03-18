@@ -178,9 +178,11 @@ public class TatuGameManager : MonoBehaviour
         var text = GetText(UiTextState.StageInfo);
 
         var script = g_Boss.GetComponent<BossBaseManager>();
+        SaveManager.Instance.c_CurrentData.m_TimeScore = BattleManager.Instance.m_TimeScore;
         if (script.GetDieFlag() == true)
             text.text = $"É^ÉCÉÄ\n\n {(int)SaveManager.Instance.c_CurrentData.m_TimeScore}";
         else text.text = "éÄÇÒÇ≈ÇµÇ‹Ç¡ÇΩÅB";
+        g_Player.GetComponent<TestPlayerMovess>().SetIsHitFlag(true);
     }
     public void ResaltPanel(string Score)
     {
