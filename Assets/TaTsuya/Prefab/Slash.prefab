@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletManager
   m_MyScaleX: 6.6
-  m_MyScaleY: 0.8
+  m_MyScaleY: 2
   m_DestroyTime: 0.3
   m_StartAnima: 3
   c_AttackInfo:
@@ -172,3 +172,4 @@ MonoBehaviour:
   m_CharaType: 2
   m_EfectType: 2
   m_Damage: 5
+  b_IsFlyAttack: 0

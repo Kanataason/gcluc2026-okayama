@@ -92,7 +92,6 @@ public class CharaBase : MonoBehaviour
         else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.c_CurrentData.GetBossState(data); }
 
         if (save == null) return;
-        Debug.Log($"name{gameObject.name} sacwe{save}");
 
         a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
         if (a_Animator != null ) a_Animator.speed = 1;

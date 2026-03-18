@@ -15,7 +15,7 @@ public class BossBaseManager : CharaBase
 
     public override void Start()
     {
-        m_MaxHp = 300;
+        m_MaxHp = 200;
         e_CharaState = CharaState.Boss;
         c_SaveState.g_Character = this.gameObject;
         EventEnter();
