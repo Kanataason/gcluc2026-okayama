@@ -36,7 +36,7 @@ public class TestPlayerMovess :CharaBase
         if (TatuGameManager.Instance == null) return;
 
         if (Input.GetKeyDown(KeyCode.H))
-        { TakeDamage(6); }
+        { Debug.Log(GetDieFlag()); }
         // ReverseSprite(CharaState.Boss, v_scale);
         if (g_Boss != null) CheckCollisionBox(2, 0.7f, transform.position, g_Boss.transform.position, 7);
       CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
@@ -85,14 +85,15 @@ public class TestPlayerMovess :CharaBase
         int animehash = status.fullPathHash;
         float animevalue = animetime;
         c_SaveState.b_IsJumpFlag = c_PlayerMoveManager.GetIsJumping();
+        
         SetAnimetion(animetime, animevalue, animeName);
         base.SetStatus(state, animeName);
     }
-         public override void GetStatus(StageSaveData data)//前回のステータスをセット        
+    public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
-
-        if(GetIsAttackFlag()== true)
+        c_PlayerMoveManager.SetJumpFlag(data.c_PlayerData.b_IsJumpFlag);
+        if (GetIsAttackFlag()== true)
         {
             Debug.Log("ssss");
             a_Animator.Play(data.c_PlayerData.m_AnimeHash, 0, data.c_PlayerData.m_AnimeTime);
@@ -101,7 +102,7 @@ public class TestPlayerMovess :CharaBase
         {
             a_Animator.Play("Idle", 0, 0);
         }
-        if (data.c_PlayerData.b_IsJumpFlag)
+        if (c_PlayerMoveManager.GetIsJumping() == true)
         {
             c_PlayerMoveManager.SetJump(data.c_PlayerData.m_JumpHeightValue);
         }
@@ -136,8 +137,8 @@ public class TestPlayerMovess :CharaBase
     }
     public override void TakeDamage(float damage)
     {
-        base.TakeDamage(damage);
         if (GetDieFlag() == true) return;
+        base.TakeDamage(damage);
         if (m_hp <= 0)
         {
             Die();
@@ -148,7 +149,8 @@ public class TestPlayerMovess :CharaBase
         base.Die();
         TatuGameManager.Instance.SetMoveFlag(false);
         TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-        NextFrame.Run(this, 1, () =>
+        SaveManager.Instance.c_CurrentData.c_PlayerData.b_DieFlag = true; 
+        NextFrame.Run(this, 0.5f, () =>
         {
             TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, true);
         });

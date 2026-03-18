@@ -51,13 +51,13 @@ Material:
     - _Blend: 0
     - _CastShadows: 1
     - _Cull: 0
-    - _Distion: 0.05
+    - _Distion: 0.7
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Sclorl: 1.45
-    - _SlashWidht: 0.171
+    - _Sclorl: 0.2
+    - _SlashWidht: 0.193
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 1
@@ -67,7 +67,7 @@ Material:
     - _alph: 0
     - _time: 0
     m_Colors:
-    - _EmissionColor: {r: 31.548681, g: 1.6071943, b: 21.384403, a: 0}
+    - _EmissionColor: {r: 1024, g: 0, b: 831.2471, a: 0}
     - _wide: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
