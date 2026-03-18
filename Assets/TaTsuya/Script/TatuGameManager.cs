@@ -118,7 +118,7 @@ public class TatuGameManager : MonoBehaviour
     {
         c_Boss = g_Boss.GetComponent<CharaBase>();
         c_Player = g_Player.GetComponent<TestPlayerMovess>();
-
+        Debug.Log($"{c_Player}/g{g_Player}");
         c_Boss.OnHpBar += OnUpdateHpbar;
         c_Player.OnHpBar += OnUpdateHpbar;
     }

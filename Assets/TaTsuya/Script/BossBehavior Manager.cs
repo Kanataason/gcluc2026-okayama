@@ -77,9 +77,9 @@ public class BossBehaviorManager : MonoBehaviour
     {
         l_AttackEvent = new()
         {
-            new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
+            new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
              new AttackEvent(){m_Weight = 40,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
+              new AttackEvent(){m_Weight = 30,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
         };
     }
     private void ChangeValue(int[] values)//ämó¶ÇïœÇ¶ÇÈÇΩÇﬂÇÃïœêî
