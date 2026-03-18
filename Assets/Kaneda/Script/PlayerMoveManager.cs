@@ -19,10 +19,6 @@ public class PlayerMoveManager : MonoBehaviour
     // 移動速度
     const float MOVE_SPEED = 8f;
 
-    // 地面で動けるY範囲
-    const float GROUND_MIN_Y = -6f;
-    const float GROUND_MAX_Y = -4f;
-
     // ジャンプ初速
     const float JUMP_POWER = 10f;
 
@@ -58,6 +54,11 @@ public class PlayerMoveManager : MonoBehaviour
 
         // 初期スケール保存
         v_DefaultScale = transform.localScale;
+
+        // 取得確認
+        Debug.Log($"InputManager : {c_PlayerInputManager}");
+        Debug.Log($"PlayerManager : {c_PlayerManager}");
+        Debug.Log($"Animator : {a_Animator}");
     }
 
     // 影用の地面Y位置を返す
@@ -115,6 +116,10 @@ public class PlayerMoveManager : MonoBehaviour
     // 移動処理
     void Move()
     {
+        // null対策
+        if (c_PlayerManager == null) return;
+        if (c_PlayerInputManager == null) return;
+
         // 攻撃中は移動しない
         if (c_PlayerManager.GetIsAttackFlag()) return;
 
@@ -141,9 +146,18 @@ public class PlayerMoveManager : MonoBehaviour
         if (b_IsGround)
         {
             Vector3 position = transform.position;
-            position.y = Mathf.Clamp(position.y, TatuGameManager.Instance.m_StageScaleMinY,
-                                                    TatuGameManager.Instance.m_StageScaleMaxY);
-            transform.position = position;
+
+            // ステージ管理がある時だけ制限する
+            if (TatuGameManager.Instance != null)
+            {
+                position.y = Mathf.Clamp(
+                    position.y,
+                    TatuGameManager.Instance.m_StageScaleMinY,
+                    TatuGameManager.Instance.m_StageScaleMaxY
+                );
+
+                transform.position = position;
+            }
         }
 
         // 向き変更
@@ -153,6 +167,8 @@ public class PlayerMoveManager : MonoBehaviour
     // 向き更新
     void UpdateDirection(float horizontal)
     {
+        if (c_PlayerManager == null) return;
+
         if (horizontal > 0f)
         {
             c_PlayerManager.CurrentDirection = 1;
@@ -178,6 +194,7 @@ public class PlayerMoveManager : MonoBehaviour
 
         // 重力計算
         f_JumpVelocity += GRAVITY * Time.deltaTime;
+
         Vector3 position = transform.position;
         position.y += f_JumpVelocity * Time.deltaTime;
         transform.position = position;
@@ -197,6 +214,8 @@ public class PlayerMoveManager : MonoBehaviour
     // 入力から移動アニメ更新
     void UpdateMoveAnimationFromInput()
     {
+        if (c_PlayerInputManager == null) return;
+
         float horizontal = Mathf.Abs(c_PlayerInputManager.GetHorizontal());
         float vertical = Mathf.Abs(c_PlayerInputManager.GetVertical());
 
@@ -220,6 +239,7 @@ public class PlayerMoveManager : MonoBehaviour
     void UpdateMoveAnimation(float moveValue)
     {
         if (a_Animator == null) return;
+        if (c_PlayerManager == null) return;
         if (c_PlayerManager.GetIsAttackFlag()) return;
 
         a_Animator.SetFloat(MOVE_HASH, moveValue);
@@ -245,16 +265,21 @@ public class PlayerMoveManager : MonoBehaviour
         return b_IsJumping;
     }
 
+    // 現在のジャンプ速度を取得
     public float JumpParame()
     {
         return f_JumpVelocity;
     }
+
+    // ジャンプ速度を設定
     public void SetJump(float value)
     {
         f_JumpVelocity = value;
     }
-    public void SetJumpFlag(bool IsJump)
+
+    // ジャンプ中フラグを設定
+    public void SetJumpFlag(bool isJump)
     {
-        b_IsJumping = IsJump;
+        b_IsJumping = isJump;
     }
 }
