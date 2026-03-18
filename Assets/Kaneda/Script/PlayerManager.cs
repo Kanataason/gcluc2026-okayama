@@ -16,9 +16,19 @@ public class PlayerManager : CharaBase
     // 現在の状態
     Player.PlayerState s_PlayerState;
 
+    // 攻撃判定を出すか
     bool b_IsCollision;
 
+    // ボス
     BossBaseManager g_Boss;
+
+    // 攻撃判定サイズ
+    const float ATTACK_SCALE_X = 5.2f;
+    const float ATTACK_SCALE_Y = 1f;
+
+    // 攻撃ダメージ
+    const float ATTACK_DAMAGE = 7f;
+
     public override void Start()
     {
         base.Start();
@@ -37,18 +47,35 @@ public class PlayerManager : CharaBase
         // 初期状態
         s_PlayerState = Player.PlayerState.Idle;
 
+        // 攻撃判定OFF
         b_IsCollision = false;
 
+        // 1フレーム後にボス取得
         NextFrame.Run(this, 1, () =>
         {
-            g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<BossBaseManager>();
+            var bossObject = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
+
+            if (bossObject != null)
+            {
+                g_Boss = bossObject.GetComponent<BossBaseManager>();
+            }
         });
     }
 
     public override void Update()
     {
-        if(!TatuGameManager.Instance.m_IsTutorial &&!BattleManager.Instance.b_IsLoading)
-             StateUpdate();
+        // 必須参照が無ければ処理しない
+        if (c_PlayerInputManager == null) return;
+        if (c_PlayerMoveManager == null) return;
+        if (c_PlayerAttackManager == null) return;
+        if (TatuGameManager.Instance == null) return;
+        if (BattleManager.Instance == null) return;
+
+        // チュートリアル中・ロード中は動かさない
+        if (!TatuGameManager.Instance.m_IsTutorial && !BattleManager.Instance.b_IsLoading)
+        {
+            StateUpdate();
+        }
     }
 
     // 状態更新
@@ -163,23 +190,29 @@ public class PlayerManager : CharaBase
             }
         }
     }
-    //攻撃の情報
-    float ScaleX = 5.2f;
-    float ScaleY = 1;
-    float Damage = 7;
 
     // 攻撃状態更新
     void AttackUpdate()
     {
         c_PlayerAttackManager.AttackUpdate();
 
+        // 攻撃判定が有効ならボスに当たり判定を送る
         if (b_IsCollision && g_Boss != null)
-         g_Boss.CheckCollisionBox(ScaleX, ScaleY, transform.position, g_Boss.transform.position, Damage);
+        {
+            g_Boss.CheckCollisionBox(
+                ATTACK_SCALE_X,
+                ATTACK_SCALE_Y,
+                transform.position,
+                g_Boss.transform.position,
+                ATTACK_DAMAGE
+            );
+        }
 
-        // 攻撃が終わったら戻る
+        // 攻撃終了後
         if (!GetIsAttackFlag())
         {
             SetCollider(0);
+
             float horizontal = c_PlayerInputManager.GetHorizontal();
             float vertical = c_PlayerInputManager.GetVertical();
 
@@ -193,6 +226,12 @@ public class PlayerManager : CharaBase
             }
         }
     }
-    //0false 1true
-    public void SetCollider(int IsTrue) => b_IsCollision = IsTrue == 1 ? true : false;
+
+    // 攻撃判定ON/OFF
+    // 0 = false
+    // 1 = true
+    public void SetCollider(int isTrue)
+    {
+        b_IsCollision = isTrue == 1;
+    }
 }
