@@ -49,7 +49,7 @@ public class BossBaseManager : CharaBase
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log($"{a_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime}");
+            c_BossAttackManager.SpawnEfect(5);
         }
     }
     public override void FixedUpdate()
