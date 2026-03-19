@@ -8,14 +8,17 @@ public class CameraMove : MonoBehaviour
     public float m_Offset;
     private void Start()
     {
-        g_Player = GameObject.FindWithTag("Player");
+        NextFrame.Run(this, 0.5f, () =>
+        {
+            g_Player = TatuGameManager.Instance.g_Player;
+        });
     }
     private void LateUpdate()
     {
+        if (g_Player == null) return;
         if (transform.position.x > 130) return;
         if (TatuGameManager.Instance == null) return;
         if (TatuGameManager.Instance.GetCameraMoveflag()) return;
-        if (g_Player == null) return;
 
 
         Vector3 cam = Camera.main.transform.position;

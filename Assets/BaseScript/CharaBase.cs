@@ -59,6 +59,7 @@ public class CharaBase : MonoBehaviour
     {
         var target = SaveManager.Instance.c_CurrentData.GetCharacter(targetstate);
         if (target == null) return;
+
         int dir = transform.position.x > target.transform.position.x ? 1 : -1;
         Func<int, bool> func = targetstate == CharaState.Boss
             ? (v => v == -1)
@@ -82,6 +83,19 @@ public class CharaBase : MonoBehaviour
         c_SaveState.b_IsAttack = GetIsAttackFlag();
         c_SaveState.m_AnimeHashName = animeName;
         c_SaveState.m_HitTimer = HitTime;
+
+        AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
+        float animetime = status.normalizedTime;
+        int animehash = status.fullPathHash;
+        float animevalue = animetime;
+
+        switch (m_AnimeHashType)
+        {
+            case 0: if (animetime != 0) animevalue = a_Animator.GetFloat(animeName); break;
+            default: Debug.Log("Žæ‚é•K—v‚È‚¢"); break;
+        }
+
+        SetAnimetion(animetime, animevalue, animehash);
         SaveManager.Instance.SetSaveData(state, c_SaveState);
         HitTime = 0;
     }

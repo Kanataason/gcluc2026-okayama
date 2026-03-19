@@ -60,7 +60,7 @@ public class TatuGameManager : MonoBehaviour
 
     public List<StageInfo> l_Infolist = new ();
     public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;
-    private GameObject g_Player;
+    public GameObject g_Player;
     private GameObject g_Boss;
 
     public event Action OnBattle;

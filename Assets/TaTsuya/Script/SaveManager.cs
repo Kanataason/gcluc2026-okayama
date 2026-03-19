@@ -21,18 +21,7 @@ public class SaveManager : MonoBehaviour
 
     public StageSaveData c_CurrentData = new StageSaveData();
 
-    private void Start()
-    {
-    }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Debug.Log($"s1{c_Stage1SaveData.c_BossData.l_ObjList.Count}  / s2{c_Stage2SaveData.c_BossData.l_ObjList.Count}");
-        }
-    }
-
-    public void ResetSaveData()
+    public void ResetSaveData()//リセットするための関数
     {
         c_Stage1SaveData = null;
         c_Stage2SaveData = null;
@@ -75,7 +64,7 @@ public class SaveManager : MonoBehaviour
         c_CurrentData.c_BossData.e_BossAwake = awake;
         c_CurrentData.c_BossData.m_ActionTime = CurrentTime;
     }
-    public void CheckRound()
+    public void CheckRound()//現在のセーブデータがどっちかを確認
     {
        // Debug.Log("チェック");
         BattleManager battle = BattleManager.Instance;
@@ -104,6 +93,7 @@ public class StageSaveData//全体のsave
     public int m_TotalRound =1;
     public float m_TimeScore =0;
     public float m_CurrentAudioTime =0;
+    //ステージの全体の変数
     public bool b_IsTeleport;
     public Vector3 v_CameraPos = new Vector3(0, 0, -11);
     public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;
@@ -193,7 +183,7 @@ public class StageSaveData//全体のsave
         return save;
     }
 
-    public List<BossBulletManager> GetObjList(CharaState state)
+    public List<BossBulletManager> GetObjList(CharaState state)//生成したオブジェクトを入れる
     {
         List<BossBulletManager> save = null;
         switch (state)

@@ -75,14 +75,7 @@ public class TestPlayerMovess :CharaBase
     }
     public override void SetStatus(CharaState state, int animeName = 0)
     {
-
-        AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
-        float animetime = status.normalizedTime;
-        int animehash = status.fullPathHash;
-        float animevalue = animetime;
         c_SaveState.b_IsJumpFlag = c_PlayerMoveManager.GetIsJumping();
-        
-        SetAnimetion(animetime, animevalue, animeName);
         base.SetStatus(state, animeName);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        

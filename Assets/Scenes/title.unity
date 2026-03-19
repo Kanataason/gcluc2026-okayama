@@ -587,16 +587,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f112821bb88e1644f9f6ec448cda2aef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleManager
-  l_UiList:
-  - e_UiState: 1
-    g_Panel: {fileID: 1776415839}
-  - e_UiState: 2
-    g_Panel: {fileID: 79477031}
-  - e_UiState: 3
-    g_Panel: {fileID: 528829984}
-  - e_UiState: 4
-    g_Panel: {fileID: 1935118935}
   t_text: {fileID: 1105777725}
+  d_PanelDictionary:
+    l_Entry:
+    - Key: 1
+      Value: {fileID: 1776415839}
+    - Key: 2
+      Value: {fileID: 79477031}
+    - Key: 3
+      Value: {fileID: 528829984}
+    - Key: 4
+      Value: {fileID: 1935118935}
   l_ButtonList:
   - {fileID: 1208560885}
   - {fileID: 833692639}
@@ -1315,7 +1316,7 @@ GameObject:
   - component: {fileID: 833692641}
   - component: {fileID: 833692640}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: Second
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1585,7 +1586,7 @@ GameObject:
   - component: {fileID: 1105777724}
   - component: {fileID: 1105777725}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: PlayerCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1723,7 +1724,7 @@ GameObject:
   - component: {fileID: 1208560888}
   - component: {fileID: 1208560887}
   m_Layer: 5
-  m_Name: Button
+  m_Name: First
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

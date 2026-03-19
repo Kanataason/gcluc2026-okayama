@@ -12,12 +12,12 @@ public class BossBaseManager : CharaBase
 
     public GameObject g_Player;
     public Vector3 v_Scale;
-
     public override void Start()
     {
         m_MaxHp = 250;
         e_CharaState = CharaState.Boss;
         c_SaveState.g_Character = this.gameObject;
+
         EventEnter();
         base.Start();
         Init();
@@ -28,17 +28,17 @@ public class BossBaseManager : CharaBase
         BattleManager.Instance.OnSetStageInfo += ChangePlayer;
         BattleManager.Instance.OnGetStageInfo += GetStatus;
     }
-    private void Init()
+    private void Init()//初期化
     {
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_BossAttackManager = GetComponent<BossAttackManager>();
+
         SetStatus(e_CharaState,c_BossAttackManager.m_CurrentAnime);
     }
     public override void Update()
     {
         base.Update();
-        if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
-        CheckGround(TatuGameManager.Instance.m_StageScaleMinY,TatuGameManager.Instance.m_StageScaleMaxY);
+        //デバックをするために書いている
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Debug.Log($"ob{SaveManager.Instance.c_CurrentData.c_PlayerData}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
@@ -55,8 +55,10 @@ public class BossBaseManager : CharaBase
     public override void FixedUpdate()
     {
         if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
-     // if (g_Player != null) CheckCollisionBox(1f,1.2f,transform.position, g_Player.transform.position,2);
-      if(GetIsAttackFlag() != true) ReverseSprite(CharaState.Player,v_Scale);
+        CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
+
+        if (GetIsAttackFlag() != true) 
+            ReverseSprite(CharaState.Player,v_Scale);
     }
     public override void SetStatus(CharaState state, int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
@@ -70,13 +72,8 @@ public class BossBaseManager : CharaBase
             c_BossAttackManager.l_BulletList.Clear();
         }
         SetDieFlag(false);
-        
-        AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
-        float animetime = status.normalizedTime;
-        int animehash = status.fullPathHash;
-        float animevalue = AnimeName;
-        c_SaveState.b_IsTransparent = a_Animator.GetBool(c_BossAttackManager.BossTransparent);
 
+        c_SaveState.b_IsTransparent = a_Animator.GetBool(c_BossAttackManager.BossTransparent);
 
         if (c_BossAttackManager.m_IsBossCoroutine1)//ボス専用
         {
@@ -84,12 +81,6 @@ public class BossBaseManager : CharaBase
             c_BossAttackManager.ReserAnima();
         }
 
-        switch (m_AnimeHashType)
-        {
-            case 0: if (AnimeName != 0)  animevalue = a_Animator.GetFloat(AnimeName); break;
-            default:Debug.Log("取る必要ない"); break;
-        }
-        SetAnimetion(animetime, animevalue, animehash);
         base.SetStatus(state, AnimeName);
     }
     public override void ChangePlayer()//切り替え処理
@@ -111,44 +102,29 @@ public class BossBaseManager : CharaBase
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
-        c_BossBehaviorManager.e_AwakeHp = data.c_BossData.e_BossAwake;
-        c_BossBehaviorManager.m_CurrentActionTime = data.c_BossData.m_ActionTime;
+        var BossData = data.c_BossData;
+        c_BossBehaviorManager.e_AwakeHp = BossData.e_BossAwake;
+        c_BossBehaviorManager.m_CurrentActionTime = BossData.m_ActionTime;
 
-        c_BossAttackManager.m_IsBossCoroutine1 = data.c_BossData.b_IsMove;
+        c_BossAttackManager.m_IsBossCoroutine1 = BossData.b_IsMove;
         c_SaveState.b_IsMove = false;
-        a_Animator.SetBool(c_BossAttackManager.BossTransparent, data.c_BossData.b_IsTransparent);
+        a_Animator.SetBool(c_BossAttackManager.BossTransparent, BossData.b_IsTransparent);
 
-        if (e_CharaState == CharaState.Player)
-        {
-            if (data.c_PlayerData.l_ObjList != null&&data.c_PlayerData.l_ObjList.Count>0)
-            {
-                Debug.Log("再現");
-                foreach (var obj in data.c_BossData.l_ObjList)
-                {
-                    obj.RestartClock();
-                }
 
-                c_BossAttackManager.l_BulletList = data.c_PlayerData.l_ObjList.ToList();
-                data.c_PlayerData.l_ObjList.Clear();
-                c_SaveState.l_ObjList?.Clear();
-                SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
-            }  
-        }
-        else if(e_CharaState == CharaState.Boss)
+        if (BossData.l_ObjList != null && BossData.l_ObjList.Count > 0)
         {
-            if(data.c_BossData.l_ObjList != null && data.c_BossData.l_ObjList.Count > 0)
+            Debug.Log("再現");
+            foreach (var obj in BossData.l_ObjList)
             {
-                Debug.Log("再現");
-                foreach (var obj in data.c_BossData.l_ObjList)
-                {
-                    obj.RestartClock();
-                }
-                c_BossAttackManager.l_BulletList = data.c_BossData.l_ObjList.ToList();
-                data.c_BossData.l_ObjList.Clear();
-                c_SaveState.l_ObjList?.Clear();
-                SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
+                obj.RestartClock();
             }
+            c_BossAttackManager.l_BulletList = BossData.l_ObjList.ToList();
+            BossData.l_ObjList.Clear();
+            c_SaveState.l_ObjList?.Clear();
+
+            SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
         }
+
         NextFrame.OneFrame(this, () =>
         {
             data.InitState();
