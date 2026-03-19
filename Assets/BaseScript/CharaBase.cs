@@ -1,20 +1,19 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 //using UnityEditor.Overlays;
 using UnityEngine;
-using UnityEngine.U2D;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
-using static UnityEngine.Rendering.DebugUI;
 [RequireComponent(typeof(SpriteRenderer),typeof(Animator))]
 public class CharaBase : MonoBehaviour
 {
     public virtual void OnDisable()
     {
         Debug.Log("イベント解除");
-      if(BattleManager.Instance != null)  BattleManager.Instance.OnSetStageInfo -= ChangePlayer;
-      if(BattleManager.Instance != null) BattleManager.Instance.OnGetStageInfo -= GetStatus;
+        if (BattleManager.Instance != null)
+        {
+            BattleManager.Instance.OnSetStageInfo -= ChangePlayer;
+            BattleManager.Instance.OnGetStageInfo -= GetStatus;
+        }
+
         SortOrderManager.Instance.RemoveList(s_Sprite);
         OnHpBar = null;
     }
@@ -32,24 +31,31 @@ public class CharaBase : MonoBehaviour
     {
         if (BattleManager.Instance.b_IsLoading) return;
 
-        if (GetIsHitFlag() == true)
+        if (GetIsHitFlag() == false) return;
+
+        HitTime += Time.deltaTime;
+
+        Color col = s_Sprite.color;
+        col.a = Mathf.PingPong(HitTime * 8f, 1f);
+        s_Sprite.color = col;
+
+        if (HitTime > Duraction)
         {
-            HitTime += Time.deltaTime;
-
-            Color col = s_Sprite.color;
-            col.a = Mathf.PingPong(HitTime * 8f, 1f);
-            s_Sprite.color = col;
-
-            if (HitTime > Duraction)
-            {
-                Debug.Log("終わり");
-                HitTime = 0;
-                col.a = 1f;               // ← ここ追加（元に戻す）
-                s_Sprite.color = col;
-                SetIsHitFlag(false);
-            }
+            EndHitEffect();
         }
     }//キーの取得だけ
+    private void EndHitEffect()
+    {
+        Debug.Log("終わり");
+
+        HitTime = 0;
+
+        var col = s_Sprite.color;
+        col.a = 1f;
+        s_Sprite.color = col;
+
+        SetIsHitFlag(false);
+    }
 
     public virtual void FixedUpdate() { }//主な処理はこっち
     public virtual void SetPos(Vector3 Pos) { transform.position = Pos; }//セット
@@ -84,37 +90,47 @@ public class CharaBase : MonoBehaviour
         c_SaveState.m_AnimeHashName = animeName;
         c_SaveState.m_HitTimer = HitTime;
 
-        AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
-        float animetime = status.normalizedTime;
-        int animehash = status.fullPathHash;
-        float animevalue = animetime;
-
-        switch (m_AnimeHashType)
-        {
-            case 0: if (animetime != 0) animevalue = a_Animator.GetFloat(animeName); break;
-            default: Debug.Log("取る必要ない"); break;
-        }
-
-        SetAnimetion(animetime, animevalue, animehash);
-        SaveManager.Instance.SetSaveData(state, c_SaveState);
         HitTime = 0;
+
+        if (a_Animator != null)
+        {
+            AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
+            float animetime = status.normalizedTime;
+            int animehash = status.fullPathHash;
+            float animevalue = animetime;
+            SetAnimetion(animetime, animevalue, animehash);
+
+
+            switch (m_AnimeHashType)
+            {
+                case 0: if (animetime != 0) animevalue = a_Animator.GetFloat(animeName); break;
+                default: Debug.Log("取る必要ない"); break;
+            }
+        }
+        SaveManager.Instance.SetSaveData(state, c_SaveState);
     }
     public virtual void GetStatus(StageSaveData data) //前回のステータスをセット
     {
         SaveState save = null;
+
         if(e_CharaState == CharaState.Player) { save = SaveManager.Instance.c_CurrentData.GetPlayerState(data); }
         else if (e_CharaState == CharaState.Boss) { save = SaveManager.Instance.c_CurrentData.GetBossState(data); }
 
         if (save == null) return;
 
-        a_Animator.Play(save.m_AnimeHash, 0,save.m_AnimeTime);
-        if (a_Animator != null ) a_Animator.speed = 1;
+        if (a_Animator != null)
+        {
+            a_Animator.Play(save.m_AnimeHash, 0, save.m_AnimeTime);
+            a_Animator.speed = 1;
+        }
+        //ステータスをセット
         m_hp = save.m_Inihp;
-        SetPos(save.v_IniPosition);
-        SetHp();
         transform.rotation = save.q_IniRotate;
+        SetPos(save.v_IniPosition);
         SetIsAttackFlag(save.b_IsAttack);
         HitTime = save.m_HitTimer;
+
+        SetHp();//UiにHpを反映
     }
     public virtual void SetAnimetion(float CurrentAnime, float animeValue, int animeName)//現在のアニメーションの進行度、アニメのステートの値、名前
     {
@@ -152,7 +168,6 @@ public class CharaBase : MonoBehaviour
         if (dx < ScaleX && dz < ScaleY)
         {
             Debug.Log("当たった");
-            SetIsHitFlag(true);
             TakeDamage(damage);
         }
     }
@@ -170,11 +185,29 @@ public class CharaBase : MonoBehaviour
     public virtual void TakeDamage(float damage)//攻撃を食らったときの関数
     {
         Debug.Log("攻撃を受けた");
+        SetIsHitFlag(true);
+
         m_hp -= damage;
         AudioManager.Instance.PlaySeAudio("Hit");
         SetHp();
     }
-    public virtual void Die() { Debug.Log("死んだ"); SetDieFlag(true); BattleManager.Instance.m_CleaStage++; }//死んだとき
+    public virtual void Die() 
+    {
+        Debug.Log("死んだ"); 
+        SetDieFlag(true);
+        BattleManager.Instance.m_CleaStage++;
+        //内部処理を止める、ボスのHPバーを非表示
+        TatuGameManager.Instance.SetMoveFlag(false);
+        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
+
+        switch (e_CharaState)
+        {
+            case CharaState.Player:
+                SaveManager.Instance.c_CurrentData.c_PlayerData.b_DieFlag = true;break;
+            case CharaState.Boss:
+                SaveManager.Instance.c_CurrentData.c_BossData.b_DieFlag = true;break;
+        }
+    }//死んだとき
 
     public virtual void SetDieFlag(bool IsDie) { b_IsDie = IsDie; }
 
@@ -182,15 +215,15 @@ public class CharaBase : MonoBehaviour
 
     public virtual void SetIsAttackFlag(bool active) { m_IsAttack = active; }//攻撃初めのフラグ
     public virtual void SetIsHitFlag(bool active) { m_IsHit = active; }//攻撃が当たったときのフラグ
-    public virtual bool GetIsAttackFlag() { return m_IsAttack; }
-    public virtual bool GetIsHitFlag() { return m_IsHit; }
+    public virtual bool GetIsAttackFlag() { return m_IsAttack; }//攻撃フラグを取る
+    public virtual bool GetIsHitFlag() { return m_IsHit; }//ヒットフラグを取る
     public virtual int GetAnimeHashCode() { return c_SaveState.m_AnimeHashName; }
     public virtual void SetAnimaType(int type) { m_AnimeHashType = type; }//アニメーションタイプを設定
 
-    public virtual void SetHp() 
+    public virtual void SetHp() //HpBarに反映させる処理
     {
-        var value = m_hp / m_MaxHp;
-        var clamp = Mathf.Clamp01(value);
+        float value = m_hp / m_MaxHp;
+        var clamp = Mathf.Clamp01(value);//０～１に収める
         OnHpBar?.Invoke(e_CharaState,clamp);
     }
     public virtual void ChangePlayer() { }
@@ -202,6 +235,7 @@ public class CharaBase : MonoBehaviour
     protected int m_AnimeHashType;//
     protected SaveState c_SaveState = new SaveState();//自分にあったSaveManagerにあるものに書き込む
     protected CharaState e_CharaState;//自分が何のキャラクターかしまう変数
+
     private bool m_IsAttack = false;//攻撃をしているか
     private bool m_IsHit = false;//攻撃が当たっているか
     private bool b_IsDie = false;//死んだときのフラグ
@@ -245,18 +279,21 @@ public class SaveState
 
     public List<BossBulletManager> l_ObjList = new List<BossBulletManager>();
 
-    public void Init()
+    public void Init()//初期化
     {
         m_AnimeHash = 0;
         m_AnimeStateValue = 0;
         m_AnimeTime = 0;
         m_AnimeHashName = 0;
+        m_ActionTime = 0;
 
         m_Inihp = 0;
+        m_HitTimer = 0;
         v_IniPosition = Vector3.zero;
         q_IniRotate = Quaternion.identity;
         b_IsAttack = false;
         b_IsMove = false;
         b_IsTransparent = false;
+        b_IsNextFrame = false;
     }
 }

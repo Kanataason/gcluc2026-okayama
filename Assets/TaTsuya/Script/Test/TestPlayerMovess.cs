@@ -24,7 +24,7 @@ public class TestPlayerMovess :CharaBase
             g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
         });
     }
-    private void EventEnter()
+    private void EventEnter()//イベントを登録
     {
         Debug.Log("イベント登録");
         BattleManager.Instance.OnSetStageInfo += ChangePlayer;
@@ -46,10 +46,7 @@ public class TestPlayerMovess :CharaBase
     {
         if (c_SaveState.b_IsNextFrame)
         {
-            NextFrame.OneFrame(this, () =>
-            {
-                a_Animator.speed = 0;
-            });
+            NextFrame.OneFrame(this, () => { a_Animator.speed = 0; });
         }
         else
         {
@@ -59,18 +56,20 @@ public class TestPlayerMovess :CharaBase
     }
     public override void CheckCollisionBox(float ScaleX, float ScaleY, Vector3 MyPos, Vector3 OppPos, float damage = 0, bool IsFly = false)
     {
-        if (IsFly)
+        if (IsFly)//ジャンプが必要な当たり判定
         {
             if (GetIsHitFlag() == true) return;
+
             var jump = c_PlayerMoveManager.JumpParame();
             var dx = Mathf.Abs(MyPos.x - OppPos.x);
+
             if (dx < ScaleX && (c_PlayerMoveManager.GetIsGround() || Mathf.Abs(jump) > 8.5f))
             {
-                SetIsHitFlag(true);
                 TakeDamage(damage);
             }
             return;
         }
+
         base.CheckCollisionBox(ScaleX, ScaleY, MyPos, OppPos, damage);
     }
     public override void SetStatus(CharaState state, int animeName = 0)
@@ -81,51 +80,39 @@ public class TestPlayerMovess :CharaBase
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
+
+        var PlayerData = data.c_PlayerData;
+
+        if (PlayerData.l_ObjList != null && PlayerData.l_ObjList.Count > 0)
+        {
+            Debug.Log("再現");
+            foreach (var obj in PlayerData.l_ObjList)
+                obj.RestartClock();
+
+            PlayerData.l_ObjList.Clear();
+            c_SaveState.l_ObjList?.Clear();
+            SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
+        }
+
+        ReverseSprite(CharaState.Boss, v_scale);//向きを調整
+
+        //アタックしていたらアニメーションを再生
         if (GetIsAttackFlag()== true)
-        {
-            Debug.Log("ssss");
-            a_Animator.Play(data.c_PlayerData.m_AnimeHash, 0, data.c_PlayerData.m_AnimeTime);
-        }
+            a_Animator.Play(PlayerData.m_AnimeHash, 0, PlayerData.m_AnimeTime);
         else
-        {
             a_Animator.Play("Idle", 0, 0);
-        }
+
         //if (c_PlayerMoveManager.GetIsJumping() == true)
         //{
         //    c_PlayerMoveManager.SetJump(data.c_PlayerData.m_JumpHeightValue);
         //}
-        ReverseSprite(CharaState.Boss, v_scale);
-        if (e_CharaState == CharaState.Player)
-        {
-            if (data.c_PlayerData.l_ObjList != null && data.c_PlayerData.l_ObjList.Count > 0)
-            {
-                Debug.Log("再現");
-                foreach (var obj in data.c_BossData.l_ObjList)
-                {
-                    obj.RestartClock();
-                }
 
-                data.c_PlayerData.l_ObjList.Clear();
-                c_SaveState.l_ObjList?.Clear();
-                SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
-            }
-        }
-        NextFrame.OneFrame(this, () =>
-        {
-            data.InitState();
-        });
-    }
-    public void PlaySe(string name)
-    {
-        AudioManager.Instance.PlaySeAudio(name);
-    }
-    public void StopSe()
-    {
-        AudioManager.Instance.StopSe();
+        NextFrame.OneFrame(this, () => { data.InitState(); });//データを初期化
     }
     public override void TakeDamage(float damage)
     {
         if (GetDieFlag() == true) return;
+
         base.TakeDamage(damage);
         if (m_hp <= 0)
         {
@@ -135,12 +122,19 @@ public class TestPlayerMovess :CharaBase
     public override void Die()
     {
         base.Die();
-        TatuGameManager.Instance.SetMoveFlag(false);
-        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-        SaveManager.Instance.c_CurrentData.c_PlayerData.b_DieFlag = true; 
+
         NextFrame.Run(this, 0.5f, () =>
         {
             TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, true);
         });
+    }
+    //アニメーションイベントから呼ばれる
+    public void PlaySe(string name)
+    {
+        AudioManager.Instance.PlaySeAudio(name);
+    }
+    public void StopSe()
+    {
+        AudioManager.Instance.StopSe();
     }
 }

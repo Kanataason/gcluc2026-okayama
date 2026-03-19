@@ -15,12 +15,12 @@ public class TitleManager : MonoBehaviour
     }
 
     public TextMeshProUGUI t_text;
-
+    //オブジェクトリスト
     [SerializeField] GenericDictionary<UiState, GameObject> d_PanelDictionary;
+    public List<GameObject> l_ButtonList = new();
 
     private GameObject g_PrevObj;
     private int m_Count = 0;
-    public List<GameObject> l_ButtonList = new();
     void Start()
     {
         d_PanelDictionary.Init();
@@ -68,7 +68,7 @@ public class TitleManager : MonoBehaviour
         }
         PlayerControl(m_Count);
     }
-    private void StartButton()
+    private void StartButton()//スタートボタンを表示させる
     {
         g_PrevObj.SetActive(false);
 

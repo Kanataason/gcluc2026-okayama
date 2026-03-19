@@ -29,35 +29,41 @@ public class SaveManager : MonoBehaviour
 
     public void SetSaveData(CharaState state,SaveState data)//セーブデータを設定する
     {
-        if(c_Stage1SaveData.c_PlayerData.g_Character == null || c_Stage2SaveData.c_BossData.g_Character == null)//初期値を与える
+
+        bool isPlayer = state == CharaState.Player;
+
+        // 初期化処理
+        if (c_Stage1SaveData.c_PlayerData.g_Character == null ||
+            c_Stage2SaveData.c_BossData.g_Character == null)
         {
-            if (state == CharaState.Player)
+            if (isPlayer)
             {
-                 c_Stage1SaveData.SetPlayerState(data);
-                 c_Stage2SaveData.SetPlayerState(data);
-                Debug.Log(state);
+                c_Stage1SaveData.SetPlayerState(data);
+                c_Stage2SaveData.SetPlayerState(data);
             }
-            else if (state == CharaState.Boss)
+            else
             {
                 c_Stage1SaveData.SetBossState(data);
                 c_Stage2SaveData.SetBossState(data);
-                Debug.Log(state);
             }
-            CheckRound();
 
+            Debug.Log(state);
+            CheckRound();
             return;
         }
 
-       // Debug.Log("セット");
-        if (state == CharaState.Player)
+        // 通常保存処理
+        if (isPlayer)
         {
             c_CurrentData.SetPlayerState(data);
         }
-        else if(state == CharaState.Boss)
+        else
         {
             c_CurrentData.SetBossState(data);
         }
-       if(data.l_ObjList.Count >0) data.l_ObjList.Clear();
+
+        // リストクリア
+        data.l_ObjList.Clear();
     }
     public void SetCurrenBossInfo(BossBehaviorManager.BossAwake awake, float CurrentTime)//ボスの状況を保存
     {
@@ -75,13 +81,11 @@ public class SaveManager : MonoBehaviour
         List<BossBulletManager> CurrentDatas = null;
         StageSaveData data = Round == 1 ? c_Stage1SaveData : c_Stage2SaveData;
         CurrentDatas = data.GetObjList(State);
-        if (CurrentDatas.Count > 0)
-        {
-            CurrentDatas.Clear();
-            Debug.Log("削除");
-        }
+
+        CurrentDatas.Clear();
     }
-    public StageSaveData GetCurrentData(int CurrentRound) => CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
+    public StageSaveData GetCurrentData(int CurrentRound)
+        => CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
 }
 [System.Serializable]
 public class StageSaveData//全体のsave
