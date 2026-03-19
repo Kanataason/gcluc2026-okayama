@@ -270,7 +270,7 @@ public class BattleManager : MonoBehaviour
             manager = stateMachine.owner;
             StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
             CurrentData.m_CurrentAudioTime = AudioManager.Instance.GetTime();
-            AudioManager.Instance.StopBGM();
+            AudioManager.Instance.AllStopAudio();
             CurrentData.m_TotalRound++;
             CurrentData.m_TimeScore = owner.m_TimeScore;
             CurrentData.b_IsTeleport = TatuGameManager.Instance.m_BossTeleport;

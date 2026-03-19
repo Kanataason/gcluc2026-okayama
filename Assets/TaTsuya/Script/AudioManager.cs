@@ -15,50 +15,56 @@ public class AudioManager : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-    [SerializeField] List<AudioClip> l_clips;
-    Dictionary<string, AudioClip> clipMap;
-    public AudioSource BGMaudio;
-    public AudioSource Seaudio;
+    [SerializeField] List<AudioClip> l_Cliplist;
+    Dictionary<string, AudioClip> d_ClipMap;//名前を入力することですぐに検索できるようにするため
+    //SeとBgmは分けて再生するためにソースを別にする
+    public AudioSource BgmAudio;
+    public AudioSource SeAudio;
     void Start()
     {
-        clipMap = new Dictionary<string, AudioClip>();
+        //初期化
+        d_ClipMap = new Dictionary<string, AudioClip>();
 
-        foreach (var clip in l_clips)
+        foreach (var clip in l_Cliplist)
         {
-            clipMap.Add(clip.name, clip);
+            d_ClipMap.Add(clip.name, clip);
         }
     }
-    public void StopBGM()
+    public void AllStopAudio()//すべてを止める
     {
-        BGMaudio.Stop();
-        Seaudio.Stop();
+        BgmAudio.Stop();
+        SeAudio.Stop();
     }
-    public void StopSe()
+    public void StopSe()//Seだけを止める
     {
-        Seaudio.Stop();
+        SeAudio.Stop();
     }
-    public float GetTime()
+    public float GetTime()//遷移時にBｇｍがどこまで進んでいるかを取るための関数
     {
-        return BGMaudio.time;
+        return BgmAudio.time;
     }
-    public void PlayBGMAudio(string clipname,float time)
+    public void PlayBGMAudio(string clipname,float time)//Clipの名前　どれくらいＢＧｍが進んでいるかをセット
     {
-      var clip = GetClip(clipname);
-        BGMaudio.Stop();
+      var clip = GetClip(clipname);//Clip高速検索
+        BgmAudio.Stop();
+
         if (clip == null) return;
-        BGMaudio.clip = clip;
-        BGMaudio.time = time;
-        BGMaudio.Play();
+
+        BgmAudio.clip = clip;
+        BgmAudio.time = time;
+        BgmAudio.Play();
     }
-    public void PlaySeAudio(string name)
+    public void PlaySeAudio(string name)//Clipの名前
     {
-        var clip = GetClip(name);
+        var clip = GetClip(name);//Clip高速検索
+
         if (clip == null) return;
-        Seaudio.PlayOneShot(clip);
+
+        SeAudio.PlayOneShot(clip);
     }
     private AudioClip GetClip(string name)
     {
-        if(clipMap.TryGetValue(name,out var clip))
+        if(d_ClipMap.TryGetValue(name,out var clip))
         {
             return clip;
         }
