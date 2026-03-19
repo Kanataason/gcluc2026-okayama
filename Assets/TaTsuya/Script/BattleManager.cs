@@ -276,6 +276,7 @@ public class BattleManager : MonoBehaviour
             CurrentData.b_IsTeleport = TatuGameManager.Instance.m_BossTeleport;
             CurrentData.v_CameraPos = Camera.main.transform.position;
             CurrentData.e_Awake = TatuGameManager.Instance.e_Awake;
+            owner.m_TimeScore = 0;
             TatuGameManager.Instance.SetMoveFlag(false);
             TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
 

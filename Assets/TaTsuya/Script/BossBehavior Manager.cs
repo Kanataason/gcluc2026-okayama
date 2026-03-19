@@ -134,8 +134,8 @@ public class BossBehaviorManager : MonoBehaviour
                 {
                     Debug.Log("äoê¡");
                     e_AwakeHp = BossAwake.SecondForm;
-                    int[] nums = { 50, 45, 50 };
-                    ChangeValue(nums);
+                    int[] numsss = { 50, 45, 50 };
+                    ChangeValue(numsss);
                     TatuGameManager.Instance.SetMoveFlag(false);
                     c_AttackManager.PlayorStopTransparent(false,true);
                     TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
@@ -148,16 +148,18 @@ public class BossBehaviorManager : MonoBehaviour
                 if (CurrentHp < m_AwakeningHp[1])
                 {
                     e_AwakeHp = BossAwake.FinalForm;
-                    int[] nums = { 40, 45, 70 };
+                    int[] numss = { 40, 0, 70 };
                     TatuGameManager.Instance.SetMoveFlag(false);
                     c_AttackManager.PlayorStopTransparent(false, true);
                     TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
                     ChangeClass(BossState.Invincible);
-                    ChangeValue(nums);
+                    ChangeValue(numss);
                     return m_AwakeningHp[1];
                 }
                 break;
-            default:break;
+            default:
+                int[] nums = { 50, 45, 50 };
+                ChangeValue(nums); break;
         }
         return CurrentHp;
 

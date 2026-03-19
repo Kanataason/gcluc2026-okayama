@@ -75,10 +75,6 @@ public class TestPlayerMovess :CharaBase
     }
     public override void SetStatus(CharaState state, int animeName = 0)
     {
-        if (c_PlayerMoveManager.GetIsJumping())
-        {
-            c_SaveState.m_JumpHeightValue = c_PlayerMoveManager.JumpParame();
-        }
 
         AnimatorStateInfo status = a_Animator.GetCurrentAnimatorStateInfo(0);
         float animetime = status.normalizedTime;
@@ -92,7 +88,6 @@ public class TestPlayerMovess :CharaBase
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
-        c_PlayerMoveManager.SetJumpFlag(data.c_PlayerData.b_IsJumpFlag);
         if (GetIsAttackFlag()== true)
         {
             Debug.Log("ssss");
@@ -102,10 +97,10 @@ public class TestPlayerMovess :CharaBase
         {
             a_Animator.Play("Idle", 0, 0);
         }
-        if (c_PlayerMoveManager.GetIsJumping() == true)
-        {
-            c_PlayerMoveManager.SetJump(data.c_PlayerData.m_JumpHeightValue);
-        }
+        //if (c_PlayerMoveManager.GetIsJumping() == true)
+        //{
+        //    c_PlayerMoveManager.SetJump(data.c_PlayerData.m_JumpHeightValue);
+        //}
         ReverseSprite(CharaState.Boss, v_scale);
         if (e_CharaState == CharaState.Player)
         {

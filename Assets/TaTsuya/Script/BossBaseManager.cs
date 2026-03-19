@@ -167,7 +167,6 @@ public class BossBaseManager : CharaBase
     public override void Die()
     {
         base.Die();
-        Debug.Log(SaveManager.Instance.c_CurrentData.m_TimeScore + BattleManager.Instance.m_TimeScore);
         c_BossAttackManager.PlayorStopTransparent(false, true);
         TatuGameManager.Instance.SetMoveFlag(false);
         TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);

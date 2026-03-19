@@ -179,10 +179,13 @@ public class TatuGameManager : MonoBehaviour
 
         var script = g_Boss.GetComponent<BossBaseManager>();
         SaveManager.Instance.c_CurrentData.m_TimeScore = BattleManager.Instance.m_TimeScore;
+       var data =  SaveManager.Instance.GetCurrentData(BattleManager.Instance.m_CurrentRound);
+        data.m_TimeScore = BattleManager.Instance.m_TimeScore;
+        Debug.Log(SaveManager.Instance.c_CurrentData.m_TimeScore);
         if (script.GetDieFlag() == true)
-            text.text = $"タイム\n\n {(int)SaveManager.Instance.c_CurrentData.m_TimeScore}";
+            text.text = $"タイム\n\n {(int)data.m_TimeScore}";
         else text.text = "死んでしまった。";
-        g_Player.GetComponent<TestPlayerMovess>().SetIsHitFlag(true);
+        //g_Player.GetComponent<TestPlayerMovess>().SetDieFlag(true);
     }
     public void ResaltPanel(string Score)
     {
