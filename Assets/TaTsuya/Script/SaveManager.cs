@@ -16,8 +16,8 @@ public class SaveManager : MonoBehaviour
         }
     }
     //それぞれ一個ずつでいいかも
-    private StageSaveData c_Stage1SaveData = new();
-    private StageSaveData c_Stage2SaveData  = new();
+    public StageSaveData c_Stage1SaveData = new();
+    public StageSaveData c_Stage2SaveData  = new();
 
     public StageSaveData c_CurrentData = new StageSaveData();
 
@@ -47,7 +47,7 @@ public class SaveManager : MonoBehaviour
                 c_Stage2SaveData.SetBossState(data);
             }
 
-            Debug.Log(state);
+            Debug.Log(isPlayer);
             CheckRound();
             return;
         }
@@ -55,6 +55,7 @@ public class SaveManager : MonoBehaviour
         // 通常保存処理
         if (isPlayer)
         {
+            Debug.Log($"セーブ完了{BattleManager.Instance.m_CurrentRound}");
             c_CurrentData.SetPlayerState(data);
         }
         else
@@ -72,9 +73,9 @@ public class SaveManager : MonoBehaviour
     }
     public void CheckRound()//現在のセーブデータがどっちかを確認
     {
-       // Debug.Log("チェック");
         BattleManager battle = BattleManager.Instance;
         c_CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
+        Debug.Log($"セーブテータチェンジ{BattleManager.Instance.m_CurrentRound}");
     }
     public void RemoveList(CharaState State,int Round)
     {
@@ -122,6 +123,8 @@ public class StageSaveData//全体のsave
         c_PlayerData.b_IsAttack = data.b_IsAttack;
 
         c_PlayerData.m_JumpHeightValue = data.m_JumpHeightValue;
+        c_PlayerData.m_JumpVelocity = data.m_JumpVelocity;
+        c_PlayerData.m_GroundY = data.m_GroundY;
         c_PlayerData.g_Character = data.g_Character;
 
         c_PlayerData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
@@ -158,7 +161,11 @@ public class StageSaveData//全体のsave
         save.q_IniRotate = data.c_PlayerData.q_IniRotate;
         save.b_IsAttack = data.c_PlayerData.b_IsAttack;
 
+        //ジャンプの値
         save.m_JumpHeightValue = data.c_PlayerData.m_JumpHeightValue;
+        save.m_JumpVelocity = data.c_PlayerData.m_JumpVelocity;
+        save.m_GroundY = data.c_PlayerData.m_GroundY;
+
         save.l_ObjList = data.c_PlayerData.l_ObjList;//参照渡し
 
         return save;

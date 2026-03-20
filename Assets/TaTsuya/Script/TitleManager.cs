@@ -34,19 +34,23 @@ public class TitleManager : MonoBehaviour
 
     public void ChangePanel(int StateValue)//アニメーションイベントから呼ばれる
     {
-        if (m_Count > 0)
-        {
-            for(int i = 0;i<l_ButtonList.Count - 1; i++)
-                l_ButtonList[i].SetActive(true);
-        }
+        InitPlayerOrder();
 
         g_PrevObj?.SetActive(false);
         g_PrevObj = null;
-        m_Count = 0;
 
         UiState state = (UiState)StateValue;
         var obj = d_PanelDictionary.Get(state);
         SetActive(true,obj);
+    }
+    private void InitPlayerOrder()
+    {
+        if (m_Count > 0)//SetplayerOrderこれの処理をした後だったとき残っていたら流れる
+        {
+            for (int i = 0; i < l_ButtonList.Count - 1; i++)
+                l_ButtonList[i].SetActive(true);
+        }
+        m_Count = 0;
     }
     public void SetActive(bool IsActive,GameObject obj)//パネルを表示処理
     {

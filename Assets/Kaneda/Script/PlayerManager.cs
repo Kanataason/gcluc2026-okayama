@@ -72,7 +72,7 @@ public class PlayerManager : CharaBase
         if (BattleManager.Instance == null) return;
 
         // チュートリアル中・ロード中は動かさない
-        if (!TatuGameManager.Instance.m_IsTutorial && !BattleManager.Instance.b_IsLoading)
+        if (!TatuGameManager.Instance.b_IsTutorial && !BattleManager.Instance.b_IsLoading)
         {
             StateUpdate();
         }

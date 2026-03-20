@@ -6,23 +6,29 @@ public class TestPlayerMovess :CharaBase
     public Vector3 v_scale;
     private GameObject g_Boss;
     private PlayerMoveManager c_PlayerMoveManager;
+    public bool iss;
 
     public override void Start()
     {
-        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
-        e_CharaState = CharaState.Player;
-        m_MaxHp = 50;
-        c_SaveState.g_Character = this.gameObject;
+        Init();
         base.Start();
-        SetStatus(e_CharaState);
         //どこかでどっちから始めるかを設定
         EventEnter();
-        SetHp();
         NextFrame.Run(this, 0.5f, () =>
         {
+            SetHp();
             TatuGameManager.Instance.ActiveHpbar(CharaState.Player, true);
             g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
         });
+        SetStatus(e_CharaState);
+    }
+    private void Init()
+    {
+        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
+
+        e_CharaState = CharaState.Player;
+        m_MaxHp = 50;
+        c_SaveState.g_Character = this.gameObject;
     }
     private void EventEnter()//イベントを登録
     {
@@ -34,13 +40,15 @@ public class TestPlayerMovess :CharaBase
     {
         base.Update();
         if (TatuGameManager.Instance == null) return;
-
+        if (iss)
+        {
+            transform.position = new Vector3(-16, -6, 0);
+        }
         if (Input.GetKeyDown(KeyCode.H))
-        { Debug.Log(GetDieFlag()); }
+        { Debug.Log(transform.position); }
         // ReverseSprite(CharaState.Boss, v_scale);
         if (g_Boss != null) CheckCollisionBox(2, 0.7f, transform.position, g_Boss.transform.position, 7);
-      CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
-
+         CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
     }
     public override void ChangePlayer()//切り替え処理
     {
@@ -60,7 +68,7 @@ public class TestPlayerMovess :CharaBase
         {
             if (GetIsHitFlag() == true) return;
 
-            var jump = c_PlayerMoveManager.JumpParame();
+            var jump = c_PlayerMoveManager.GetJumpParame();
             var dx = Mathf.Abs(MyPos.x - OppPos.x);
 
             if (dx < ScaleX && (c_PlayerMoveManager.GetIsGround() || Mathf.Abs(jump) > 8.5f))
@@ -74,27 +82,30 @@ public class TestPlayerMovess :CharaBase
     }
     public override void SetStatus(CharaState state, int animeName = 0)
     {
+        c_SaveState.m_GroundY = c_PlayerMoveManager.GetShadowGroundY();
+        c_SaveState.m_JumpHeightValue = c_PlayerMoveManager.GetJumpParame();
         c_SaveState.b_IsJumpFlag = c_PlayerMoveManager.GetIsJumping();
+        c_SaveState.m_JumpVelocity = c_PlayerMoveManager.GetVelocity();
+        InitState();
+
         base.SetStatus(state, animeName);
+    }
+    private void InitState()
+    {
+        c_PlayerMoveManager.SetJump(0);
+        c_PlayerMoveManager.SetVelocity(0);
+        c_PlayerMoveManager.SetJumpFlag(false);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
         base.GetStatus(data);
-
         var PlayerData = data.c_PlayerData;
 
-        if (PlayerData.l_ObjList != null && PlayerData.l_ObjList.Count > 0)
-        {
-            Debug.Log("再現");
-            foreach (var obj in PlayerData.l_ObjList)
-                obj.RestartClock();
-
-            PlayerData.l_ObjList.Clear();
-            c_SaveState.l_ObjList?.Clear();
-            SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
-        }
+        TryReproduction(PlayerData);//リストにある物を再現
 
         ReverseSprite(CharaState.Boss, v_scale);//向きを調整
+
+        SetPlayerInfo(PlayerData);
 
         //アタックしていたらアニメーションを再生
         if (GetIsAttackFlag()== true)
@@ -107,7 +118,28 @@ public class TestPlayerMovess :CharaBase
         //    c_PlayerMoveManager.SetJump(data.c_PlayerData.m_JumpHeightValue);
         //}
 
-        NextFrame.OneFrame(this, () => { data.InitState(); });//データを初期化
+      //  NextFrame.OneFrame(this, () => { data.InitState(); });//データを初期化
+    }
+    private void SetPlayerInfo(SaveState data)
+    {
+        //ジャンプの処理
+        c_PlayerMoveManager.SetShadowGroundY(data.v_IniPosition.y);
+        c_PlayerMoveManager.SetJump(data.m_JumpHeightValue);
+        c_PlayerMoveManager.SetJumpFlag(data.b_IsJumpFlag);
+        c_PlayerMoveManager.SetVelocity(data.m_JumpVelocity);
+    }
+    private void TryReproduction(SaveState PlayerData)
+    {
+        if (PlayerData.l_ObjList != null && PlayerData.l_ObjList.Count > 0)
+        {
+            Debug.Log("再現");
+            foreach (var obj in PlayerData.l_ObjList)
+                obj.RestartClock();
+
+            PlayerData.l_ObjList.Clear();
+            c_SaveState.l_ObjList?.Clear();
+            SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
+        }
     }
     public override void TakeDamage(float damage)
     {

@@ -73,6 +73,10 @@ public class PlayerMoveManager : MonoBehaviour
     {
         return f_GroundY;
     }
+    public void SetShadowGroundY(float value)
+    {
+        f_GroundY = value;
+    }
 
     // 待機中更新
     public void IdleUpdate()
@@ -265,16 +269,27 @@ public class PlayerMoveManager : MonoBehaviour
     }
 
     // 現在のジャンプ速度取得
-    public float JumpParame()
+    public float GetJumpParame()
+    {
+        return f_JumpHeight;
+    }
+    //現在のジャンプ速度取得
+    public float GetVelocity()
     {
         return f_JumpVelocity;
     }
 
-    // ジャンプ速度設定
+    // ジャンプ高さ設定
     public void SetJump(float value)
+    {
+        f_JumpHeight = value;
+    }
+    // ジャンプ速度設定
+    public void SetVelocity(float value)
     {
         f_JumpVelocity = value;
     }
+
 
     // ジャンプ中フラグ設定
     public void SetJumpFlag(bool isJump)

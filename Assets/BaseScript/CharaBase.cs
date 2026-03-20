@@ -19,7 +19,7 @@ public class CharaBase : MonoBehaviour
     }
     public virtual void Start()
     {
-
+        c_Camera = Camera.main;
         s_Sprite = GetComponent<SpriteRenderer>();
         a_Animator = GetComponent<Animator>();
 
@@ -140,10 +140,8 @@ public class CharaBase : MonoBehaviour
     }
     public virtual void CheckGround(float Min, float Max)
     {
-        Camera cam = Camera.main;
-
-        float height = cam.orthographicSize;
-        float width = height * cam.aspect;
+        float height = c_Camera.orthographicSize;
+        float width = height * c_Camera.aspect;
 
         float offset = 1f;
 
@@ -151,11 +149,10 @@ public class CharaBase : MonoBehaviour
 
         float ClampY = Mathf.Clamp(pos.y, Min, Max);
 
-        float camX = cam.transform.position.x;
+        float camX = c_Camera.transform.position.x;
         float ClampX = Mathf.Clamp(pos.x,
                                    camX - width + offset,
                                    camX + width - offset);
-
         transform.position = new Vector3(ClampX, ClampY, ClampY);
     }
     public virtual void CheckCollisionBox(float ScaleX, float ScaleY, Vector3 MyPos, Vector3 OppPos, float damage = 0,bool IsFly = false)//当たり判定 奥行きはｚで判定
@@ -200,14 +197,19 @@ public class CharaBase : MonoBehaviour
         TatuGameManager.Instance.SetMoveFlag(false);
         TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
 
+        TryCharaState();
+    }//死んだとき
+
+    private void TryCharaState()
+    {
         switch (e_CharaState)
         {
             case CharaState.Player:
-                SaveManager.Instance.c_CurrentData.c_PlayerData.b_DieFlag = true;break;
+                SaveManager.Instance.c_CurrentData.c_PlayerData.b_DieFlag = true; break;
             case CharaState.Boss:
-                SaveManager.Instance.c_CurrentData.c_BossData.b_DieFlag = true;break;
+                SaveManager.Instance.c_CurrentData.c_BossData.b_DieFlag = true; break;
         }
-    }//死んだとき
+    }
 
     public virtual void SetDieFlag(bool IsDie) { b_IsDie = IsDie; }
 
@@ -222,6 +224,7 @@ public class CharaBase : MonoBehaviour
 
     public virtual void SetHp() //HpBarに反映させる処理
     {
+        Debug.Log($"{gameObject}min{m_hp}max{m_MaxHp}");
         float value = m_hp / m_MaxHp;
         var clamp = Mathf.Clamp01(value);//０～１に収める
         OnHpBar?.Invoke(e_CharaState,clamp);
@@ -247,6 +250,7 @@ public class CharaBase : MonoBehaviour
     //時間の管理
     private float HitTime = 0;
     private float Duraction = 1f;
+    private Camera c_Camera;
 
 }
 [System.Serializable]
@@ -269,7 +273,9 @@ public class SaveState
     public bool b_DieFlag;//死亡フラグ
     //プレイヤー専用
     public float m_JumpHeightValue;
+    public float m_JumpVelocity;
     public bool b_IsJumpFlag;
+    public float m_GroundY;
 
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間

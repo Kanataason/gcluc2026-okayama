@@ -58,19 +58,13 @@ public class BossBehaviorManager : MonoBehaviour
     }
     public void TeleportPos()//これはアニメーションイベントから呼ばれたり最初に呼ばれる
     {
-        Vector3 CurrentPos = Vector3.zero;
-        switch (e_AwakeHp)
-        {
-            case BossAwake.FirstForm:
-                CurrentPos = TatuGameManager.Instance.l_Infolist[0].v_TeleportPos;break;
-            case BossAwake.SecondForm:
-                CurrentPos = TatuGameManager.Instance.l_Infolist[1].v_TeleportPos;
-                c_AttackManager.PlayorStopTransparent(false,false); break;
-            case BossAwake.FinalForm:
-                CurrentPos = TatuGameManager.Instance.l_Infolist[2].v_TeleportPos;
-                c_AttackManager.PlayorStopTransparent(false,false); break;
-        }
-        transform.position = CurrentPos;
+        int index = (int)e_AwakeHp / 2;
+        var pos = TatuGameManager.Instance.l_Infolist[index].v_TeleportPos;
+        Debug.Log(index);
+        transform.position = pos;
+
+        if (e_AwakeHp != BossAwake.FirstForm)
+            c_AttackManager.PlayorStopTransparent(false, false);
     }
     public void ChangeClass(BossState state) { c_BossBehaviorManager.Dispatch((int)state); }
     private void InitDictionary()//リスト初期化 攻撃を追加するときはここに追加
@@ -91,7 +85,7 @@ public class BossBehaviorManager : MonoBehaviour
     }
     private void Update()
     {
-        if (TatuGameManager.Instance == null||!TatuGameManager.Instance.m_BossTeleport) return;
+        if (TatuGameManager.Instance == null||!TatuGameManager.Instance.b_BossTeleport) return;
 
         if (c_BossBehaviorManager.CurrentState != null) c_BossBehaviorManager.Updata();
     }
@@ -135,10 +129,7 @@ public class BossBehaviorManager : MonoBehaviour
         // 覚醒判定
         if (index < m_AwakeningHp.Length && CurrentHp < m_AwakeningHp[index])
         {
-            TatuGameManager.Instance.SetMoveFlag(false);
-            TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-            c_AttackManager.PlayorStopTransparent(false, true);
-            ChangeClass(BossState.Invincible);
+            OnAwakeing();
 
             switch (e_AwakeHp)
             {
@@ -168,6 +159,15 @@ public class BossBehaviorManager : MonoBehaviour
         ChangeValue(nums);
         return returnHp;
     }
+
+    private void OnAwakeing()
+    {
+        TatuGameManager.Instance.SetMoveFlag(false);
+        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
+        c_AttackManager.PlayorStopTransparent(false, true);
+        ChangeClass(BossState.Invincible);
+    }
+
     private class Idle : State
     {
         private float m_LotteryTime;
@@ -180,7 +180,7 @@ public class BossBehaviorManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
-            if (owner.c_AttackManager.m_IsBossCoroutine1) return;
+            if (owner.c_AttackManager.b_IsBossCoroutine) return;
             if (BattleManager.Instance.b_IsLoading&&!b_IsFirst)
             {
                 b_IsFirst = true;

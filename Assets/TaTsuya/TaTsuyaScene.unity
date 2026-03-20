@@ -2366,30 +2366,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26bd6181d8964ac4cb2b3555591984a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TatuGameManager
-  l_TextList:
-  - e_TextState: 0
-    t_Text: {fileID: 1767036559}
-  l_SliderList:
-  - e_SliderState: 0
-    s_Image: {fileID: 560447163}
-  - e_SliderState: 1
-    s_Image: {fileID: 1445732043}
-  l_PanelList:
-  - e_PanelState: 1
-    g_Panel: {fileID: 1218711602}
-  - e_PanelState: 0
-    g_Panel: {fileID: 456608792}
-  - e_PanelState: 2
-    g_Panel: {fileID: 247995602}
+  d_TextDictionary:
+    l_Entry:
+    - Key: 0
+      Value: {fileID: 1767036559}
+    - Key: 1
+      Value: {fileID: 1122098549}
+  d_PanelDictionary:
+    l_Entry:
+    - Key: 1
+      Value: {fileID: 1218711602}
+    - Key: 2
+      Value: {fileID: 247995602}
+  d_SliderDictionary:
+    l_Entry:
+    - Key: 0
+      Value: {fileID: 560447163}
+    - Key: 1
+      Value: {fileID: 1445732043}
   l_TutorialList:
   - {fileID: 1900824706}
   - {fileID: 1586467822}
   - {fileID: 681354133}
   - {fileID: 1287456743}
-  m_StageScaleMaxY: -2.5
-  m_StageScaleMinY: -10
-  m_IsTutorial: 0
-  m_BossTeleport: 0
   l_Infolist:
   - m_EncounterBorder: 30
     v_TeleportPos: {x: 45, y: -5, z: 0}
@@ -2397,8 +2396,11 @@ MonoBehaviour:
     v_TeleportPos: {x: 85, y: -5, z: 0}
   - m_EncounterBorder: 110
     v_TeleportPos: {x: 125, y: -5, z: 0}
+  m_StageScaleMaxY: -2.5
+  m_StageScaleMinY: -10
+  b_IsTutorial: 0
+  b_BossTeleport: 0
   e_Awake: 0
-  g_Player: {fileID: 0}
 --- !u!1 &560447162
 GameObject:
   m_ObjectHideFlags: 0
@@ -4168,6 +4170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TestPlayerMovess
   CurrentDirection: 0
   v_scale: {x: 10, y: 10, z: 1}
+  iss: 0
 --- !u!1 &911716667
 GameObject:
   m_ObjectHideFlags: 0
@@ -6679,7 +6682,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossMoveManager
   CurrentDirection: 0
-  g_Player: {fileID: 0}
   v_Scale: {x: 15, y: 15, z: 1}
 --- !u!95 &1424122296
 Animator:
@@ -6721,7 +6723,7 @@ MonoBehaviour:
   r_Shadow: {fileID: 1908497858}
   m_CurrentAnime: 0
   e_AnimaType: 0
-  m_IsBossCoroutine1: 0
+  b_IsBossCoroutine: 0
 --- !u!114 &1424122298
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6748,7 +6750,7 @@ GameObject:
   - component: {fileID: 1445732044}
   - component: {fileID: 1445732043}
   m_Layer: 5
-  m_Name: BossHpbar
+  m_Name: playerHp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6897,7 +6899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed73ab74ff2bcd54c9189b6f8b500a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
-  c_CurrentData:
+  c_Stage1SaveData:
     c_PlayerData:
       g_Character: {fileID: 0}
       m_AnimeTime: 0
@@ -6912,7 +6914,9 @@ MonoBehaviour:
       m_HitTimer: 0
       b_DieFlag: 0
       m_JumpHeightValue: 0
+      m_JumpVelocity: 0
       b_IsJumpFlag: 0
+      m_GroundY: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -6932,7 +6936,113 @@ MonoBehaviour:
       m_HitTimer: 0
       b_DieFlag: 0
       m_JumpHeightValue: 0
+      m_JumpVelocity: 0
       b_IsJumpFlag: 0
+      m_GroundY: 0
+      m_ActionTime: 0
+      e_BossAwake: 0
+      b_IsMove: 0
+      b_IsTransparent: 0
+      l_ObjList: []
+    m_TotalRound: 1
+    m_TimeScore: 0
+    m_CurrentAudioTime: 0
+    b_IsTeleport: 0
+    v_CameraPos: {x: 0, y: 0, z: -11}
+    e_Awake: 0
+    b_IsBossDie: 0
+  c_Stage2SaveData:
+    c_PlayerData:
+      g_Character: {fileID: 0}
+      m_AnimeTime: 0
+      m_AnimeHash: 0
+      m_AnimeHashName: 0
+      m_AnimeStateValue: 0
+      m_Inihp: 0
+      v_IniPosition: {x: 0, y: 0, z: 0}
+      q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
+      b_IsAttack: 0
+      b_IsNextFrame: 0
+      m_HitTimer: 0
+      b_DieFlag: 0
+      m_JumpHeightValue: 0
+      m_JumpVelocity: 0
+      b_IsJumpFlag: 0
+      m_GroundY: 0
+      m_ActionTime: 0
+      e_BossAwake: 0
+      b_IsMove: 0
+      b_IsTransparent: 0
+      l_ObjList: []
+    c_BossData:
+      g_Character: {fileID: 0}
+      m_AnimeTime: 0
+      m_AnimeHash: 0
+      m_AnimeHashName: 0
+      m_AnimeStateValue: 0
+      m_Inihp: 0
+      v_IniPosition: {x: 0, y: 0, z: 0}
+      q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
+      b_IsAttack: 0
+      b_IsNextFrame: 0
+      m_HitTimer: 0
+      b_DieFlag: 0
+      m_JumpHeightValue: 0
+      m_JumpVelocity: 0
+      b_IsJumpFlag: 0
+      m_GroundY: 0
+      m_ActionTime: 0
+      e_BossAwake: 0
+      b_IsMove: 0
+      b_IsTransparent: 0
+      l_ObjList: []
+    m_TotalRound: 1
+    m_TimeScore: 0
+    m_CurrentAudioTime: 0
+    b_IsTeleport: 0
+    v_CameraPos: {x: 0, y: 0, z: -11}
+    e_Awake: 0
+    b_IsBossDie: 0
+  c_CurrentData:
+    c_PlayerData:
+      g_Character: {fileID: 0}
+      m_AnimeTime: 0
+      m_AnimeHash: 0
+      m_AnimeHashName: 0
+      m_AnimeStateValue: 0
+      m_Inihp: 0
+      v_IniPosition: {x: 0, y: 0, z: 0}
+      q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
+      b_IsAttack: 0
+      b_IsNextFrame: 0
+      m_HitTimer: 0
+      b_DieFlag: 0
+      m_JumpHeightValue: 0
+      m_JumpVelocity: 0
+      b_IsJumpFlag: 0
+      m_GroundY: 0
+      m_ActionTime: 0
+      e_BossAwake: 0
+      b_IsMove: 0
+      b_IsTransparent: 0
+      l_ObjList: []
+    c_BossData:
+      g_Character: {fileID: 0}
+      m_AnimeTime: 0
+      m_AnimeHash: 0
+      m_AnimeHashName: 0
+      m_AnimeStateValue: 0
+      m_Inihp: 0
+      v_IniPosition: {x: 0, y: 0, z: 0}
+      q_IniRotate: {x: 0, y: 0, z: 0, w: 0}
+      b_IsAttack: 0
+      b_IsNextFrame: 0
+      m_HitTimer: 0
+      b_DieFlag: 0
+      m_JumpHeightValue: 0
+      m_JumpVelocity: 0
+      b_IsJumpFlag: 0
+      m_GroundY: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -9092,6 +9202,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d6084f2e9f0dce439266fa662c834c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
+  g_Boss: {fileID: 0}
+  g_Player: {fileID: 0}
   m_CurrentRound: 1
   m_TimeLimit: 0
   m_CurrentTime: 0

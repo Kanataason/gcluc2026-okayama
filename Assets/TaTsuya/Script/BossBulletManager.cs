@@ -34,7 +34,7 @@ public class BossBulletManager : MonoBehaviour
     public Renderer r_Renderer;
     public VfxInfo c_VfxInfo;
 
-    public event Action<GameObject,int,int> DestroyObjEvent;
+    public event Action<BossBulletManager,int,int> DestroyObjEvent;
 
     public int m_CharaType;
     public int m_EfectType;
@@ -99,7 +99,7 @@ public class BossBulletManager : MonoBehaviour
     private void DestroyInfo()
     {
         Init(0,true, false,null,0);
-        DestroyObjEvent?.Invoke(this.gameObject,m_CharaType,m_EfectType);
+        DestroyObjEvent?.Invoke(this,m_CharaType,m_EfectType);
     }
     public void Move(TestPlayerMovess Chara)
     {

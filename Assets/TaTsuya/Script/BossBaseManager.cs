@@ -1,9 +1,5 @@
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 public class BossBaseManager : CharaBase
 {
 
@@ -17,6 +13,7 @@ public class BossBaseManager : CharaBase
         EventEnter();
 
         base.Start();
+        SetStatus(e_CharaState, c_BossAttackManager.m_CurrentAnime);
     }
     private void EventEnter()//イベント登録
     {
@@ -33,7 +30,6 @@ public class BossBaseManager : CharaBase
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_BossAttackManager = GetComponent<BossAttackManager>();
 
-        SetStatus(e_CharaState,c_BossAttackManager.m_CurrentAnime);
     }
     public override void Update()
     {
@@ -42,14 +38,14 @@ public class BossBaseManager : CharaBase
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Debug.Log($"ob{SaveManager.Instance.c_CurrentData.c_PlayerData}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
-                $"att{c_BossAttackManager.m_IsBossCoroutine1}");
+                $"att{c_BossAttackManager.b_IsBossCoroutine}");
             Debug.Log($"load{BattleManager.Instance.b_IsLoading}cehavi{c_BossBehaviorManager.m_CurrentActionTime}");
         }
 
     }
     public override void FixedUpdate()
     {
-        if (TatuGameManager.Instance == null || !TatuGameManager.Instance.m_BossTeleport) return;
+        if (TatuGameManager.Instance == null || !TatuGameManager.Instance.b_BossTeleport) return;
         CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
 
         if (GetIsAttackFlag() != true) 
@@ -57,19 +53,11 @@ public class BossBaseManager : CharaBase
     }
     public override void SetStatus(CharaState state, int AnimeName)//画面切り替え時点何をしているのかhp,flagや（アニメーション）を保存
     {
-        //生成した処理
-        if (c_BossAttackManager.l_BulletList != null&& c_BossAttackManager.l_BulletList.Count >0)
-        {
-            c_SaveState.l_ObjList = c_BossAttackManager.l_BulletList.ToList();
-            c_BossAttackManager.l_BulletList.Clear();
+        TryStopObject();
 
-            foreach (var list in c_SaveState.l_ObjList)
-                  list.StopClock();
-        }
-
-        if (c_BossAttackManager.m_IsBossCoroutine1)//ボス専用
+        if (c_BossAttackManager.b_IsBossCoroutine)//ボス専用
         {
-            c_SaveState.b_IsMove = c_BossAttackManager.m_IsBossCoroutine1;
+            c_SaveState.b_IsMove = c_BossAttackManager.b_IsBossCoroutine;
             c_BossAttackManager.ReserAnima();
         }
 
@@ -79,6 +67,19 @@ public class BossBaseManager : CharaBase
         c_SaveState.b_IsTransparent = a_Animator.GetBool(c_BossAttackManager.BossTransparent);
 
         base.SetStatus(state, AnimeName);
+    }
+    private void TryStopObject()
+    {
+        //生成した処理
+        if (c_BossAttackManager.l_BulletList != null && c_BossAttackManager.l_BulletList.Count > 0)
+        {
+            c_SaveState.l_ObjList = c_BossAttackManager.l_BulletList.ToList();
+            c_BossAttackManager.l_BulletList.Clear();
+
+            foreach (var list in c_SaveState.l_ObjList)
+                list.StopClock();
+        }
+
     }
     public override void ChangePlayer()//切り替え処理
     {
@@ -102,14 +103,23 @@ public class BossBaseManager : CharaBase
 
         var BossData = data.c_BossData;
 
-        c_BossBehaviorManager.e_AwakeHp = BossData.e_BossAwake;
-        c_BossBehaviorManager.m_CurrentActionTime = BossData.m_ActionTime;
-        c_BossAttackManager.m_IsBossCoroutine1 = BossData.b_IsMove;
-        c_SaveState.b_IsMove = false;
-
+        SetBossInfo(BossData);
+        TryReproductionObject(BossData);//生成したものを再現
         //アニメーションをセットする
         a_Animator.SetBool(c_BossAttackManager.BossTransparent, BossData.b_IsTransparent);
 
+      //  NextFrame.OneFrame(this, () => { data.InitState(); });//初期化
+    }
+    private void SetBossInfo(SaveState BossData)
+    {
+        c_BossBehaviorManager.e_AwakeHp = BossData.e_BossAwake;
+        c_BossBehaviorManager.m_CurrentActionTime = BossData.m_ActionTime;
+        c_BossAttackManager.b_IsBossCoroutine = BossData.b_IsMove;
+        c_SaveState.b_IsMove = false;
+
+    }
+    private void TryReproductionObject(SaveState BossData)
+    {
         if (BossData.l_ObjList != null && BossData.l_ObjList.Count > 0)
         {
             Debug.Log("再現");
@@ -123,13 +133,12 @@ public class BossBaseManager : CharaBase
             SaveManager.Instance.RemoveList(e_CharaState, BattleManager.Instance.m_CurrentRound);
         }
 
-        NextFrame.OneFrame(this, () => { data.InitState(); });//初期化
     }
     public override void TakeDamage(float damage)//ダメージ
     {
         if (GetDieFlag() == true) return;
         base.TakeDamage(damage);
-
+        //ボス専用 覚醒判定
         m_hp = c_BossBehaviorManager.CheckBossAwakening(m_hp);
         if (m_hp == 0)
         {

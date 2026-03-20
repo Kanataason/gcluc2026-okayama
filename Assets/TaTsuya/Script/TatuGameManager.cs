@@ -1,7 +1,7 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 public class TatuGameManager : MonoBehaviour
 {
@@ -22,51 +22,30 @@ public class TatuGameManager : MonoBehaviour
         tutorial,
     }
     //短くできると思うクラスを使えば ジェネリックがたにしたら行ける
-    [Serializable]
-    public class Texts
-    {
-        public UiTextState e_TextState;
-        public TextMeshProUGUI t_Text;
-    }
-    [Serializable]
-    public class Hpbars
-    {
-        public UiSliderState e_SliderState;
-        public Image s_Image;
-    }
-    [Serializable]
-    public class Panel
-    {
-        public UiPanelState e_PanelState;
-        public GameObject g_Panel;
-    }
-    public List<Texts> l_TextList;
-    public List<Hpbars> l_SliderList;
-    public List<Panel> l_PanelList;
-    private Dictionary<UiTextState, TextMeshProUGUI> d_TextDictionary = new();
-    private Dictionary<UiSliderState, Image> d_SliderDictionary = new();
-    private Dictionary<UiPanelState, GameObject> d_PanelDictionary = new();
+
+    [SerializeField]GenericDictionary<UiTextState,TextMeshProUGUI> d_TextDictionary = new();
+    [SerializeField]GenericDictionary<UiPanelState,GameObject> d_PanelDictionary = new();
+    [SerializeField]GenericDictionary<UiSliderState,Image> d_SliderDictionary = new();
 
     public List<GameObject> l_TutorialList;
-
+    public List<StageInfo> l_Infolist = new();
     public static TatuGameManager Instance { get; private set; }
-
+    //ステージのY軸の制限
     public float m_StageScaleMaxY;
     public float m_StageScaleMinY;
-    public bool m_IsTutorial;
 
-    private bool m_StopMoveCamera;
-    public bool m_BossTeleport;
+    public bool b_IsTutorial;
+    public bool b_BossTeleport;
+    private bool b_StopMoveCamera;
 
-    public List<StageInfo> l_Infolist = new ();
     public BossBehaviorManager.BossAwake e_Awake = BossBehaviorManager.BossAwake.FirstForm;
-    public GameObject g_Player;
+    private GameObject g_Player;
     private GameObject g_Boss;
 
     public event Action OnBattle;
 
-    private CharaBase c_Boss;
-    private CharaBase c_Player;
+    private BossBaseManager c_Boss;
+    private TestPlayerMovess c_Player;
 
 
     private void Awake()
@@ -92,39 +71,34 @@ public class TatuGameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        m_IsTutorial = true;
-        m_StopMoveCamera = false;
-        g_Player = GameObject.FindWithTag("Player");
-        g_Boss = GameObject.FindWithTag("Boss");
+        b_IsTutorial = true;
+        b_StopMoveCamera = false;
+        SetCharacter();
         InitList();
-        EventEnter();
     }
     private void InitList()
     {
-        foreach (var text in l_TextList)
-        {
-            d_TextDictionary[text.e_TextState] = text.t_Text;
-        }
-        foreach (var slider in l_SliderList)
-        {
-            d_SliderDictionary[slider.e_SliderState] = slider.s_Image;
-        }
-        foreach(var panel in l_PanelList)
-        {
-            d_PanelDictionary[panel.e_PanelState] = panel.g_Panel;
-        }
+        d_PanelDictionary.Init();
+        d_SliderDictionary.Init();
+        d_TextDictionary.Init();
+    }
+    private void SetCharacter()
+    {
+        g_Player = BattleManager.Instance.g_Player;
+        g_Boss = BattleManager.Instance.g_Boss;
+        EventEnter();
     }
     private void EventEnter()
     {
-        c_Boss = g_Boss.GetComponent<CharaBase>();
+        
+        c_Boss = g_Boss.GetComponent<BossBaseManager>();
         c_Player = g_Player.GetComponent<TestPlayerMovess>();
-        Debug.Log($"{c_Player}/g{g_Player}");
         c_Boss.OnHpBar += OnUpdateHpbar;
         c_Player.OnHpBar += OnUpdateHpbar;
     }
     private void FixedUpdate()
     {
-        if (m_StopMoveCamera == true) return;
+        if (b_StopMoveCamera == true) return;
 
         if (g_Player != null)
             CheckCollision(1, l_Infolist[(int)e_Awake / 2].m_EncounterBorder, g_Player.transform.position.x);
@@ -136,74 +110,90 @@ public class TatuGameManager : MonoBehaviour
 
         if (dx < ScaleX)//ここでリストのやつを更新
         {
-            //swich
-            if(e_Awake == BossBehaviorManager.BossAwake.FirstForm) AudioManager.Instance.PlayBGMAudio("ボス", 0);
-            Debug.Log("ssssss");
-            if(e_Awake != BossBehaviorManager.BossAwake.SecondForm)
-                e_Awake = BossBehaviorManager.BossAwake.SecondForm;
-            else
-                e_Awake = BossBehaviorManager.BossAwake.FinalForm;
+            ApplyAwake();
             OnBattle?.Invoke();
+        }
+    }
+    private void ApplyAwake()
+    {
+        switch (e_Awake)
+        {
+            case BossBehaviorManager.BossAwake.FirstForm:
+                AudioManager.Instance.PlayBGMAudio("ボス", 0);
+                e_Awake = BossBehaviorManager.BossAwake.SecondForm; break;
+            case BossBehaviorManager.BossAwake.SecondForm:
+                e_Awake = BossBehaviorManager.BossAwake.FinalForm; break;
+            case BossBehaviorManager.BossAwake.FinalForm: break;
         }
     }
     public void SetMoveFlag(bool IsTrue)
     {
-        m_StopMoveCamera = IsTrue;
-        m_BossTeleport = IsTrue;
+        b_StopMoveCamera = IsTrue;
+        b_BossTeleport = IsTrue;
     }
-    public bool GetCameraMoveflag() => m_StopMoveCamera;
+    public bool GetCameraMoveflag() => b_StopMoveCamera;
     public void ChangeAwake(BossBehaviorManager.BossAwake awake)
     {
         e_Awake = awake;
     }
     private void OnUpdateHpbar(CharaState state,float hp)
     {
-        var slider = state == CharaState.Player ? GetSlider(UiSliderState.PlayerHpbar) :
-                                               GetSlider(UiSliderState.BossHpBar);
+        var slider = state == CharaState.Player ? d_SliderDictionary.Get(UiSliderState.PlayerHpbar) :
+                                               d_SliderDictionary.Get(UiSliderState.BossHpBar);
         slider.fillAmount = hp;
     }
     public void ActiveHpbar(CharaState state,bool IsActive)
     {
-        var slider = state == CharaState.Player ? GetSlider(UiSliderState.PlayerHpbar) :
-                                       GetSlider(UiSliderState.BossHpBar);
+        var slider = state == CharaState.Player ? d_SliderDictionary.Get(UiSliderState.PlayerHpbar) :
+                                       d_SliderDictionary.Get(UiSliderState.BossHpBar);
 
         slider.transform.parent.gameObject.SetActive(IsActive);
     }
     public void ChangePanel(UiPanelState state,bool IsActive)
     {
-        var panel = GetPanel(state);
+        var panel = d_PanelDictionary.Get(state);
 
         if (panel == null) return;
         panel.SetActive(IsActive);
-        var text = GetText(UiTextState.StageInfo);
 
-        var script = g_Boss.GetComponent<BossBaseManager>();
+
+        var data = SaveManager.Instance.GetCurrentData(BattleManager.Instance.m_CurrentRound);
+
+        SaveData(data);//表示前にデータを保存
+        ActiveText(data);//Uiに表示
+    }
+    private void SaveData(StageSaveData data)
+    {
         SaveManager.Instance.c_CurrentData.m_TimeScore = BattleManager.Instance.m_TimeScore;
-       var data =  SaveManager.Instance.GetCurrentData(BattleManager.Instance.m_CurrentRound);
         data.m_TimeScore = BattleManager.Instance.m_TimeScore;
-        Debug.Log(SaveManager.Instance.c_CurrentData.m_TimeScore);
-        if (script.GetDieFlag() == true)
+    }
+    private void ActiveText(StageSaveData data)
+    {
+        var text = d_TextDictionary.Get(UiTextState.StageInfo);
+
+        if (c_Boss.GetDieFlag() == true)
             text.text = $"タイム\n\n {(int)data.m_TimeScore}";
         else text.text = "死んでしまった。";
-        //g_Player.GetComponent<TestPlayerMovess>().SetDieFlag(true);
     }
+
     public void ResaltPanel(string Score)
     {
-        var panel = GetPanel(UiPanelState.Score);
-        var text = GetText(UiTextState.StageInfo);
+        var panel = d_PanelDictionary.Get(UiPanelState.Score);
+        var text = d_TextDictionary.Get(UiTextState.StageInfo);
 
         if (panel == null) return;
         panel.SetActive(true);
         text.text = Score;
     }
+    //----------チュートリアル処理
     int Count = -1;
     public void Tutorial(int IsYes)//1 true
     {
-        GetPanel(UiPanelState.tutorial).SetActive(false);
+        d_PanelDictionary.Get(UiPanelState.tutorial).SetActive(false);
         int prev = Count;
-        if (IsYes == 0)
+        if (IsYes == 0)//戻るボタンを押したら
         {
-            if (Count == -1) { m_IsTutorial = false; return; }
+            if (Count == -1) { b_IsTutorial = false; return; }
             Count--;
             l_TutorialList[prev].SetActive(false);
             l_TutorialList[Count].SetActive(true);
@@ -212,11 +202,11 @@ public class TatuGameManager : MonoBehaviour
 
         Count++;
 
-        if (Count >= l_TutorialList.Count)
+        if (Count >= l_TutorialList.Count)//最後のページに到達したら
         {
-            m_IsTutorial = false;
+            b_IsTutorial = false;
             l_TutorialList[prev].SetActive(false);
-            GetPanel(UiPanelState.tutorial).SetActive(false);
+            d_PanelDictionary.Get(UiPanelState.tutorial).SetActive(false);
             return;
         }
         l_TutorialList[Count].SetActive(true);
@@ -225,30 +215,7 @@ public class TatuGameManager : MonoBehaviour
         l_TutorialList[prev].SetActive(false);
 
     }
-    public Image GetSlider(UiSliderState state)
-    {
-        if(d_SliderDictionary.TryGetValue(state, out var slider))
-        {
-            return slider;
-        }
-        return null;
-    }
-    public GameObject GetPanel(UiPanelState state)
-    {
-        if(d_PanelDictionary.TryGetValue(state, out var panel))
-        {
-            return panel;
-        }
-        return null;
-    }
-    public TextMeshProUGUI GetText(UiTextState state)
-    {
-        if (d_TextDictionary.TryGetValue(state, out var text))
-        {
-            return text;
-        }
-        return null;
-    }
+
 }
 [Serializable]
 public class StageInfo

@@ -10,7 +10,7 @@ public class CameraMove : MonoBehaviour
     {
         NextFrame.Run(this, 0.5f, () =>
         {
-            g_Player = TatuGameManager.Instance.g_Player;
+            g_Player = BattleManager.Instance.g_Player;
         });
     }
     private void LateUpdate()
