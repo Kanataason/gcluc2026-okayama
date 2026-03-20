@@ -48,12 +48,15 @@ public class PlayerMoveManager : MonoBehaviour
     static readonly int JUMP_HASH = Animator.StringToHash("Jump");
     static readonly int GROUND_HASH = Animator.StringToHash("Ground");
 
+    int m_AnimaHashName;
+
     void Start()
     {
         // 必要なコンポーネント取得
         c_PlayerInputManager = GetComponent<PlayerInputManager>();
         c_PlayerManager = GetComponent<PlayerManager>();
-        a_Animator = GetComponent<Animator>();
+
+        NextFrame.OneFrame(this, () => { a_Animator = c_PlayerManager.GetAnimator(); });
 
         // 初期スケール保存
         v_DefaultScale = transform.localScale;
@@ -102,8 +105,8 @@ public class PlayerMoveManager : MonoBehaviour
         // 地面にいないならジャンプしない
         if (!b_IsGround) return;
 
-        b_IsGround = false;
-        b_IsJumping = true;
+        SetGround(false);
+        SetJumpFlag(true);
 
         // ジャンプ高さを初期化
         f_JumpHeight = 0f;
@@ -116,6 +119,7 @@ public class PlayerMoveManager : MonoBehaviour
         {
             a_Animator.SetTrigger(JUMP_HASH);
             a_Animator.SetBool(GROUND_HASH, false);
+            m_AnimaHashName = JUMP_HASH;
         }
     }
 
@@ -183,8 +187,8 @@ public class PlayerMoveManager : MonoBehaviour
         {
             f_JumpHeight = 0f;
             f_JumpVelocity = 0f;
-            b_IsJumping = false;
-            b_IsGround = true;
+            SetJumpFlag(false);
+            SetGround(true);
         }
 
         // 最終位置反映
@@ -246,6 +250,8 @@ public class PlayerMoveManager : MonoBehaviour
         if (c_PlayerManager.GetIsAttackFlag()) return;
 
         a_Animator.SetFloat(MOVE_HASH, moveValue);
+        m_AnimaHashName = MOVE_HASH;
+        
     }
 
     // Groundパラメータ更新
@@ -290,10 +296,27 @@ public class PlayerMoveManager : MonoBehaviour
         f_JumpVelocity = value;
     }
 
+    //グラウンドフラグの設定
+    public void SetGround(bool IsGround)
+    {
+        b_IsGround = IsGround;
+    }
 
     // ジャンプ中フラグ設定
     public void SetJumpFlag(bool isJump)
     {
         b_IsJumping = isJump;
+        Debug.Log(b_IsJumping);
+    }
+    //アニメーションのハッシュの名前を取得
+    public int GetAnimaHashName()
+    {
+        return m_AnimaHashName;
+    }
+    //アニメーションのハッシュをセット
+    public void SetAnimaHashName(int HashName)
+    {
+        m_AnimaHashName = HashName;
+        c_PlayerManager.SetAnimaType(m_AnimaHashName);
     }
 }

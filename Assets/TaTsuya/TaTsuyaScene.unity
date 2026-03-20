@@ -6913,10 +6913,12 @@ MonoBehaviour:
       b_IsNextFrame: 0
       m_HitTimer: 0
       b_DieFlag: 0
+      e_PlayerState: 0
       m_JumpHeightValue: 0
       m_JumpVelocity: 0
       b_IsJumpFlag: 0
       m_GroundY: 0
+      b_IsGround: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -6935,10 +6937,12 @@ MonoBehaviour:
       b_IsNextFrame: 0
       m_HitTimer: 0
       b_DieFlag: 0
+      e_PlayerState: 0
       m_JumpHeightValue: 0
       m_JumpVelocity: 0
       b_IsJumpFlag: 0
       m_GroundY: 0
+      b_IsGround: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -6965,10 +6969,12 @@ MonoBehaviour:
       b_IsNextFrame: 0
       m_HitTimer: 0
       b_DieFlag: 0
+      e_PlayerState: 0
       m_JumpHeightValue: 0
       m_JumpVelocity: 0
       b_IsJumpFlag: 0
       m_GroundY: 0
+      b_IsGround: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -6987,10 +6993,12 @@ MonoBehaviour:
       b_IsNextFrame: 0
       m_HitTimer: 0
       b_DieFlag: 0
+      e_PlayerState: 0
       m_JumpHeightValue: 0
       m_JumpVelocity: 0
       b_IsJumpFlag: 0
       m_GroundY: 0
+      b_IsGround: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -7017,10 +7025,12 @@ MonoBehaviour:
       b_IsNextFrame: 0
       m_HitTimer: 0
       b_DieFlag: 0
+      e_PlayerState: 0
       m_JumpHeightValue: 0
       m_JumpVelocity: 0
       b_IsJumpFlag: 0
       m_GroundY: 0
+      b_IsGround: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -7039,10 +7049,12 @@ MonoBehaviour:
       b_IsNextFrame: 0
       m_HitTimer: 0
       b_DieFlag: 0
+      e_PlayerState: 0
       m_JumpHeightValue: 0
       m_JumpVelocity: 0
       b_IsJumpFlag: 0
       m_GroundY: 0
+      b_IsGround: 0
       m_ActionTime: 0
       e_BossAwake: 0
       b_IsMove: 0
@@ -8965,7 +8977,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 0.668
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0

@@ -98,14 +98,13 @@ public class CharaBase : MonoBehaviour
             float animetime = status.normalizedTime;
             int animehash = status.fullPathHash;
             float animevalue = animetime;
-            SetAnimetion(animetime, animevalue, animehash);
-
 
             switch (m_AnimeHashType)
             {
                 case 0: if (animetime != 0) animevalue = a_Animator.GetFloat(animeName); break;
                 default: Debug.Log("取る必要ない"); break;
             }
+            SetAnimetion(animetime, animevalue, animehash);
         }
         SaveManager.Instance.SetSaveData(state, c_SaveState);
     }
@@ -122,6 +121,33 @@ public class CharaBase : MonoBehaviour
         {
             a_Animator.Play(save.m_AnimeHash, 0, save.m_AnimeTime);
             a_Animator.speed = 1;
+            foreach (var param in a_Animator.parameters)
+            {
+                if (param.nameHash == save.m_AnimeHashName)
+                {
+                    switch (param.type)
+                    {
+                        case AnimatorControllerParameterType.Float:
+                            float f = a_Animator.GetFloat(save.m_AnimeHashName);
+                            Debug.Log($"Float: {f}");
+                            break;
+
+                        case AnimatorControllerParameterType.Bool:
+                            bool b = a_Animator.GetBool(save.m_AnimeHashName);
+                            Debug.Log($"Bool: {b}");
+                            break;
+
+                        case AnimatorControllerParameterType.Int:
+                            int i = a_Animator.GetInteger(save.m_AnimeHashName);
+                            Debug.Log($"Int: {i}");
+                            break;
+
+                        case AnimatorControllerParameterType.Trigger:
+                            Debug.Log("Trigger（取得不可）");
+                            break;
+                    }
+                }
+            }
         }
         //ステータスをセット
         m_hp = save.m_Inihp;
@@ -272,10 +298,13 @@ public class SaveState
     public float m_HitTimer;//無敵時間
     public bool b_DieFlag;//死亡フラグ
     //プレイヤー専用
+    public Player.PlayerState e_PlayerState;
+
     public float m_JumpHeightValue;
     public float m_JumpVelocity;
     public bool b_IsJumpFlag;
     public float m_GroundY;
+    public bool b_IsGround;
 
     //ボス戦用
     public float m_ActionTime;//現在のアニメーションの時間

@@ -10,6 +10,9 @@ public class PlayerAttackManager : MonoBehaviour
     // プレイヤー管理
     PlayerManager c_PlayerManager;
 
+    //行動管理
+    PlayerMoveManager c_PlayerMoveManager;
+
     // Animator
     Animator a_Animator;
 
@@ -26,6 +29,7 @@ public class PlayerAttackManager : MonoBehaviour
     {
         // 必要なコンポーネント取得
         c_PlayerInputManager = GetComponent<PlayerInputManager>();
+        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
         c_PlayerManager = GetComponent<PlayerManager>();
         a_Animator = GetComponent<Animator>();
     }
@@ -50,6 +54,7 @@ public class PlayerAttackManager : MonoBehaviour
         if (a_Animator != null)
         {
             a_Animator.SetTrigger(ATTACK_HASH);
+            c_PlayerMoveManager.SetAnimaHashName(ATTACK_HASH);
         }
     }
 

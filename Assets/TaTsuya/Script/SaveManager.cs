@@ -122,10 +122,13 @@ public class StageSaveData//全体のsave
         c_PlayerData.q_IniRotate = data.q_IniRotate;
         c_PlayerData.b_IsAttack = data.b_IsAttack;
 
+        c_PlayerData.e_PlayerState = data.e_PlayerState;
         c_PlayerData.m_JumpHeightValue = data.m_JumpHeightValue;
         c_PlayerData.m_JumpVelocity = data.m_JumpVelocity;
+        c_PlayerData.b_IsJumpFlag = data.b_IsJumpFlag;
         c_PlayerData.m_GroundY = data.m_GroundY;
         c_PlayerData.g_Character = data.g_Character;
+        c_PlayerData.b_IsGround = data.b_IsGround;
 
         c_PlayerData.l_ObjList = new System.Collections.Generic.List<BossBulletManager>(data.l_ObjList);
     }
@@ -161,10 +164,13 @@ public class StageSaveData//全体のsave
         save.q_IniRotate = data.c_PlayerData.q_IniRotate;
         save.b_IsAttack = data.c_PlayerData.b_IsAttack;
 
+        save.e_PlayerState = data.c_PlayerData.e_PlayerState;
         //ジャンプの値
         save.m_JumpHeightValue = data.c_PlayerData.m_JumpHeightValue;
         save.m_JumpVelocity = data.c_PlayerData.m_JumpVelocity;
+        save.b_IsJumpFlag = data.c_PlayerData.b_IsJumpFlag;
         save.m_GroundY = data.c_PlayerData.m_GroundY;
+        save.b_IsGround = data.c_PlayerData.b_IsGround;
 
         save.l_ObjList = data.c_PlayerData.l_ObjList;//参照渡し
 

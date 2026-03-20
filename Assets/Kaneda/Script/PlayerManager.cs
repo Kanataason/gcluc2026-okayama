@@ -234,4 +234,20 @@ public class PlayerManager : CharaBase
     {
         b_IsCollision = isTrue == 1;
     }
+
+    //ステータスを変えるため
+    public void SetPlayerState(Player.PlayerState state)
+    {
+        s_PlayerState = state;
+    }
+    //スーパークラスのアニメーションを使うため
+    public Animator GetAnimator()
+    {
+        return a_Animator;
+    }
+    //保存用に使うため
+    public Player.PlayerState GetState()
+    {
+        return s_PlayerState;
+    }
 }

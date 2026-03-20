@@ -6,6 +6,7 @@ public class TestPlayerMovess :CharaBase
     public Vector3 v_scale;
     private GameObject g_Boss;
     private PlayerMoveManager c_PlayerMoveManager;
+    private PlayerManager c_PlayerManager;
     public bool iss;
 
     public override void Start()
@@ -25,6 +26,7 @@ public class TestPlayerMovess :CharaBase
     private void Init()
     {
         c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
+        c_PlayerManager = GetComponent<PlayerManager>();
 
         e_CharaState = CharaState.Player;
         m_MaxHp = 50;
@@ -60,7 +62,7 @@ public class TestPlayerMovess :CharaBase
         {
             a_Animator.speed = 0;
         }
-        SetStatus(e_CharaState, 0);
+        SetStatus(e_CharaState, c_PlayerMoveManager.GetAnimaHashName());
     }
     public override void CheckCollisionBox(float ScaleX, float ScaleY, Vector3 MyPos, Vector3 OppPos, float damage = 0, bool IsFly = false)
     {
@@ -82,10 +84,13 @@ public class TestPlayerMovess :CharaBase
     }
     public override void SetStatus(CharaState state, int animeName = 0)
     {
-        c_SaveState.m_GroundY = c_PlayerMoveManager.GetShadowGroundY();
-        c_SaveState.m_JumpHeightValue = c_PlayerMoveManager.GetJumpParame();
         c_SaveState.b_IsJumpFlag = c_PlayerMoveManager.GetIsJumping();
+        c_SaveState.e_PlayerState = c_PlayerManager.GetState();
+        c_SaveState.m_GroundY = c_PlayerMoveManager.GetShadowGroundY();
+        c_SaveState.b_IsGround = c_PlayerMoveManager.GetIsGround();
+        c_SaveState.m_JumpHeightValue = c_PlayerMoveManager.GetJumpParame();
         c_SaveState.m_JumpVelocity = c_PlayerMoveManager.GetVelocity();
+
         InitState();
 
         base.SetStatus(state, animeName);
@@ -94,7 +99,6 @@ public class TestPlayerMovess :CharaBase
     {
         c_PlayerMoveManager.SetJump(0);
         c_PlayerMoveManager.SetVelocity(0);
-        c_PlayerMoveManager.SetJumpFlag(false);
     }
     public override void GetStatus(StageSaveData data)//前回のステータスをセット        
     {
@@ -108,9 +112,7 @@ public class TestPlayerMovess :CharaBase
         SetPlayerInfo(PlayerData);
 
         //アタックしていたらアニメーションを再生
-        if (GetIsAttackFlag()== true)
-            a_Animator.Play(PlayerData.m_AnimeHash, 0, PlayerData.m_AnimeTime);
-        else
+        if (GetIsAttackFlag()== false)
             a_Animator.Play("Idle", 0, 0);
 
         //if (c_PlayerMoveManager.GetIsJumping() == true)
@@ -122,11 +124,14 @@ public class TestPlayerMovess :CharaBase
     }
     private void SetPlayerInfo(SaveState data)
     {
+        //状態処理
+        c_PlayerManager.SetPlayerState(data.e_PlayerState);
         //ジャンプの処理
         c_PlayerMoveManager.SetShadowGroundY(data.v_IniPosition.y);
         c_PlayerMoveManager.SetJump(data.m_JumpHeightValue);
-        c_PlayerMoveManager.SetJumpFlag(data.b_IsJumpFlag);
         c_PlayerMoveManager.SetVelocity(data.m_JumpVelocity);
+        c_PlayerMoveManager.SetGround(data.b_IsGround);
+        c_PlayerMoveManager.SetJumpFlag(data.b_IsJumpFlag);
     }
     private void TryReproduction(SaveState PlayerData)
     {
