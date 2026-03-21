@@ -32,7 +32,7 @@ public class BossAttackManager : MonoBehaviour
     //éQè∆êÊ
     private BossBaseManager c_BossMoveManager;
     private BossBehaviorManager c_BossBehaviorManager;
-    private TestPlayerMovess c_PlayerMove;
+    private PlayerMove c_PlayerMove;
     private ObjctPool c_ObjectPool;
     private Camera c_Camera;
 
@@ -51,7 +51,7 @@ public class BossAttackManager : MonoBehaviour
     {
         c_Camera = Camera.main;
         g_Player = GameObject.FindWithTag("Player");
-        c_PlayerMove = g_Player.GetComponent<TestPlayerMovess>();
+        c_PlayerMove = g_Player.GetComponent<PlayerMove>();
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_ObjectPool = GetComponentInChildren<ObjctPool>();
         c_BossMoveManager = GetComponent<BossBaseManager>();

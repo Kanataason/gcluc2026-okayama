@@ -58,7 +58,7 @@ public class BossBulletManager : MonoBehaviour
         m_AnimaTime = 0;
         if (a_Anima != null) e_BulletState = BulletState.Stop;
     }
-    public void Init(float timer,BulletState state,TestPlayerMovess Chara = null,int IsAttack =1)
+    public void Init(float timer,BulletState state,PlayerMove Chara = null,int IsAttack =1)
     {
         e_BulletState = state;
         g_Player = Chara;
@@ -149,7 +149,7 @@ public class BossBulletManager : MonoBehaviour
         Init(0,BulletState.None,null,0);
         DestroyObjEvent?.Invoke(this,m_CharaType,m_EfectType);
     }
-    public void Move(TestPlayerMovess chara)//ìÆÇ≠çUåÇóp
+    public void Move(PlayerMove chara)//ìÆÇ≠çUåÇóp
     {
         CheckCharacterNull(chara);
 
@@ -165,7 +165,7 @@ public class BossBulletManager : MonoBehaviour
             : (right - left).normalized;
 
     }
-    private void CheckCharacterNull(TestPlayerMovess chara)
+    private void CheckCharacterNull(PlayerMove chara)
     {
         if (g_Player == null) g_Player = chara;
         if (g_Boss == null) g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<CharaBase>();

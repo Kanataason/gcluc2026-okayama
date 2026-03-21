@@ -1,13 +1,12 @@
 using System.Linq;
 using UnityEngine;
 
-public class TestPlayerMovess :CharaBase
+public class PlayerMove :CharaBase
 {
     public Vector3 v_scale;
     private GameObject g_Boss;
     private PlayerMoveManager c_PlayerMoveManager;
     private PlayerManager c_PlayerManager;
-    public bool iss;
 
     public override void Start()
     {

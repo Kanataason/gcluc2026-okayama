@@ -129,17 +129,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletManager
   m_MyScaleX: 2.5
-  m_MyScaleY: 1.7
+  m_MyScaleY: 1.4
+  m_Damage: 20
+  b_IsFlyAttack: 0
   m_DestroyTime: 1.3
   m_StartAnima: 1.2
-  c_AttackInfo:
-    m_AnimaTime: 0
-    m_CurrentAnimaTime: 0
-    m_Animahash: 0
-    m_VfxTime: 0
-    g_Obj: {fileID: 0}
-    m_CurrentTime: 0
-    v_IniPos: {x: 0, y: 0, z: 0}
+  m_CharaType: 2
+  m_EfectType: 4
   e_Attacktype: 1
   a_Anima: {fileID: 5414691429321133225}
   s_Sprite: {fileID: 4503331397895547308}
@@ -148,10 +144,6 @@ MonoBehaviour:
     c_Vfx: {fileID: 0}
     m_PropertiesName: 
     m_VfxValue: 0
-  m_CharaType: 2
-  m_EfectType: 4
-  m_Damage: 20
-  b_IsFlyAttack: 0
 --- !u!1 &7639455629261466334
 GameObject:
   m_ObjectHideFlags: 0

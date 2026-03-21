@@ -10,6 +10,8 @@ public class ShadowFollow : MonoBehaviour
     // プレイヤー移動管理
     PlayerMoveManager c_PlayerMoveManager;
 
+    SpriteRenderer c_SpriteRenderer;
+
     // 影のXずれ
     const float OFFSET_X = 0f;
 
@@ -34,6 +36,8 @@ public class ShadowFollow : MonoBehaviour
         {
             c_PlayerMoveManager = t_Player.GetComponent<PlayerMoveManager>();
         }
+
+        c_SpriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void LateUpdate()
@@ -47,11 +51,19 @@ public class ShadowFollow : MonoBehaviour
         // プレイヤーの地面Y位置
         float groundY = c_PlayerMoveManager.GetShadowGroundY();
 
+        float jumoValue = c_PlayerMoveManager.GetJumpParame();
+        //ソーティングレイヤーの名前を変える
+        string targetLayer = jumoValue > 0.1f ? "Character" : "BackGround";
+
+        if (c_SpriteRenderer.sortingLayerName != targetLayer)
+        {
+            c_SpriteRenderer.sortingLayerName = targetLayer;
+        }
         // 影の位置更新
         transform.position = new Vector3(
-            playerX + OFFSET_X,
-            groundY + OFFSET_Y,
-            SHADOW_Z
-        );
+                playerX + OFFSET_X,
+                groundY + OFFSET_Y,
+                SHADOW_Z
+            );
     }
 }

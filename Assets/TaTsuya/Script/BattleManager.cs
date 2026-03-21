@@ -38,7 +38,7 @@ public class BattleManager : MonoBehaviour
     private SaveManager c_SaveData;
     private BossBehaviorManager c_BossBehaviorManager;
     private BossBaseManager c_BossBaseManager;
-    private TestPlayerMovess c_TestPlayerMove;
+    private PlayerMove c_TestPlayerMove;
     //-----------バトルの情報
     public int m_CurrentRound = 1;
     public float m_TimeLimit;
@@ -67,7 +67,7 @@ public class BattleManager : MonoBehaviour
 
         c_BossBehaviorManager = g_Boss.GetComponent<BossBehaviorManager>();
         c_BossBaseManager = g_Boss.GetComponent<BossBaseManager>();
-        c_TestPlayerMove = g_Player.GetComponent<TestPlayerMovess>();
+        c_TestPlayerMove = g_Player.GetComponent<PlayerMove>();
 
         c_SaveData = SaveManager.Instance;
     }
@@ -102,10 +102,6 @@ public class BattleManager : MonoBehaviour
     }
     public void ChangeState(int state)
     {
-
-        c_TestPlayerMove.SetDieFlag(false);
-        c_BossBaseManager.SetDieFlag(false);
-
         if (m_CleaStage > 2) { SceneManager.LoadScene("title"); return; }
         c_BattleManager.Dispatch(state);
         TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, false); }
@@ -132,6 +128,9 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)//ここで順番を確認
         {
+           owner.c_TestPlayerMove.SetDieFlag(false);
+            owner.c_BossBaseManager.SetDieFlag(false);
+
             manager = stateMachine.owner;
             owner.b_IsLoading = false;
             Load();

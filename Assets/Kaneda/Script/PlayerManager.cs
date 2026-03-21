@@ -59,6 +59,7 @@ public class PlayerManager : CharaBase
             {
                 g_Boss = bossObject.GetComponent<BossBaseManager>();
             }
+            SetIsAttackFlag(false);
         });
     }
 

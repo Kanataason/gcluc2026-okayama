@@ -45,7 +45,7 @@ public class TatuGameManager : MonoBehaviour
     public event Action OnBattle;
 
     private BossBaseManager c_Boss;
-    private TestPlayerMovess c_Player;
+    private PlayerMove c_Player;
 
 
     private void Awake()
@@ -92,7 +92,7 @@ public class TatuGameManager : MonoBehaviour
     {
         
         c_Boss = g_Boss.GetComponent<BossBaseManager>();
-        c_Player = g_Player.GetComponent<TestPlayerMovess>();
+        c_Player = g_Player.GetComponent<PlayerMove>();
         c_Boss.OnHpBar += OnUpdateHpbar;
         c_Player.OnHpBar += OnUpdateHpbar;
     }
