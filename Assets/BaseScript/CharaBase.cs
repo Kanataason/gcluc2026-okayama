@@ -276,7 +276,7 @@ public class CharaBase : MonoBehaviour
     //ŠÔ‚ÌŠÇ—
     private float HitTime = 0;
     private float Duraction = 1f;
-    private Camera c_Camera;
+    protected Camera c_Camera;
 
 }
 [System.Serializable]

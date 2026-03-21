@@ -1,34 +1,46 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.VFX;
-using static UnityEngine.AdaptivePerformance.Provider.AdaptivePerformanceSubsystemDescriptor;
 
 public class BossBulletManager : MonoBehaviour
 {
+    public enum BulletState
+    {
+        Move,
+        Stop,
+        Destroy,
+        Attack,
+        None
+    }
     private static readonly int m_AttackHash = Animator.StringToHash("Attack");
 
+    //攻撃をする際の当たり判定とダメージ
     public float m_MyScaleX;
     public float m_MyScaleY;
+    public int m_Damage;
+    public bool b_IsFlyAttack;
 
+    //オブジェクトの情報
     public float m_DestroyTime = 0.5f;
     public float m_StartAnima = 1.5f;
     private float m_Time = 0;
     private float m_AnimaTime = 0;
     private Vector3 v_CurrentDirection;
-
-    private bool b_IsMove = false;
-    private bool b_IsStop = false;
-    private bool b_IsFirst = false;
+    //エフェクトのタイプ
+    public int m_CharaType;
+    public int m_EfectType;
+    public BossBehaviorManager.BossAttackType e_Attacktype;
+    //フラグ
     private bool b_IsCollider = false;
+    private BulletState e_BulletState;
 
     private CharaBase g_Player = null;
     private CharaBase g_Boss = null;
 
-    public AttackInfo c_AttackInfo = new AttackInfo();
+    private AttackInfo c_AttackInfo = new AttackInfo();
+    private Camera c_Camera;
 
-    public BossBehaviorManager.BossAttackType e_Attacktype;
-
+    //オブジェクトによって変える
     public Animator a_Anima;
     public SpriteRenderer s_Sprite;
     public Renderer r_Renderer;
@@ -36,28 +48,22 @@ public class BossBulletManager : MonoBehaviour
 
     public event Action<BossBulletManager,int,int> DestroyObjEvent;
 
-    public int m_CharaType;
-    public int m_EfectType;
-
-    public int m_Damage;
-    public bool b_IsFlyAttack;
     private void OnDestroy()
     {
         DestroyObjEvent = null;
     }
     void Start()
     {
+        c_Camera = Camera.main;
         m_AnimaTime = 0;
-       if(a_Anima != null) b_IsStop = true;
+        if (a_Anima != null) e_BulletState = BulletState.Stop;
     }
-    public void Init(float timer,bool IsStop,bool IsFirst,TestPlayerMovess Chara = null,int IsAttack =1)
+    public void Init(float timer,BulletState state,TestPlayerMovess Chara = null,int IsAttack =1)
     {
+        e_BulletState = state;
         g_Player = Chara;
         m_StartAnima = timer;
-        b_IsStop = IsStop;
-        b_IsFirst = IsFirst;
         m_Time = 0;
-        b_IsMove = false;
         ActiveCollider(IsAttack);
        if(s_Sprite != null) SortOrderManager.Instance.SetSpriteOrder(s_Sprite);
     }
@@ -67,28 +73,70 @@ public class BossBulletManager : MonoBehaviour
     {
         if (BattleManager.Instance.b_IsLoading) return;
 
-        if (!b_IsFirst) m_AnimaTime += Time.deltaTime;
-        else m_Time += Time.deltaTime;
+        //if (!b_IsFirst) m_AnimaTime += Time.deltaTime;
+        //else m_Time += Time.deltaTime;
 
+        //if (m_AnimaTime >= m_StartAnima)
+        //{
+        //    b_IsStop = false;
+        //    b_IsFirst = true;
+        //    m_AnimaTime = 0;
+        //    if (a_Anima != null)
+        //        a_Anima.SetTrigger(m_AttackHash);
+        //}
+        //if (m_Time > m_DestroyTime&&!b_IsStop)
+        //{
+        //    DestroyInfo();
+        //}
+        //if (b_IsMove) transform.Translate(v_CurrentDirection * 15f * Time.deltaTime);
+
+        switch (e_BulletState)
+        {
+            case BulletState.Destroy:
+                UpDateDestroyTimer();break;
+            case BulletState.Move:
+                UpDateMoveTimer();break;
+            case BulletState.Attack:
+                PlayAttackAnima();break;
+            case BulletState.Stop:
+                UpDateAnimaTime();break;
+
+        }
+
+    }
+    void PlayAttackAnima()
+    {
+        if (a_Anima != null)
+            a_Anima.SetTrigger(m_AttackHash);
+        e_BulletState = BulletState.Destroy;
+    }
+    void UpDateAnimaTime()
+    {
+        m_AnimaTime += Time.deltaTime;
         if (m_AnimaTime >= m_StartAnima)
         {
-            b_IsFirst = true;
             m_AnimaTime = 0;
-            b_IsStop = false;
-            if (a_Anima != null)
-                a_Anima.SetTrigger(m_AttackHash);
+            e_BulletState = BulletState.Attack;
         }
-        if (b_IsStop) return;
+    }
+    void UpDateMoveTimer()
+    {
+        m_Time += Time.deltaTime;
         if (m_Time > m_DestroyTime)
         {
             DestroyInfo();
+            e_BulletState = BulletState.None;
         }
-
-        if (b_IsMove)
+        transform.Translate(v_CurrentDirection * 15f * Time.deltaTime);
+    }
+    void UpDateDestroyTimer()
+    {
+        m_Time += Time.deltaTime;
+        if (m_Time > m_DestroyTime)
         {
-            transform.Translate(v_CurrentDirection * 15f * Time.deltaTime);
+            DestroyInfo();
+            e_BulletState = BulletState.None;
         }
-
     }
     private void FixedUpdate()
     {
@@ -96,20 +144,19 @@ public class BossBulletManager : MonoBehaviour
 
         if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position,m_Damage,b_IsFlyAttack);
     }
-    private void DestroyInfo()
+    private void DestroyInfo()//破壊されたとき
     {
-        Init(0,true, false,null,0);
+        Init(0,BulletState.None,null,0);
         DestroyObjEvent?.Invoke(this,m_CharaType,m_EfectType);
     }
-    public void Move(TestPlayerMovess Chara)
+    public void Move(TestPlayerMovess chara)//動く攻撃用
     {
-        if(g_Player == null) g_Player = Chara;
-        if(g_Boss == null) g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<CharaBase>();
+        CheckCharacterNull(chara);
 
         float height = Camera.main.orthographicSize;
         float width = height * Camera.main.aspect;
 
-        int Direction = g_Boss.CurrentDirection == 1 ? 1 : -1; // 1:left -1:right
+        int Direction = g_Boss.CurrentDirection == 1 ? 1 : -1; // 1:right -1:reft
 
         Vector3 left = new Vector3(Camera.main.transform.position.x - width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
         Vector3 right = new Vector3(Camera.main.transform.position.x + width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
@@ -117,7 +164,11 @@ public class BossBulletManager : MonoBehaviour
             ? (left - right).normalized
             : (right - left).normalized;
 
-        b_IsMove = true;
+    }
+    private void CheckCharacterNull(TestPlayerMovess chara)
+    {
+        if (g_Player == null) g_Player = chara;
+        if (g_Boss == null) g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss).GetComponent<CharaBase>();
     }
     public void PlaySe(string name)
     {
@@ -130,8 +181,22 @@ public class BossBulletManager : MonoBehaviour
     }
     public void StopClock()//時間が来た時
     {
-        b_IsStop = true;
+        c_AttackInfo.e_State = e_BulletState;
+        e_BulletState = BulletState.None;
+        c_AttackInfo.m_CurrentTime = m_Time;
 
+        SetAnimaInfo(); 
+
+        bool IsPause = true;
+        bool IsEnable = false;
+        int IsAttack = 0;
+        float Delay = 0.5f;
+        float VfxValue = 0;
+
+        SetObjectInfo(IsPause, IsEnable, Delay, VfxValue, IsAttack);
+    }
+    private void SetAnimaInfo()
+    {
         if (a_Anima != null)
         {
             var info = a_Anima.GetCurrentAnimatorStateInfo(0);
@@ -140,15 +205,6 @@ public class BossBulletManager : MonoBehaviour
             c_AttackInfo.m_AnimaTime = m_AnimaTime;
             a_Anima.speed = 0;
         }
-        c_AttackInfo.m_CurrentTime = m_Time;
-
-        bool IsPause = true;
-        bool IsEnable = false;
-        int IsAttack = 0;
-        float Delay = 0.5f;
-        float VfxValue = 0;
-        ObjActive(IsPause, IsEnable,Delay, VfxValue);
-        ActiveCollider(IsAttack);
     }
     public void RestartClock()//状況をセットするとき
     {
@@ -157,18 +213,29 @@ public class BossBulletManager : MonoBehaviour
         int IsAttack = 1;
         float Delay = 0f;
         float VfxValue = c_VfxInfo.m_VfxValue;
-        ObjActive(IsPause, IsEnable,Delay, VfxValue);
-        ActiveCollider(IsAttack);
+
+        SetObjectInfo(IsPause, IsEnable, Delay, VfxValue, IsAttack);
+
+        PlayAnimation();
+
+        e_BulletState = c_AttackInfo.e_State;
+        m_Time = c_AttackInfo.m_CurrentTime;
+
+        c_AttackInfo.Init();
+    }
+    private void PlayAnimation()
+    {
         if (a_Anima != null)
         {
             a_Anima.Play(c_AttackInfo.m_Animahash, 0, c_AttackInfo.m_CurrentAnimaTime);
             m_AnimaTime = c_AttackInfo.m_AnimaTime;
             a_Anima.speed = 1;
         }
-        b_IsStop = false;
-        m_Time = c_AttackInfo.m_CurrentTime;
-        c_AttackInfo.Init();
-  
+    }
+    private void SetObjectInfo(bool IsPause,bool IsEnable,float Delay,float VfxValue,int IsAttack)
+    {
+        ObjActive(IsPause, IsEnable, Delay, VfxValue);
+        ActiveCollider(IsAttack);
     }
     public void ObjActive(bool IsPause,bool IsEnable,float Delay,float VfxValue)
     {
@@ -209,6 +276,7 @@ public class AttackInfo//セーブ用
     public GameObject g_Obj;//実体
     public float m_CurrentTime;//現在の進行時間
     public Vector3 v_IniPos;//現在の位置
+    public BossBulletManager.BulletState e_State;
 
     public void Init()
     {

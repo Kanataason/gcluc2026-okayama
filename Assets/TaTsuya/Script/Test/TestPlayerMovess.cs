@@ -15,13 +15,13 @@ public class TestPlayerMovess :CharaBase
         base.Start();
         //Ç«Ç±Ç©Ç≈Ç«Ç¡ÇøÇ©ÇÁénÇﬂÇÈÇ©Çê›íË
         EventEnter();
+        SetStatus(e_CharaState);
         NextFrame.Run(this, 0.5f, () =>
         {
             SetHp();
             TatuGameManager.Instance.ActiveHpbar(CharaState.Player, true);
             g_Boss = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
         });
-        SetStatus(e_CharaState);
     }
     private void Init()
     {
@@ -42,15 +42,27 @@ public class TestPlayerMovess :CharaBase
     {
         base.Update();
         if (TatuGameManager.Instance == null) return;
-        if (iss)
-        {
-            transform.position = new Vector3(-16, -6, 0);
-        }
-        if (Input.GetKeyDown(KeyCode.H))
-        { Debug.Log(transform.position); }
-        // ReverseSprite(CharaState.Boss, v_scale);
+
         if (g_Boss != null) CheckCollisionBox(2, 0.7f, transform.position, g_Boss.transform.position, 7);
-         CheckGround(TatuGameManager.Instance.m_StageScaleMinY, TatuGameManager.Instance.m_StageScaleMaxY);
+
+         CheckGround(0, 0);
+    }
+    public override void CheckGround(float Min, float Max)
+    {
+        float height = c_Camera.orthographicSize;
+        float width = height * c_Camera.aspect;
+
+        float offset = 1f;
+
+        Vector3 pos = transform.position;
+
+        float camX = c_Camera.transform.position.x;
+        float ClampX = Mathf.Clamp(pos.x,
+                                   camX - width + offset,
+                                   camX + width - offset);
+        pos.x = ClampX;
+        pos.z = c_PlayerMoveManager.GetShadowGroundY();
+        transform.position = pos;
     }
     public override void ChangePlayer()//êÿÇËë÷Ç¶èàóù
     {
@@ -79,7 +91,6 @@ public class TestPlayerMovess :CharaBase
             }
             return;
         }
-
         base.CheckCollisionBox(ScaleX, ScaleY, MyPos, OppPos, damage);
     }
     public override void SetStatus(CharaState state, int animeName = 0)

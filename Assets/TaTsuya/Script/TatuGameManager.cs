@@ -151,6 +151,9 @@ public class TatuGameManager : MonoBehaviour
     }
     public void ChangePanel(UiPanelState state,bool IsActive)
     {
+        c_Boss.SetDieFlag(true);
+        c_Player.SetDieFlag(true);
+
         var panel = d_PanelDictionary.Get(state);
 
         if (panel == null) return;
@@ -160,19 +163,19 @@ public class TatuGameManager : MonoBehaviour
         var data = SaveManager.Instance.GetCurrentData(BattleManager.Instance.m_CurrentRound);
 
         SaveData(data);//表示前にデータを保存
-        ActiveText(data);//Uiに表示
+        ActiveText();//Uiに表示
     }
     private void SaveData(StageSaveData data)
     {
         SaveManager.Instance.c_CurrentData.m_TimeScore = BattleManager.Instance.m_TimeScore;
         data.m_TimeScore = BattleManager.Instance.m_TimeScore;
     }
-    private void ActiveText(StageSaveData data)
+    private void ActiveText()
     {
         var text = d_TextDictionary.Get(UiTextState.StageInfo);
 
         if (c_Boss.GetDieFlag() == true)
-            text.text = $"タイム\n\n {(int)data.m_TimeScore}";
+            text.text = $"タイム\n\n {(int)SaveManager.Instance.c_CurrentData.m_TimeScore}";
         else text.text = "死んでしまった。";
     }
 

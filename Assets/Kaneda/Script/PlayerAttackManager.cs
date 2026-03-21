@@ -17,7 +17,7 @@ public class PlayerAttackManager : MonoBehaviour
     Animator a_Animator;
 
     // 攻撃時間
-    const float ATTACK_TIME = 0.35f;
+    const float ATTACK_TIME = 0.5f;
 
     // 攻撃タイマー
     float f_AttackTimer;

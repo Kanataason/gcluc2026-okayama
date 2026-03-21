@@ -306,7 +306,6 @@ public class PlayerMoveManager : MonoBehaviour
     public void SetJumpFlag(bool isJump)
     {
         b_IsJumping = isJump;
-        Debug.Log(b_IsJumping);
     }
     //アニメーションのハッシュの名前を取得
     public int GetAnimaHashName()

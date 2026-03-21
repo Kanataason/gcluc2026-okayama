@@ -123,8 +123,6 @@ public class BossAttackManager : MonoBehaviour
     }
     private void ApplyAwake(BossBulletManager script)
     {
-        bool IsStop = false;
-        bool IsFirst = true;
         int IsAttack = 0;
         float Duration = 0f;
 
@@ -133,21 +131,19 @@ public class BossAttackManager : MonoBehaviour
             case BossBehaviorManager.BossAttackType.Attack1:
                 {
                     Duration = 1.2f;
-                    IsStop = true;
-                    IsFirst = false;
-                    script.Init(Duration, IsStop, IsFirst, c_PlayerMove, IsAttack);
+                    script.Init(Duration, BossBulletManager.BulletState.Stop, c_PlayerMove, IsAttack);
                     return;
                 }
             case BossBehaviorManager.BossAttackType.Attack2:
                 {
-                    script.Init(Duration, IsStop, IsFirst, c_PlayerMove);
+                    script.Init(Duration, BossBulletManager.BulletState.Move, c_PlayerMove);
                     script.Move(c_PlayerMove);
                     return;
                 }
             case BossBehaviorManager.BossAttackType.Attack3: break;
             default: break;
         }
-        script.Init(Duration, IsStop, IsFirst, c_PlayerMove);
+        script.Init(Duration, BossBulletManager.BulletState.Destroy,c_PlayerMove);
     }
     private void DestroyInfoList(BossBulletManager obj, int CharaType, int EfectType)
     {

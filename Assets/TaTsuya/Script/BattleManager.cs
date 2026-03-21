@@ -102,9 +102,9 @@ public class BattleManager : MonoBehaviour
     }
     public void ChangeState(int state)
     {
-   
-        c_BossBaseManager.SetDieFlag(false);
+
         c_TestPlayerMove.SetDieFlag(false);
+        c_BossBaseManager.SetDieFlag(false);
 
         if (m_CleaStage > 2) { SceneManager.LoadScene("title"); return; }
         c_BattleManager.Dispatch(state);
@@ -175,11 +175,11 @@ public class BattleManager : MonoBehaviour
         protected override void OnEnter(State prevstate)
         {
             m_UpdataTimer = 0;
-            m_RandamNum = 10;//(int)UnityEngine.Random.Range(30,100);
+            m_RandamNum = (int)UnityEngine.Random.Range(30,100);
         }
         protected override void OnUpdata()
         {
-           // m_UpdataTimer += Time.deltaTime;
+            //  m_UpdataTimer += Time.deltaTime;
             owner.m_TimeScore += Time.deltaTime;//タイムスコア計算
 
             if (owner.m_CleaStage > 0) return;
@@ -230,7 +230,7 @@ public class BattleManager : MonoBehaviour
             manager.c_SaveData.CheckRound();
             owner.Stage.text = $"次はPlayer{owner.m_CurrentRound}\n 現在{manager.c_SaveData.c_CurrentData.m_TotalRound}ラウンド目";
 
-            if (owner.m_CleaStage < 1) { owner.SetAnimaEvent(0); return; }
+            if (owner.m_CleaStage <= 1) { owner.SetAnimaEvent(0); return; }
 
             NextFrame.Run(owner, 1, () =>
             {
