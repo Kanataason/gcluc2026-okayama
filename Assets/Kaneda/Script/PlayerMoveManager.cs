@@ -50,14 +50,12 @@ public class PlayerMoveManager : MonoBehaviour
 
     int m_AnimaHashName;
 
-    void Start()
+    public void Init()
     {
-        // 必要なコンポーネント取得
-        c_PlayerInputManager = GetComponent<PlayerInputManager>();
-        c_PlayerManager = GetComponent<PlayerManager>();
-
+        
         NextFrame.OneFrame(this, () => { a_Animator = c_PlayerManager.GetAnimator(); });
 
+        transform.position = new Vector3(-12, -4, 0);
         // 初期スケール保存
         v_DefaultScale = transform.localScale;
 
@@ -69,8 +67,14 @@ public class PlayerMoveManager : MonoBehaviour
 
         // 最初の位置を反映
         ApplyPosition();
+        CacheComponents();
     }
-
+    private void CacheComponents()
+    {
+        // 必要なコンポーネント取得
+        c_PlayerInputManager = GetComponent<PlayerInputManager>();
+        c_PlayerManager = GetComponent<PlayerManager>();
+    }
     // 影用の地面Y位置を返す
     public float GetShadowGroundY()
     {

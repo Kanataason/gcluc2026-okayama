@@ -46,11 +46,11 @@ public class BossBulletManager : MonoBehaviour
     public Renderer r_Renderer;
     public VfxInfo c_VfxInfo;
 
-    public event Action<BossBulletManager,int,int> DestroyObjEvent;
+    public event Action<BossBulletManager,int,int> OnDestroyObjEvent;
 
     private void OnDestroy()
     {
-        DestroyObjEvent = null;
+        OnDestroyObjEvent = null;
     }
     void Start()
     {
@@ -58,6 +58,7 @@ public class BossBulletManager : MonoBehaviour
         m_AnimaTime = 0;
         if (a_Anima != null) e_BulletState = BulletState.Stop;
     }
+    //IsAttackがintなのはアニメーションイベントからも呼ばれる関数のため
     public void Init(float timer,BulletState state,PlayerMove Chara = null,int IsAttack =1)
     {
         e_BulletState = state;
@@ -72,23 +73,6 @@ public class BossBulletManager : MonoBehaviour
     void Update()
     {
         if (BattleManager.Instance.b_IsLoading) return;
-
-        //if (!b_IsFirst) m_AnimaTime += Time.deltaTime;
-        //else m_Time += Time.deltaTime;
-
-        //if (m_AnimaTime >= m_StartAnima)
-        //{
-        //    b_IsStop = false;
-        //    b_IsFirst = true;
-        //    m_AnimaTime = 0;
-        //    if (a_Anima != null)
-        //        a_Anima.SetTrigger(m_AttackHash);
-        //}
-        //if (m_Time > m_DestroyTime&&!b_IsStop)
-        //{
-        //    DestroyInfo();
-        //}
-        //if (b_IsMove) transform.Translate(v_CurrentDirection * 15f * Time.deltaTime);
 
         switch (e_BulletState)
         {
@@ -108,6 +92,7 @@ public class BossBulletManager : MonoBehaviour
     {
         if (a_Anima != null)
             a_Anima.SetTrigger(m_AttackHash);
+
         e_BulletState = BulletState.Destroy;
     }
     void UpDateAnimaTime()
@@ -142,24 +127,29 @@ public class BossBulletManager : MonoBehaviour
     {
         if (g_Player == null) return;
 
-        if (b_IsCollider) g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position, g_Player.transform.position,m_Damage,b_IsFlyAttack);
+        if (b_IsCollider) 
+            g_Player.CheckCollisionBox(m_MyScaleX,m_MyScaleY, transform.position,
+                g_Player.transform.position,m_Damage,b_IsFlyAttack);
     }
     private void DestroyInfo()//破壊されたとき
     {
-        Init(0,BulletState.None,null,0);
-        DestroyObjEvent?.Invoke(this,m_CharaType,m_EfectType);
+        float timer = 0;
+        PlayerMove playerMove = null;
+        Init(timer,BulletState.None,playerMove,0);
+        OnDestroyObjEvent?.Invoke(this,m_CharaType,m_EfectType);
     }
     public void Move(PlayerMove chara)//動く攻撃用
     {
         CheckCharacterNull(chara);
 
-        float height = Camera.main.orthographicSize;
-        float width = height * Camera.main.aspect;
+        Camera maincam = Camera.main;
+        float height = maincam.orthographicSize;
+        float width = height * maincam.aspect;
 
         int Direction = g_Boss.CurrentDirection == 1 ? 1 : -1; // 1:right -1:reft
 
-        Vector3 left = new Vector3(Camera.main.transform.position.x - width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
-        Vector3 right = new Vector3(Camera.main.transform.position.x + width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
+        Vector3 left = new Vector3(maincam.transform.position.x - width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
+        Vector3 right = new Vector3(maincam.transform.position.x + width, TatuGameManager.Instance.m_StageScaleMinY / 2, 0);
         v_CurrentDirection = Direction == 1
             ? (left - right).normalized
             : (right - left).normalized;

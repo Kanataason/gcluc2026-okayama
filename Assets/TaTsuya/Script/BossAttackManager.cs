@@ -41,16 +41,17 @@ public class BossAttackManager : MonoBehaviour
         TatuGameManager.Instance.OnBattle -= OnSetBattle;
     }
 
-    void Start()
-    {
-        m_CurrentAnime = BossMove;
-        Init();
-        ActionEvent();
-    }
-    private void Init()
+    public void Init(InputInfo inputlist)
     {
         c_Camera = Camera.main;
-        g_Player = GameObject.FindWithTag("Player");
+        g_Player = inputlist.TargetObj;
+        m_CurrentAnime = BossMove;
+
+        ActionEvent();
+        GetComponents();
+    }
+    void GetComponents()
+    {
         c_PlayerMove = g_Player.GetComponent<PlayerMove>();
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_ObjectPool = GetComponentInChildren<ObjctPool>();
@@ -117,7 +118,7 @@ public class BossAttackManager : MonoBehaviour
     {
         var script = obj.GetComponent<BossBulletManager>();
         l_BulletList.Add(script);
-        script.DestroyObjEvent += DestroyInfoList;
+        script.OnDestroyObjEvent += DestroyInfoList;
 
         ApplyAwake(script);
     }
@@ -147,7 +148,7 @@ public class BossAttackManager : MonoBehaviour
     }
     private void DestroyInfoList(BossBulletManager obj, int CharaType, int EfectType)
     {
-        obj.DestroyObjEvent -= DestroyInfoList;
+        obj.OnDestroyObjEvent -= DestroyInfoList;
         obj.transform.parent = c_ObjectPool.transform;
 
         l_BulletList.Remove(obj);
@@ -220,8 +221,6 @@ public class BossAttackManager : MonoBehaviour
     }
     //----------------Ç±Ç±Ç©ÇÁçUåÇèàóùÇÃíÜêg
     //Ç±Ç±Ç…èëÇ≠Ç◊Ç´Ç≈ÇÕÇ»Ç©Ç¡ÇΩ
-    float nextTime = 0;
- 
     public void Attack1(int InstantiateValue)//è¢ä´ñÇñ@
     {
         c_BossMoveManager.SetIsAttackFlag(true);
@@ -285,6 +284,10 @@ public class BossAttackManager : MonoBehaviour
             }
             yield return null;
         }
+        Color color = r_SpriteRen.color;
+        color.a = 1;
+        r_SpriteRen.color = color;
+
         PlayAnima();
         ReserAnima();
     }

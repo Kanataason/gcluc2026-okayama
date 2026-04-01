@@ -21,6 +21,7 @@ public class TitleManager : MonoBehaviour
 
     private GameObject g_PrevObj;
     private int m_Count = 0;
+
     void Start()
     {
         d_PanelDictionary.Init();
@@ -83,7 +84,11 @@ public class TitleManager : MonoBehaviour
     public void PlayerControl(int Count)
     => t_text.text = $"プレイヤー{++Count}さん選んでください";
     public void ChangeScene()
-        => SceneManager.LoadScene("TaTsuyaScene");
+    {
+       SceneManager.LoadScene("TaTsuyaScene");
+       // SceneManager.LoadScene("TaTsuyaScene 2");
+       // SceneManager.LoadScene("TaTsuyaScene 3", LoadSceneMode.Additive);
+    }
     public void ExitGame()
     {
 #if UNITY_EDITOR

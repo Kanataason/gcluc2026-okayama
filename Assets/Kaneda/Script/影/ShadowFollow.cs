@@ -36,7 +36,6 @@ public class ShadowFollow : MonoBehaviour
         {
             c_PlayerMoveManager = t_Player.GetComponent<PlayerMoveManager>();
         }
-
         c_SpriteRenderer = GetComponent<SpriteRenderer>();
     }
 

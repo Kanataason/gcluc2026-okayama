@@ -45,26 +45,42 @@ public class BossBehaviorManager : MonoBehaviour
     private BossAttackManager c_AttackManager;
     private BossBaseManager c_BaseManager;
 
+    private InputInfo s_currentInfo;
     public bool b_IsAwakening => c_BaseManager.GetHp() % 50 == 0;
 
-    void Start()
+    public void Init(InputInfo inputInfo)
     {
-        c_BaseManager = GetComponent<BossBaseManager>();
-        c_AttackManager = GetComponent<BossAttackManager>();
-        c_BossBehaviorManager = new StateMachine<BossBehaviorManager>(this);
+        GetComponents();
+        s_currentInfo = inputInfo;
+        c_AttackManager.Init(inputInfo);
+        c_BaseManager.Init();
+
         InitDictionary();
         InitTransition();
         TeleportPos();
     }
+    private void GetComponents()
+    {
+        c_BaseManager = GetComponent<BossBaseManager>();
+        c_AttackManager = GetComponent<BossAttackManager>();
+        c_BossBehaviorManager = new StateMachine<BossBehaviorManager>(this);
+    }
     public void TeleportPos()//これはアニメーションイベントから呼ばれたり最初に呼ばれる
     {
-        int index = (int)e_AwakeHp / 2;
-        var pos = TatuGameManager.Instance.l_Infolist[index].v_TeleportPos;
-        Debug.Log(index);
+        var pos = GetPos(s_currentInfo.PlayerNum);
+
         transform.position = pos;
 
         if (e_AwakeHp != BossAwake.FirstForm)
             c_AttackManager.PlayorStopTransparent(false, false);
+    }
+    private Vector3 GetPos(int PlayerNum)
+    {
+        int index = (int)e_AwakeHp / 2;
+        var Pos = TatuGameManager.Instance.l_Infolist[index].v_TeleportPos;
+        var pos = s_currentInfo.PlayerNum != 1 ? new Vector3(Pos.x, Pos.y + 50, Pos.z) : Pos;
+
+        return pos;
     }
     public void ChangeClass(BossState state) { c_BossBehaviorManager.Dispatch((int)state); }
     private void InitDictionary()//リスト初期化 攻撃を追加するときはここに追加
@@ -72,8 +88,8 @@ public class BossBehaviorManager : MonoBehaviour
         l_AttackEvent = new()
         {
             new AttackEvent(){m_Weight = 30,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
-             new AttackEvent(){m_Weight = 40,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
+             new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
+              new AttackEvent(){m_Weight = 0,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
         };
     }
     private void ChangeValue(int[] values)//確率を変えるための変数

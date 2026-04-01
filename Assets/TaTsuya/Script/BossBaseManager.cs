@@ -9,11 +9,7 @@ public class BossBaseManager : CharaBase
     public Vector3 v_Scale;
     public override void Start()
     {
-        Init();
-        EventEnter();
-
         base.Start();
-        SetStatus(e_CharaState, c_BossAttackManager.m_CurrentAnime);
     }
     private void EventEnter()//イベント登録
     {
@@ -21,26 +17,25 @@ public class BossBaseManager : CharaBase
         BattleManager.Instance.OnSetStageInfo += ChangePlayer;
         BattleManager.Instance.OnGetStageInfo += GetStatus;
     }
-    private void Init()//初期化
+    public void Init()//初期化
     {
         m_MaxHp = 250;
+        m_hp = m_MaxHp;
         e_CharaState = CharaState.Boss;
         c_SaveState.g_Character = this.gameObject;
 
+        EventEnter();
+        GetComponents();
+        SetStatus(e_CharaState, c_BossAttackManager.m_CurrentAnime);
+    }
+    private void GetComponents()
+    {
         c_BossBehaviorManager = GetComponent<BossBehaviorManager>();
         c_BossAttackManager = GetComponent<BossAttackManager>();
-
     }
     public override void Update()
     {
         base.Update();
-        //デバックをするために書いている
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            Debug.Log($"ob{SaveManager.Instance.c_CurrentData.c_PlayerData}/save{SaveManager.Instance.c_CurrentData.c_BossData.b_IsMove}" +
-                $"att{c_BossAttackManager.b_IsBossCoroutine}");
-            Debug.Log($"load{BattleManager.Instance.b_IsLoading}cehavi{c_BossBehaviorManager.m_CurrentActionTime}");
-        }
 
     }
     public override void FixedUpdate()
@@ -148,7 +143,7 @@ public class BossBaseManager : CharaBase
     public override void Die()
     {
         base.Die();
-        //ボス戦用　テレポートフラグ
+        //ボス専用　テレポートフラグ
         c_BossAttackManager.PlayorStopTransparent(false, true);
 
         NextFrame.Run(this, 3, () =>

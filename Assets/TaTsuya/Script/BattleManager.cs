@@ -2,10 +2,13 @@ using JetBrains.Annotations;
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Users;
 using UnityEngine.SceneManagement;
 using State = StateMachine<BattleManager>.State;
 public class BattleManager : MonoBehaviour
 {
+    private static readonly int StartAnima = Animator.StringToHash("Start");
     public enum BattleState
     {
         GameStating,
@@ -14,13 +17,9 @@ public class BattleManager : MonoBehaviour
         GameEnd,
         Menu
     }
-    private static readonly int StartAnima = Animator.StringToHash("Start");
     public static BattleManager Instance { get; private set; }
     private void Awake()
     {
-        g_Boss = GameObject.FindWithTag("Boss");
-        g_Player = GameObject.FindWithTag("Player");
-
         if (Instance == null)
         {
             Instance = this;
@@ -31,8 +30,9 @@ public class BattleManager : MonoBehaviour
         }
     }
     //-----------ターゲットのオブジェクト
-    public GameObject g_Boss;
-    public GameObject g_Player;
+    public GameObject g_PrefabBoss;
+    public GameObject g_PrefabPlayer;
+    public GameObject g_PrefabCamera;
     //-----------参照先
     private StateMachine<BattleManager> c_BattleManager;
     private SaveManager c_SaveData;
@@ -49,6 +49,7 @@ public class BattleManager : MonoBehaviour
     //-------データをセットするアクション
     public event Action<StageSaveData> OnGetStageInfo;
     public event Action OnSetStageInfo;
+    public event Action<GameObject, InputInfo> OnCreateCharacters;
     //---------Ui関連
     public TextMeshProUGUI debagte;
     public TextMeshProUGUI Stage;
@@ -65,11 +66,65 @@ public class BattleManager : MonoBehaviour
         InitTransition();
         InitRoundInfo();
 
-        c_BossBehaviorManager = g_Boss.GetComponent<BossBehaviorManager>();
-        c_BossBaseManager = g_Boss.GetComponent<BossBaseManager>();
-        c_TestPlayerMove = g_Player.GetComponent<PlayerMove>();
-
         c_SaveData = SaveManager.Instance;
+        SetInputDevice();
+    }
+    private void SetInputDevice()
+    {
+        var deviceList = CheckConnectingDeviceManager.Instance.GetDeviceList();
+        int Count = 1;
+        foreach (var device in deviceList)
+        {
+            var ControlScheme = GetControlScheme(device);
+            Debug.Log(ControlScheme);
+            var list = new InputInfo()
+            {
+                ControllerDevice = device,
+                ControllerScheme = ControlScheme,
+                PlayerNum = Count
+            };
+            Count++;
+            CreateCharacter(list);
+        }
+    }
+    private string GetControlScheme(InputDevice device)
+    {
+        if (device is Gamepad)
+            return "Gamepad";
+
+        if (device is Keyboard || device is Mouse)
+            return "Keyboard&Mouse";
+
+        return "Unknown";
+    }
+    private void CreateCharacter(InputInfo devicelist)
+    {
+        var player = PlayerInput.Instantiate(g_PrefabPlayer,
+            controlScheme:devicelist.ControllerScheme,
+            pairWithDevice: devicelist.ControllerDevice).gameObject;
+        var boss = Instantiate(g_PrefabBoss);
+        devicelist.TargetObj = player;
+
+        GetComponents(boss,devicelist);
+        OnCreateCharacters?.Invoke(boss,devicelist);
+    }
+    private void GetComponents(GameObject boss,InputInfo inputInfo)
+    {
+            c_BossBehaviorManager = boss.GetComponent<BossBehaviorManager>();
+            c_BossBaseManager = boss.GetComponent<BossBaseManager>();
+
+        c_TestPlayerMove = inputInfo.TargetObj.GetComponentInChildren<PlayerMove>();
+        var playermanager = inputInfo.TargetObj.GetComponentInChildren<PlayerManager>();
+       // var cameraMove = camera.GetComponent<CameraMove>();
+        if (c_BossBehaviorManager == null || c_TestPlayerMove == null)
+        {
+            Debug.LogError("コンポーネントがない");
+            return;
+        }
+        //ここでplayerの初期化も呼んであげる
+        //cameraMove.Init(camera);
+        c_BossBehaviorManager.Init(inputInfo);
+        playermanager.Init();
     }
     private void InitRoundInfo()
     {
@@ -109,7 +164,7 @@ public class BattleManager : MonoBehaviour
     {
         protected override void OnEnter(State prevstate)
         {
-            NextFrame.Run(owner, 0.4f, () =>
+            NextFrame.Run(owner, 0.3f, () =>
             {
                 stateMachine.Dispatch((int)BattleState.GameStating);
             });
@@ -178,27 +233,27 @@ public class BattleManager : MonoBehaviour
         }
         protected override void OnUpdata()
         {
-            //  m_UpdataTimer += Time.deltaTime;
-            owner.m_TimeScore += Time.deltaTime;//タイムスコア計算
+            m_UpdataTimer += Time.deltaTime;
 
             if (owner.m_CleaStage > 0) return;
             if (!TatuGameManager.Instance.GetCameraMoveflag()) return;
-
+            owner.m_TimeScore += Time.deltaTime;//タイムスコア計算
             m_RandamNum -= Time.deltaTime;
             if (m_RandamNum <= 0.5f)
             {
                 m_UpdataTimer = 1;
                 stateMachine.Dispatch((int)BattleState.GameEnd);
             }
-            //if (m_UpdataTimer >= 0.1f)
-            //{
-            //    m_UpdataTimer = 0;
-            //    owner.debagte.SetText("切り替え時間 : {0:0}", m_RandamNum);
-            //}
+            if (m_RandamNum <= 5f&&m_UpdataTimer >= 0.3f)
+            {
+                m_UpdataTimer = 0;
+                owner.debagte.SetText("切り替え時間 : {0:0}", (int)m_RandamNum);
+            }
         }   
         protected override void OnExit(State nextstate)
         {
             owner.b_IsLoading = true;
+            owner.debagte.text = "";
             base.OnExit(nextstate);
         }
     }

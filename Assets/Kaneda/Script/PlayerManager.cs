@@ -32,12 +32,9 @@ public class PlayerManager : CharaBase
     public override void Start()
     {
         base.Start();
-
-        // 必要なスクリプト取得
-        c_PlayerInputManager = GetComponent<PlayerInputManager>();
-        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
-        c_PlayerAttackManager = GetComponent<PlayerAttackManager>();
-
+    }
+    public void Init()
+    {
         // プレイヤーとして設定
         e_CharaState = CharaState.Player;
 
@@ -50,6 +47,7 @@ public class PlayerManager : CharaBase
         // 攻撃判定OFF
         b_IsCollision = false;
 
+        CacheComponents();
         // 1フレーム後にボス取得
         NextFrame.Run(this, 1, () =>
         {
@@ -61,6 +59,19 @@ public class PlayerManager : CharaBase
             }
             SetIsAttackFlag(false);
         });
+        InitPlayerInfos();
+    }
+    private void InitPlayerInfos()
+    {
+        c_PlayerMoveManager.Init();
+        c_PlayerAttackManager.Init();
+    }
+    private void CacheComponents()
+    {
+        // 必要なスクリプト取得
+        c_PlayerInputManager = GetComponent<PlayerInputManager>();
+        c_PlayerMoveManager = GetComponent<PlayerMoveManager>();
+        c_PlayerAttackManager = GetComponent<PlayerAttackManager>();
     }
 
     public override void Update()

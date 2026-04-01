@@ -19,10 +19,11 @@ public class SortOrderManager : MonoBehaviour
     public List<SpriteRenderer> l_SceneObj = new();//ソートを設定する
 
     int m_Frame = 0;//60フレームなら６回流れる
+    int DurationFrame = 10;
     void LateUpdate()
     {
         m_Frame++;
-        if (m_Frame % 10 != 0) return;
+        if (m_Frame % DurationFrame != 0) return;
         foreach (var sp in l_SceneObj)
         {
             sp.sortingOrder = (int)Mathf.Abs(sp.transform.position.y * 100);//百倍した値を代入
@@ -31,6 +32,7 @@ public class SortOrderManager : MonoBehaviour
 
     public void SetList(SpriteRenderer obj)//リストに入れる
     {
+        if (l_SceneObj.Contains(obj)) return;
         l_SceneObj.Add(obj);
     }
     public void RemoveList(SpriteRenderer obj)//リストから削除

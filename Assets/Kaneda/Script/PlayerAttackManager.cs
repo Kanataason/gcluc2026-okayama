@@ -25,7 +25,8 @@ public class PlayerAttackManager : MonoBehaviour
     // Animator パラメータ
     static readonly int ATTACK_HASH = Animator.StringToHash("Attack");
 
-    void Start()
+
+    public void Init()
     {
         // 必要なコンポーネント取得
         c_PlayerInputManager = GetComponent<PlayerInputManager>();
@@ -33,7 +34,6 @@ public class PlayerAttackManager : MonoBehaviour
         c_PlayerManager = GetComponent<PlayerManager>();
         a_Animator = GetComponent<Animator>();
     }
-
     // 攻撃入力確認
     public bool HasAttackInput()
     {

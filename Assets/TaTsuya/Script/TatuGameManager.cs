@@ -60,20 +60,25 @@ public class TatuGameManager : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-
+    private void Start()
+    {
+        BattleManager.Instance.OnCreateCharacters += OnInit;
+    }
     private void OnDisable()
     {
-        if(c_Boss == null||c_Player == null) { Debug.Log("âèúÇ≈Ç´Ç»Ç©Ç¡ÇΩ"); }
+        BattleManager.Instance.OnCreateCharacters -= OnInit;
+
+        if (c_Boss == null||c_Player == null) { Debug.Log("âèúÇ≈Ç´Ç»Ç©Ç¡ÇΩ"); }
         if (c_Boss != null) c_Boss.OnHpBar -= OnUpdateHpbar;
         if (c_Player != null) c_Player.OnHpBar -= OnUpdateHpbar;
         OnBattle = null;
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void OnInit(GameObject Bo, InputInfo inputInfo)
     {
         b_IsTutorial = true;
         b_StopMoveCamera = false;
-        SetCharacter();
+        SetCharacter(Bo, inputInfo.TargetObj);
         InitList();
     }
     private void InitList()
@@ -82,17 +87,18 @@ public class TatuGameManager : MonoBehaviour
         d_SliderDictionary.Init();
         d_TextDictionary.Init();
     }
-    private void SetCharacter()
+    private void SetCharacter(GameObject Bo,GameObject Pl)
     {
-        g_Player = BattleManager.Instance.g_Player;
-        g_Boss = BattleManager.Instance.g_Boss;
+        Debug.Log($"player{Pl}");
+        g_Player = Pl.GetComponentInChildren<PlayerMove>().gameObject;
+        g_Boss = Bo;
         EventEnter();
     }
     private void EventEnter()
     {
-        
         c_Boss = g_Boss.GetComponent<BossBaseManager>();
-        c_Player = g_Player.GetComponent<PlayerMove>();
+        c_Player = g_Player.GetComponentInChildren<PlayerMove>();
+
         c_Boss.OnHpBar += OnUpdateHpbar;
         c_Player.OnHpBar += OnUpdateHpbar;
     }

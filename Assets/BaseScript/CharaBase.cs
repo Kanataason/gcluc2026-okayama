@@ -250,7 +250,6 @@ public class CharaBase : MonoBehaviour
 
     public virtual void SetHp() //HpBar‚É”½‰f‚³‚¹‚éˆ—
     {
-        Debug.Log($"{gameObject}min{m_hp}max{m_MaxHp}");
         float value = m_hp / m_MaxHp;
         var clamp = Mathf.Clamp01(value);//‚O`‚P‚Éû‚ß‚é
         OnHpBar?.Invoke(e_CharaState,clamp);

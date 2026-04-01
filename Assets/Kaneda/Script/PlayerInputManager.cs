@@ -25,43 +25,32 @@ public class PlayerInputManager : MonoBehaviour
 
     void Awake()
     {
-        c_PlayerControls = new PlayerControls();
+       // c_PlayerControls = new PlayerControls();
 
-        // 移動入力
-        c_PlayerControls.Player.Move.performed += context =>
-        {
-            v_MoveInput = context.ReadValue<Vector2>();
-        };
+        //// 移動入力
+        //c_PlayerControls.Player.Move.performed += context =>
+        //{
+        //    v_MoveInput = context.ReadValue<Vector2>();
+        //};
 
-        // 移動解除
-        c_PlayerControls.Player.Move.canceled += context =>
-        {
-            v_MoveInput = Vector2.zero;
-        };
+        //// 移動解除
+        //c_PlayerControls.Player.Move.canceled += context =>
+        //{
+        //    v_MoveInput = Vector2.zero;
+        //};
 
-        // ジャンプ入力
-        c_PlayerControls.Player.Jump.performed += context =>
-        {
-            f_JumpBufferTimer = JUMP_BUFFER_TIME;
-        };
+        //// ジャンプ入力
+        //c_PlayerControls.Player.Jump.performed += context =>
+        //{
+        //    f_JumpBufferTimer = JUMP_BUFFER_TIME;
+        //};
 
-        // 攻撃入力
-        c_PlayerControls.Player.Attack.performed += context =>
-        {
-            f_AttackBufferTimer = ATTACK_BUFFER_TIME;
-        };
+        //// 攻撃入力
+        //c_PlayerControls.Player.Attack.performed += context =>
+        //{
+        //    f_AttackBufferTimer = ATTACK_BUFFER_TIME;
+        //};
     }
-
-    void OnEnable()
-    {
-        c_PlayerControls.Enable();
-    }
-
-    void OnDisable()
-    {
-        c_PlayerControls.Disable();
-    }
-
     void Update()
     {
         // ジャンプ入力バッファ減少
@@ -112,5 +101,32 @@ public class PlayerInputManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    //入力ゲット関数
+    public void SetMove(InputAction.CallbackContext ctx)
+    {
+        v_MoveInput = ctx.ReadValue<Vector2>();
+
+        if (ctx.canceled)
+        {
+            v_MoveInput = Vector2.zero;
+        }
+    }
+
+    public void SetJump(InputAction.CallbackContext ctx) 
+    {
+        if (ctx.performed)
+        {
+            f_JumpBufferTimer = JUMP_BUFFER_TIME;
+        }
+    }
+    public void SetAttack(InputAction.CallbackContext ctx)
+    {
+        Debug.Log("世ばっれた");
+        if (ctx.performed)
+        {
+            f_AttackBufferTimer = ATTACK_BUFFER_TIME;
+        }
     }
 }

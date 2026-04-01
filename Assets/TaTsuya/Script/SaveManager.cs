@@ -75,7 +75,7 @@ public class SaveManager : MonoBehaviour
     {
         BattleManager battle = BattleManager.Instance;
         c_CurrentData = battle.m_CurrentRound == 1 ? c_Stage1SaveData : c_Stage2SaveData;
-        Debug.Log($"セーブテータチェンジ{BattleManager.Instance.m_CurrentRound}");
+        Debug.Log($"セーブテータチェンジ{battle.m_CurrentRound}");
     }
     public void RemoveList(CharaState State,int Round)
     {
