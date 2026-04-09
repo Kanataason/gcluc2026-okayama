@@ -285,6 +285,7 @@ MonoBehaviour:
   l_InfoList:
   - BossPos: {x: 0, y: 0, z: 0}
     PlayerPos: {x: 0, y: 0, z: 0}
+  StageNum: 0
 --- !u!4 &393919868
 Transform:
   m_ObjectHideFlags: 0
@@ -1457,6 +1458,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2073141668}
+    - target: {fileID: 4455674099497402064, guid: cf284b9da1dde504d86e373c989d67d5, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4455674099497402064, guid: cf284b9da1dde504d86e373c989d67d5, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 455.06
+      objectReference: {fileID: 0}
     - target: {fileID: 4961701186009873249, guid: cf284b9da1dde504d86e373c989d67d5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
