@@ -168,6 +168,7 @@ public class PlayerMove :CharaBase
     }
     public override void Die()
     {
+        SetDieFlag(true);
         base.Die();
 
         NextFrame.Run(this, 0.5f, () =>

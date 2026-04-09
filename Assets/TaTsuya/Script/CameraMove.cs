@@ -24,14 +24,14 @@ public class CameraMove : MonoBehaviour
             if (inputInfo.PlayerNum != StageNum) return;
             g_Player = inputInfo.TargetObj.GetComponentInChildren<PlayerMove>().gameObject;
             s_inputlist = inputInfo;
-            Debug.Log($"Pos{g_Player.transform.position}/ower{this.gameObject.name}");
+            Debug.Log($"Pos{g_Player.transform.position}/ower{g_Player.name}");
             SetCemeraPos(g_Player);
         });
     }
     private void SetCemeraPos(GameObject target)
     {
         Vector3 targetPos = target.transform.position;
-        transform.position = new Vector3(targetPos.x, targetPos.y, -11);
+        transform.position = new Vector3(targetPos.x, 0, -11);
     }
     private void LateUpdate()
     {

@@ -98,7 +98,6 @@ public class TatuGameManager : MonoBehaviour
     {
         c_Boss = g_Boss.GetComponent<BossBaseManager>();
         c_Player = g_Player.GetComponentInChildren<PlayerMove>();
-
         c_Boss.OnHpBar += OnUpdateHpbar;
         c_Player.OnHpBar += OnUpdateHpbar;
     }
@@ -157,7 +156,6 @@ public class TatuGameManager : MonoBehaviour
     }
     public void ChangePanel(UiPanelState state,bool IsActive)
     {
-        c_Boss.SetDieFlag(true);
         c_Player.SetDieFlag(true);
 
         var panel = d_PanelDictionary.Get(state);

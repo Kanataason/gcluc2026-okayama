@@ -217,7 +217,6 @@ public class CharaBase : MonoBehaviour
     public virtual void Die() 
     {
         Debug.Log("死んだ"); 
-        SetDieFlag(true);
         BattleManager.Instance.m_CleaStage++;
         //内部処理を止める、ボスのHPバーを非表示
         TatuGameManager.Instance.SetMoveFlag(false);

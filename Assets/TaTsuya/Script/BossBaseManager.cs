@@ -142,6 +142,8 @@ public class BossBaseManager : CharaBase
     }
     public override void Die()
     {
+        Debug.Log("死んだ");
+        SetDieFlag(true);
         base.Die();
         //ボス専用　テレポートフラグ
         c_BossAttackManager.PlayorStopTransparent(false, true);

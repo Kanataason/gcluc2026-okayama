@@ -55,13 +55,13 @@ public class PlayerMoveManager : MonoBehaviour
         
         NextFrame.OneFrame(this, () => { a_Animator = c_PlayerManager.GetAnimator(); });
 
-        transform.position = new Vector3(-12, -4, 0);
+       // transform.position = new Vector3(-12, -4, 0);
         // 初期スケール保存
         v_DefaultScale = transform.localScale;
 
         // 初期地面位置保存
         f_GroundY = transform.position.y;
-
+        Debug.Log($"Ground{f_GroundY}");
         // 初期ジャンプ高さ
         f_JumpHeight = 0f;
 

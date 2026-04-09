@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -55,6 +56,7 @@ public class BattleManager : MonoBehaviour
     public TextMeshProUGUI Stage;
     public Animator a_CanvasAnima;
 
+
     private void OnDestroy()
     {
         OnGetStageInfo = null;
@@ -104,7 +106,6 @@ public class BattleManager : MonoBehaviour
             pairWithDevice: devicelist.ControllerDevice).gameObject;
         var boss = Instantiate(g_PrefabBoss);
         devicelist.TargetObj = player;
-
         GetComponents(boss,devicelist);
         OnCreateCharacters?.Invoke(boss,devicelist);
     }
@@ -159,7 +160,13 @@ public class BattleManager : MonoBehaviour
     {
         if (m_CleaStage > 2) { SceneManager.LoadScene("title"); return; }
         c_BattleManager.Dispatch(state);
-        TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, false); }
+        TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, false); 
+    }
+    private void InitTextInfo(string info,int size)
+    {
+        debagte.text = info;
+        debagte.fontSize = size;
+    }
     private class Other: State
     {
         protected override void OnEnter(State prevstate)
@@ -183,6 +190,8 @@ public class BattleManager : MonoBehaviour
         BattleManager manager;
         protected override void OnEnter(State prevstate)//ここで順番を確認
         {
+            owner.InitTextInfo("", 32);
+
            owner.c_TestPlayerMove.SetDieFlag(false);
             owner.c_BossBaseManager.SetDieFlag(false);
 
@@ -226,35 +235,75 @@ public class BattleManager : MonoBehaviour
     {
         private float m_RandamNum;
         private float m_UpdataTimer;
+        private int m_Prevtime;
+
+        private float m_Strength = 10;
+        private float m_Dump = 0.15f;
+        private Coroutine c_BlinkingCoroutine;
         protected override void OnEnter(State prevstate)
         {
+            m_RandamNum = (int)UnityEngine.Random.Range(50,100);
+            Init();
+        }
+        private void Init()
+        {
+            m_Prevtime = (int)m_RandamNum;
             m_UpdataTimer = 0;
-            m_RandamNum = (int)UnityEngine.Random.Range(30,100);
+            c_BlinkingCoroutine = null;
         }
         protected override void OnUpdata()
         {
             m_UpdataTimer += Time.deltaTime;
-
             if (owner.m_CleaStage > 0) return;
             if (!TatuGameManager.Instance.GetCameraMoveflag()) return;
-            owner.m_TimeScore += Time.deltaTime;//タイムスコア計算
+
             m_RandamNum -= Time.deltaTime;
+            owner.m_TimeScore += Time.deltaTime;//タイムスコア計算
             if (m_RandamNum <= 0.5f)
             {
                 m_UpdataTimer = 1;
                 stateMachine.Dispatch((int)BattleState.GameEnd);
             }
-            if (m_RandamNum <= 5f&&m_UpdataTimer >= 0.3f)
+            if (m_RandamNum <= 30&&Mathf.RoundToInt(m_RandamNum) != m_Prevtime)
             {
+                if(m_RandamNum <= 10)
+                    UpdateTextBlinking();
+
                 m_UpdataTimer = 0;
+                m_Prevtime = (int)m_RandamNum;
                 owner.debagte.SetText("切り替え時間 : {0:0}", (int)m_RandamNum);
             }
         }   
+
         protected override void OnExit(State nextstate)
         {
             owner.b_IsLoading = true;
-            owner.debagte.text = "";
             base.OnExit(nextstate);
+        }
+        private void UpdateTextBlinking()
+        {
+            if (c_BlinkingCoroutine != null)
+            {
+                c_BlinkingCoroutine = null;
+            }
+            c_BlinkingCoroutine = owner.StartCoroutine(TextBlinking());
+        }
+        private IEnumerator TextBlinking()
+        {
+            float duraction = 1;
+            float eplased = 0;
+            float offset = 2;
+
+            while (eplased < duraction)
+            {
+                eplased += Time.deltaTime;
+                var t = eplased / duraction;
+
+                var pulse = 1 + Mathf.Sin(eplased * m_Strength) * (1 - t) * (1 - t)* (1 - t)* m_Dump;
+                owner.debagte.rectTransform.localScale = (Vector3.one*offset) * pulse;
+                yield return null;
+            }
+            c_BlinkingCoroutine = null;
         }
     }
     private class GameStop : State
@@ -286,6 +335,18 @@ public class BattleManager : MonoBehaviour
 
             if (owner.m_CleaStage <= 1) { owner.SetAnimaEvent(0); return; }
 
+            CheckResalt();
+          
+            owner.m_CleaStage++;
+
+        }
+        protected override void OnExit(State nextstate)
+        {
+            base.OnExit(nextstate);
+    
+        }
+        private void CheckResalt()
+        {
             NextFrame.Run(owner, 1, () =>
             {
                 var stage1 = owner.c_SaveData.GetCurrentData(1);
@@ -324,16 +385,6 @@ public class BattleManager : MonoBehaviour
                     TatuGameManager.Instance.ResaltPanel("引き分け");
                 }
             });
-            owner.m_CleaStage++;
-
-        }
-        protected override void OnUpdata()
-        {
-        }
-        protected override void OnExit(State nextstate)
-        {
-            base.OnExit(nextstate);
-    
         }
         private void SetData()
         {

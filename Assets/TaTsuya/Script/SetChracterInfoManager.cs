@@ -15,8 +15,8 @@ public class SetChracterInfoManager : MonoBehaviour
     private  void OnInit(GameObject boss,InputInfo list)
     {
         if (StageNum != list.PlayerNum) return;
-        int index = list.PlayerNum -1;
-        SetPosition(l_InfoList[index], boss, list);
+        int index = StageNum -1;
+        NextFrame.Run(this,1, () => SetPosition(l_InfoList[index], boss, list));
     }
     private void SetPosition(StageInfo list,GameObject Boss,InputInfo infolist)
     {

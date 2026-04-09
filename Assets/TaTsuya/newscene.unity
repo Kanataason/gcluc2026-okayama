@@ -287,7 +287,7 @@ MonoBehaviour:
     PlayerPos: {x: -14, y: -3, z: 0}
   - BossPos: {x: 0, y: 0, z: 0}
     PlayerPos: {x: -14, y: -54, z: 0}
-  StageNum: 2
+  StageNum: 1
 --- !u!4 &393919868
 Transform:
   m_ObjectHideFlags: 0
@@ -314,6 +314,10 @@ PrefabInstance:
     - target: {fileID: 5278464455437467630, guid: acacaf844430d88458a2a7c1f912b103, type: 3}
       propertyPath: m_Name
       value: subCame
+      objectReference: {fileID: 0}
+    - target: {fileID: 5278464455437467630, guid: acacaf844430d88458a2a7c1f912b103, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5718717646790918117, guid: acacaf844430d88458a2a7c1f912b103, type: 3}
       propertyPath: m_LocalPosition.x
@@ -628,6 +632,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Main Camera
       objectReference: {fileID: 0}
+    - target: {fileID: 5278464455437467630, guid: acacaf844430d88458a2a7c1f912b103, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5718717646790918117, guid: acacaf844430d88458a2a7c1f912b103, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.58
@@ -779,7 +787,7 @@ MonoBehaviour:
     PlayerPos: {x: -14, y: -3, z: 0}
   - BossPos: {x: 0, y: 0, z: 0}
     PlayerPos: {x: -14, y: -54, z: 0}
-  StageNum: 1
+  StageNum: 2
 --- !u!4 &1280947450
 Transform:
   m_ObjectHideFlags: 0
@@ -1458,6 +1466,14 @@ PrefabInstance:
     - target: {fileID: 4359907324675215071, guid: 639d057f9c334384881814cd3326563b, type: 3}
       propertyPath: m_Name
       value: StageManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 4721440690538694291, guid: 639d057f9c334384881814cd3326563b, type: 3}
+      propertyPath: m_StageScaleMaxY
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4721440690538694291, guid: 639d057f9c334384881814cd3326563b, type: 3}
+      propertyPath: m_StageScaleMinY
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 4721440690538694291, guid: 639d057f9c334384881814cd3326563b, type: 3}
       propertyPath: 'l_TutorialList.Array.data[0]'
