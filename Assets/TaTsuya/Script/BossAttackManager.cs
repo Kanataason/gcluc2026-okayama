@@ -30,10 +30,12 @@ public class BossAttackManager : MonoBehaviour
     private PlayerMove c_PlayerMove;
     private ObjctPool c_ObjectPool;
     private Camera c_Camera;
+    private AudioSource c_SeSource;//このボス(ステージ)専用の効果音 弾の音もここで鳴らす
 
     public void Init(InputInfo inputInfo, StageContext stage)
     {
         c_Camera = stage.c_Camera;
+        c_SeSource = AudioManager.Instance.CreateSeSource(gameObject);
         GetComponents(stage);
     }
     void GetComponents(StageContext stage)
@@ -75,14 +77,14 @@ public class BossAttackManager : MonoBehaviour
         switch (bullet.e_Attacktype)
         {
             case BossAttackType.Attack1://当たり判定はアニメーションイベントでONにする
-                bullet.Init(Attack1StartTime, BossBulletManager.BulletState.Stop, c_PlayerMove, c_BossBaseManager, false);
+                bullet.Init(Attack1StartTime, BossBulletManager.BulletState.Stop, c_PlayerMove, c_BossBaseManager, c_SeSource, false);
                 break;
             case BossAttackType.Attack2:
-                bullet.Init(0f, BossBulletManager.BulletState.Move, c_PlayerMove, c_BossBaseManager);
+                bullet.Init(0f, BossBulletManager.BulletState.Move, c_PlayerMove, c_BossBaseManager, c_SeSource);
                 bullet.Move();
                 break;
             default:
-                bullet.Init(0f, BossBulletManager.BulletState.Destroy, c_PlayerMove, c_BossBaseManager);
+                bullet.Init(0f, BossBulletManager.BulletState.Destroy, c_PlayerMove, c_BossBaseManager, c_SeSource);
                 break;
         }
     }
@@ -107,13 +109,13 @@ public class BossAttackManager : MonoBehaviour
     }
     public void SetCoroutineFlag(bool isRunning) => b_IsBossCoroutine = isRunning;
     public void SetIsMove() => SetCoroutineFlag(true);//アニメーションイベント(名前変更不可)
-    public void StopSe()
+    public void StopSe()//アニメーションイベント(名前変更不可) 自分のステージの音だけ止める
     {
-        AudioManager.Instance.StopSe();
+        c_SeSource.Stop();
     }
-    public void PlaySe(string name)
+    public void PlaySe(string name)//アニメーションイベント(名前変更不可)
     {
-        AudioManager.Instance.PlaySeAudio(name);
+        AudioManager.Instance.PlaySeAudio(name, c_SeSource);
     }
     public void SetTransparent(bool isTransparent, bool isHide)
     {

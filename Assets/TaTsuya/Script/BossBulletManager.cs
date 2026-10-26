@@ -36,6 +36,7 @@ public class BossBulletManager : MonoBehaviour
 
     private CharaBase c_Player = null;
     private CharaBase c_Boss = null;
+    private AudioSource c_SeSource;//撃ったボスの効果音ソース(相手の画面の音を止めないため)
 
     //オブジェクトによって変える
     public Animator a_Anima;
@@ -47,11 +48,12 @@ public class BossBulletManager : MonoBehaviour
     {
         OnDestroyObjEvent = null;
     }
-    public void Init(float startAnimaTime, BulletState state, CharaBase player, CharaBase boss, bool isAttack = true)
+    public void Init(float startAnimaTime, BulletState state, CharaBase player, CharaBase boss, AudioSource seSource, bool isAttack = true)
     {
         e_BulletState = state;
         c_Player = player;
         c_Boss = boss;
+        c_SeSource = seSource;
         m_StartAnima = startAnimaTime;
         m_Time = 0;
         m_AnimaTime = 0;
@@ -123,14 +125,14 @@ public class BossBulletManager : MonoBehaviour
     {
         v_MoveDirection = c_Boss != null && c_Boss.CurrentDirection == 1 ? Vector3.left : Vector3.right;
     }
-    public void PlaySe(string name)
+    public void PlaySe(string name)//アニメーションイベント(名前変更不可) 鳴っている同じステージの音を止めてから鳴らす
     {
-        AudioManager.Instance.StopSe();
-        AudioManager.Instance.PlaySeAudio(name);
+        StopSe();
+        AudioManager.Instance.PlaySeAudio(name, c_SeSource);
     }
-    public void StopSe()
+    public void StopSe()//アニメーションイベント(名前変更不可)
     {
-        AudioManager.Instance.StopSe();
+        if (c_SeSource != null) c_SeSource.Stop();
     }
     public void ActiveCollider(int IsTrue) => SetCollider(IsTrue == 1);//アニメーションイベント(名前変更不可) 1:有効
     private void SetCollider(bool isActive) => b_IsCollider = isActive;

@@ -62,6 +62,23 @@ public class AudioManager : MonoBehaviour
 
         SeAudio.PlayOneShot(clip);
     }
+    public void PlaySeAudio(string name, AudioSource source)//指定したソースで鳴らす(ボスごとのSe用)
+    {
+        var clip = GetClip(name);
+
+        if (clip == null || source == null) return;
+
+        source.PlayOneShot(clip);
+    }
+    public AudioSource CreateSeSource(GameObject owner)//キャラ専用のSe用ソースを作る 2画面で相手の画面の音を止めないため
+    {
+        var source = owner.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.spatialBlend = 0;//2Dの音(カメラとの距離で変わらない)
+        source.volume = SeAudio.volume;
+        source.outputAudioMixerGroup = SeAudio.outputAudioMixerGroup;
+        return source;
+    }
     private AudioClip GetClip(string name)
     {
         if(d_ClipMap.TryGetValue(name,out var clip))

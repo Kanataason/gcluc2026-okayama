@@ -46,7 +46,6 @@ public class CheckConnectingDeviceManager : MonoBehaviour
         if (l_DeviceList.Count < 2 && Keyboard.current != null)
         {
             AddDeviceList(Keyboard.current);
-            AddDeviceList(Keyboard.current);
         }
     }
     public List<InputDevice> GetDeviceList()
