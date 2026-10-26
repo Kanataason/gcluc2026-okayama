@@ -22,7 +22,6 @@ public class SetChracterInfoManager : MonoBehaviour
     {
         Boss.transform.position = list.BossPos;
         infolist.TargetObj.transform.position = list.PlayerPos;
-        Debug.Log(infolist.TargetObj.transform.position);
     }
     [System.Serializable]
     public struct StageInfo

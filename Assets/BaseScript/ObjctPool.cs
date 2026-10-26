@@ -52,7 +52,7 @@ public class ObjctPool : MonoBehaviour
 
             for(int i =0; i < list.m_InstantiateNumber; i++)
             {
-                var obj = Instantiate(list.g_Prefab, transform);//©•ª‚Ìq‚Åİ’è
+                var obj = CreateObject(list.g_Prefab);
                 obj.SetActive(false);
                 d_EfectList[(list.e_CharaState,list.e_EfectType)].Enqueue(obj);
             }
@@ -63,7 +63,7 @@ public class ObjctPool : MonoBehaviour
     {
         if(!d_EfectList.ContainsKey((CType, EType)))
         {
-            Debug.Log($"‚±‚Ì{CType}{EType}‚Í“o˜^‚³‚ê‚Ä‚Ü‚¹‚ñ");
+            Debug.LogWarning($"‚±‚Ì{CType}{EType}‚Í“o˜^‚³‚ê‚Ä‚Ü‚¹‚ñ");
             return null;
         }
         Queue<GameObject> list = d_EfectList[(CType, EType)];
@@ -76,10 +76,17 @@ public class ObjctPool : MonoBehaviour
         }
         else
         {
-            var obj = Instantiate(d_PrefabList[(CType, EType)], transform);
+            var obj = CreateObject(d_PrefabList[(CType, EType)]);
             obj.SetActive(true);
             return obj;
         }
+    }
+    private GameObject CreateObject(GameObject prefab)//©•ª‚Ìq‚Å¶¬‚µ‚ÄA2‰æ–Ê—p‚É©•ª‚Æ“¯‚¶ƒŒƒCƒ„[‚É‚·‚é
+    {
+        var obj = Instantiate(prefab, transform);
+        foreach (var child in obj.GetComponentsInChildren<Transform>(true))
+            child.gameObject.layer = gameObject.layer;
+        return obj;
     }
     public void ReturnObject(CharaState Ctype, EfectType Etype, GameObject obj)//obj•Ô‚·‚Æ‚«‚ÌŠÖ”
     {

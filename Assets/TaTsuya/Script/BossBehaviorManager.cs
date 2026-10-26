@@ -1,61 +1,73 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using State = StateMachine<BossBehaviorManager>.State;
 public class BossBehaviorManager : MonoBehaviour
 {
-   public enum BossState
+    public enum BossState
     {
         Idle = 1,
         Attack = 2,
-        Die = 3,
         Invincible = 4,
     }
-    public enum BossAwake
+    public enum BossAwake//値は行動間隔の短縮秒数にも使っている
     {
         FirstForm = 0,
         SecondForm = 2,
         FinalForm = 4
     }
-    public enum BossAttackType
+    public enum BossAttackType//アニメーターのAttackTypeの値
     {
         Attack1 = 1,
         Attack2 = 2,
         Attack3 = 3,
-        Attack3Hide = 4
+        Hide = 4//Attack2のジャンプ中とAttack3の移動中
     }
 
-    private int[] m_AwakeningHp = { 100, 50, 30 };
+    private const float BaseLotteryTime = 7f;//行動抽選の間隔
 
-    [Serializable]
+    //覚醒するHP 0:FirstForm→SecondForm 1:SecondForm→FinalForm
+    private readonly int[] m_AwakeningHp = { 100, 50 };
+    //形態ごとの攻撃の重み 並びはl_AttackEventと同じ(Attack3,Attack2,Attack1)
+    private readonly int[][] m_AttackWeights =
+    {
+        new int[] { 40, 50, 60 },//FirstForm
+        new int[] { 30, 45, 50 },//SecondForm
+        new int[] { 40, 0, 70 },//FinalForm
+    };
+
     public class AttackEvent//攻撃の情報
     {
         public BossAttackType e_BossAttackType;
         public int m_Weight;
-        public Action<int> a_AttackAction;
     }
 
     private List<AttackEvent> l_AttackEvent;
 
-    //private BossState e_State = BossState.Idle;
-    public BossAwake e_AwakeHp = BossAwake.FirstForm;
-    public float m_CurrentActionTime = 0;
+    [FormerlySerializedAs("e_AwakeHp")]
+    public BossAwake e_AwakeForm = BossAwake.FirstForm;
 
-    private StateMachine<BossBehaviorManager> c_BossBehaviorManager;
+    private StateMachine<BossBehaviorManager> c_StateMachine;
     private BossAttackManager c_AttackManager;
     private BossBaseManager c_BaseManager;
+    private StageContext c_Stage;
 
-    private InputInfo s_currentInfo;
-    public bool b_IsAwakening => c_BaseManager.GetHp() % 50 == 0;
+    public int FormIndex => (int)e_AwakeForm / 2;//形態の番号 0,1,2
 
-    public void Init(InputInfo inputInfo)
+    private void OnDisable()
+    {
+        if (c_Stage != null)
+            c_Stage.OnBattle -= OnSetBattle;
+    }
+    public void Init(InputInfo inputInfo, StageContext stage)
     {
         GetComponents();
-        s_currentInfo = inputInfo;
-        c_AttackManager.Init(inputInfo);
+        c_Stage = stage;
+        c_AttackManager.Init(inputInfo, stage);
         c_BaseManager.Init();
+        c_Stage.OnBattle += OnSetBattle;
 
-        InitDictionary();
+        InitAttackList();
         InitTransition();
         TeleportPos();
     }
@@ -63,133 +75,110 @@ public class BossBehaviorManager : MonoBehaviour
     {
         c_BaseManager = GetComponent<BossBaseManager>();
         c_AttackManager = GetComponent<BossAttackManager>();
-        c_BossBehaviorManager = new StateMachine<BossBehaviorManager>(this);
+        c_StateMachine = new StateMachine<BossBehaviorManager>(this);
     }
-    public void TeleportPos()//これはアニメーションイベントから呼ばれたり最初に呼ばれる
+    public void TeleportPos()//アニメーションイベント(名前変更不可)からも呼ばれる
     {
-        var pos = GetPos(s_currentInfo.PlayerNum);
+        //2画面のステージは同じ座標に重ねてあるので出現位置は共通
+        transform.position = TatuGameManager.Instance.l_Infolist[FormIndex].v_TeleportPos;
 
-        transform.position = pos;
-
-        if (e_AwakeHp != BossAwake.FirstForm)
-            c_AttackManager.PlayorStopTransparent(false, false);
+        if (e_AwakeForm != BossAwake.FirstForm)
+            c_AttackManager.SetTransparent(false, false);
     }
-    private Vector3 GetPos(int PlayerNum)
+    public void ChangeClass(BossState state)
     {
-        int index = (int)e_AwakeHp / 2;
-        var Pos = TatuGameManager.Instance.l_Infolist[index].v_TeleportPos;
-        var pos = s_currentInfo.PlayerNum != 1 ? new Vector3(Pos.x, Pos.y + 50, Pos.z) : Pos;
-
-        return pos;
+        //ステートマシンの開始前(Init後0.5秒)に呼ばれても落ちないようにする
+        if (c_StateMachine.CurrentState == null) return;
+        c_StateMachine.Dispatch((int)state);
     }
-    public void ChangeClass(BossState state) { c_BossBehaviorManager.Dispatch((int)state); }
-    private void InitDictionary()//リスト初期化 攻撃を追加するときはここに追加
+    private void OnSetBattle()//接敵したとき
+    {
+        c_Stage.c_Hud.SetActive(CharaState.Boss, true);
+        c_Stage.SetInBattle(true);
+        c_BaseManager.SetHp();
+        ChangeClass(BossState.Idle);
+
+        c_AttackManager.PlayTeleportAnima();
+    }
+    private void InitAttackList()//攻撃を追加するときはこことm_AttackWeightsに追加
     {
         l_AttackEvent = new()
         {
-            new AttackEvent(){m_Weight = 40,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack3},
-             new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter,e_BossAttackType = BossAttackType.Attack2},
-              new AttackEvent(){m_Weight = 50,a_AttackAction = c_AttackManager.AttackEnter, e_BossAttackType = BossAttackType.Attack1},
+            new AttackEvent(){ e_BossAttackType = BossAttackType.Attack3 },
+            new AttackEvent(){ e_BossAttackType = BossAttackType.Attack2 },
+            new AttackEvent(){ e_BossAttackType = BossAttackType.Attack1 },
         };
+        SetAttackWeights();
     }
-    private void ChangeValue(int[] values)//確率を変えるための変数
+    private void SetAttackWeights()//今の形態の攻撃の重みにする
     {
+        if (l_AttackEvent == null) return;
+
+        int[] weights = m_AttackWeights[FormIndex];
         for (int i = 0; i < l_AttackEvent.Count; i++)
         {
-            l_AttackEvent[i].m_Weight = values[i];
+            l_AttackEvent[i].m_Weight = weights[i];
         }
     }
     private void Update()
     {
-        if (TatuGameManager.Instance == null||!TatuGameManager.Instance.b_BossTeleport) return;
+        if (c_Stage == null || !c_Stage.b_InBattle) return;
 
-        if (c_BossBehaviorManager.CurrentState != null) c_BossBehaviorManager.Updata();
+        if (c_StateMachine.CurrentState != null) c_StateMachine.Updata();
     }
     private void InitTransition()//行動追加
     {
-        c_BossBehaviorManager.AddTransition<Idle,Attack>((int)BossState.Attack);
-        c_BossBehaviorManager.AddTransition<Attack,Idle>((int)BossState.Idle);
-        c_BossBehaviorManager.AddTransition<Invincible, Idle>((int)BossState.Idle);
-        c_BossBehaviorManager.AnyAddTrasition<Die>((int)BossState.Die);
-        c_BossBehaviorManager.AnyAddTrasition<Invincible>((int)BossState.Invincible);
+        c_StateMachine.AddTransition<Idle, Attack>((int)BossState.Attack);
+        c_StateMachine.AddTransition<Attack, Idle>((int)BossState.Idle);
+        c_StateMachine.AddTransition<Invincible, Idle>((int)BossState.Idle);
+        c_StateMachine.AnyAddTrasition<Invincible>((int)BossState.Invincible);
         NextFrame.Run(this, 0.5f, () =>
         {
-            c_BossBehaviorManager.Start<Idle>();
+            c_StateMachine.Start<Idle>();
         });
     }
     private AttackEvent LotteryAction()//行動抽選
     {
         int total = 0;
-        foreach (var key in l_AttackEvent)
-            total += key.m_Weight;
+        foreach (var attackEvent in l_AttackEvent)
+            total += attackEvent.m_Weight;
 
-        int Random = UnityEngine.Random.Range(0, total);
-        Debug.Log(Random);
+        int randomValue = Random.Range(0, total);
         total = 0;
-        foreach (var key in l_AttackEvent)
+        foreach (var attackEvent in l_AttackEvent)
         {
-            total += key.m_Weight;
-            if (Random < total)
-                return key;
+            total += attackEvent.m_Weight;
+            if (randomValue < total)
+                return attackEvent;
         }
-        return null;
+        return l_AttackEvent[l_AttackEvent.Count - 1];//重みが全部0のとき
     }
-    public float CheckBossAwakening(float CurrentHp)//覚醒するかの確認
+    public bool TryAwakening(float currentHp, out float awakeningHp)//覚醒するかの確認 覚醒したらHPをしきい値で止める
     {
-        if (CurrentHp <= 0) return 0;
+        awakeningHp = currentHp;
+        if (currentHp <= 0 || FormIndex >= m_AwakeningHp.Length) return false;
+        if (currentHp >= m_AwakeningHp[FormIndex]) return false;
 
-        int index = (int)e_AwakeHp;
-        int[] nums;
-        float returnHp = CurrentHp;
-
-        // 覚醒判定
-        if (index < m_AwakeningHp.Length && CurrentHp < m_AwakeningHp[index])
-        {
-            OnAwakeing();
-
-            switch (e_AwakeHp)
-            {
-                case BossAwake.FirstForm:
-                    e_AwakeHp = BossAwake.SecondForm;
-                    nums = new int[] { 30, 45, 50 };
-                    returnHp = m_AwakeningHp[index];
-                    break;
-
-                case BossAwake.SecondForm:
-                    e_AwakeHp = BossAwake.FinalForm;
-                    nums = new int[] { 40, 0, 70 };
-                    returnHp = m_AwakeningHp[index];
-                    break;
-
-                default:
-                    nums = new int[] { 50, 45, 50 };
-                    break;
-            }
-        }
-        else
-        {
-            // 通常時
-            nums = new int[] { 30, 45, 50 };
-        }
-
-        ChangeValue(nums);
-        return returnHp;
+        awakeningHp = m_AwakeningHp[FormIndex];
+        e_AwakeForm = e_AwakeForm == BossAwake.FirstForm ? BossAwake.SecondForm : BossAwake.FinalForm;
+        SetAttackWeights();
+        OnAwakening();
+        return true;
     }
-
-    private void OnAwakeing()
+    private void OnAwakening()
     {
-        TatuGameManager.Instance.SetMoveFlag(false);
-        TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-        c_AttackManager.PlayorStopTransparent(false, true);
+        c_Stage.SetInBattle(false);
+        c_Stage.c_Hud.SetActive(CharaState.Boss, false);
+        c_AttackManager.SetTransparent(false, true);
         ChangeClass(BossState.Invincible);
+
+        c_Stage.OnBossAwakened();//相手のステージへの妨害
     }
 
     private class Idle : State
     {
         private float m_LotteryTime;
         private float m_CurrentTime;
-
-        private bool b_IsFirst;
         protected override void OnEnter(State prevstate)
         {
             Init();
@@ -197,117 +186,41 @@ public class BossBehaviorManager : MonoBehaviour
         protected override void OnUpdata()
         {
             if (owner.c_AttackManager.b_IsBossCoroutine) return;
-            if (BattleManager.Instance.b_IsLoading&&!b_IsFirst)
-            {
-                b_IsFirst = true;
-                SetTime();
-            }
 
             m_CurrentTime += Time.deltaTime;
-            owner.m_CurrentActionTime = m_CurrentTime;
 
-            if(m_CurrentTime >= m_LotteryTime)
+            if (m_CurrentTime >= m_LotteryTime)
             {
                 m_CurrentTime = 0;
-                stateMachine.Dispatch((int)BossState.Attack);     
+                stateMachine.Dispatch((int)BossState.Attack);
             }
-        }
-        protected override void OnExit(State nextstate)
-        {
-            Debug.Log("行動開始");
-        }
-        private void SetTime()
-        {
-            m_CurrentTime = owner.m_CurrentActionTime;
         }
         private void Init()
         {
-            m_LotteryTime = 7;
+            m_LotteryTime = BaseLotteryTime - (int)owner.e_AwakeForm;
             m_CurrentTime = 0;
-
-            b_IsFirst = false;
-
-            m_LotteryTime -= (int)owner.e_AwakeHp;
-            owner.c_AttackManager.e_AnimaType = BossAttackManager.AnimaType.Move;
         }
     }
     private class Attack : State
     {
-        bool b_IsFirst = false;
+        private bool b_WasAttacking = false;//前フレームで攻撃中だったか
         protected override void OnEnter(State prevstate)
         {
-            b_IsFirst = false;
-        var action = owner.LotteryAction();
-            action.a_AttackAction.Invoke((int)action.e_BossAttackType);
+            b_WasAttacking = false;
+            var action = owner.LotteryAction();
+            owner.c_AttackManager.AttackEnter((int)action.e_BossAttackType);
         }
         protected override void OnUpdata()
         {
-            bool IsAttack = owner.c_BaseManager.GetIsAttackFlag();
+            bool isAttack = owner.c_BaseManager.GetIsAttackFlag();
 
-            if (b_IsFirst && !IsAttack)
+            if (b_WasAttacking && !isAttack)
             {
                 stateMachine.Dispatch((int)BossState.Idle);
             }
 
-            b_IsFirst = IsAttack;
-        }
-        protected override void OnExit(State nextstate)
-        {
-            Debug.Log("攻撃終わりｂ");
-        }
-
-    }
-    private class Die : State
-    {
-        protected override void OnEnter(State prevstate)
-        {
-            base.OnEnter(prevstate);
-        }
-        protected override void OnUpdata()
-        {
-            base.OnUpdata();
-        }
-        protected override void OnExit(State nextstate)
-        {
-            base.OnExit(nextstate);
+            b_WasAttacking = isAttack;
         }
     }
-    private class Invincible : State
-    {
-        protected override void OnEnter(State prevstate)
-        {
-            base.OnEnter(prevstate);
-        }
-        protected override void OnUpdata()
-        {
-            base.OnUpdata();
-        }
-        protected override void OnExit(State nextstate)
-        {
-            base.OnExit(nextstate);
-        }
-    }
-   
-}
-public static class NextFrame
-{
-    private static readonly WaitForSeconds c_waitForSeconds = new WaitForSeconds(0.1f);
-    public static void OneFrame(MonoBehaviour owner,System.Action action)
-    {
-        owner.StartCoroutine(RunOneFrame(action));
-    }
-    public static void Run(MonoBehaviour owner, float Timer, System.Action action)
-    {
-        owner.StartCoroutine(RunCoroutine(action,Timer));
-    }
-    private static System.Collections.IEnumerator RunOneFrame(System.Action action)
-    {
-        yield return c_waitForSeconds;
-        action?.Invoke();
-    }
-    private static System.Collections.IEnumerator RunCoroutine(System.Action action,float Timer)
-    {
-        yield return new WaitForSeconds(Timer);
-        action?.Invoke();
-    }
+    private class Invincible : State { }//覚醒演出中 次の接敵まで何もしない
 }

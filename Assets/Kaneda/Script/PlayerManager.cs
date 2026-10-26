@@ -51,11 +51,10 @@ public class PlayerManager : CharaBase
         // 1フレーム後にボス取得
         NextFrame.Run(this, 1, () =>
         {
-            var bossObject = SaveManager.Instance.c_CurrentData.GetCharacter(CharaState.Boss);
-
-            if (bossObject != null)
+            // 自分と同じステージのボス(2画面のときは自分側のボス)
+            if (c_Stage != null)
             {
-                g_Boss = bossObject.GetComponent<BossBaseManager>();
+                g_Boss = c_Stage.c_Boss;
             }
             SetIsAttackFlag(false);
         });
@@ -83,8 +82,8 @@ public class PlayerManager : CharaBase
         if (TatuGameManager.Instance == null) return;
         if (BattleManager.Instance == null) return;
 
-        // チュートリアル中・ロード中は動かさない
-        if (!TatuGameManager.Instance.b_IsTutorial && !BattleManager.Instance.b_IsLoading)
+        // 開始前のカウントダウン中・決着後は動かさない
+        if (!BattleManager.Instance.b_IsLoading)
         {
             StateUpdate();
         }

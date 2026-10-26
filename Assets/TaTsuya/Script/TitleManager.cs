@@ -1,7 +1,5 @@
-using System;
 using UnityEngine;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
@@ -9,85 +7,74 @@ public class TitleManager : MonoBehaviour
     public enum UiState
     {
         Title = 1,
-        PlayerControl = 2,
+        Tutorial = 2,//チュートリアルを見るかの確認パネル
         Credit = 3,
-        Start =4
+        Start = 4
     }
-
-    public TextMeshProUGUI t_text;
     //オブジェクトリスト
     [SerializeField] GenericDictionary<UiState, GameObject> d_PanelDictionary;
-    public List<GameObject> l_ButtonList = new();
+    public List<GameObject> l_TutorialList = new();//チュートリアルのページ(表示する順番で入れる)
 
-    private GameObject g_PrevObj;
-    private int m_Count = 0;
+    private GameObject g_CurrentPanel;
+    private int m_TutorialPage = -1;//今のページ -1:確認パネル
 
     void Start()
     {
         d_PanelDictionary.Init();
-        g_PrevObj = d_PanelDictionary.Get(UiState.Title);
+        g_CurrentPanel = d_PanelDictionary.Get(UiState.Title);
     }
     private void OnDestroy()
     {
         d_PanelDictionary.Clear();
-        l_ButtonList.Clear();
     }
 
-    public void ChangePanel(int StateValue)//アニメーションイベントから呼ばれる
+    public void ChangePanel(int StateValue)//ボタンやアニメーションイベントから呼ばれる
     {
-        InitPlayerOrder();
-
-        g_PrevObj?.SetActive(false);
-        g_PrevObj = null;
-
-        UiState state = (UiState)StateValue;
-        var obj = d_PanelDictionary.Get(state);
-        SetActive(true,obj);
+        ShowPanel((UiState)StateValue);
     }
-    private void InitPlayerOrder()
+    private void ShowPanel(UiState state)
     {
-        if (m_Count > 0)//SetplayerOrderこれの処理をした後だったとき残っていたら流れる
+        if (g_CurrentPanel != null) g_CurrentPanel.SetActive(false);
+        HideTutorialPage();
+
+        g_CurrentPanel = d_PanelDictionary.Get(state);
+        if (g_CurrentPanel != null) g_CurrentPanel.SetActive(true);
+    }
+    //----------チュートリアル処理
+    public void Tutorial(int IsYes)//ボタンから呼ばれる 1:見る・次へ 0:見ない・戻る
+    {
+        if (IsYes == 0)
         {
-            for (int i = 0; i < l_ButtonList.Count - 1; i++)
-                l_ButtonList[i].SetActive(true);
+            if (m_TutorialPage == -1) { ShowPanel(UiState.Start); return; }//見ない
+
+            SetTutorialPage(m_TutorialPage - 1);//最初のページで戻ると確認パネルに戻る
+            return;
         }
-        m_Count = 0;
-    }
-    public void SetActive(bool IsActive,GameObject obj)//パネルを表示処理
-    {
-        if (g_PrevObj == null)
-               g_PrevObj = obj;
 
-        obj.SetActive(IsActive);
-    }
-    public void SetplayerOrder(int Order)//先攻後攻を決める溜めの処理
-    {
-        GameObject obj = Order == 0 ? l_ButtonList[0] : l_ButtonList[1];
-        obj.SetActive(false);
-
-        m_Count++;
-        if(m_Count > 1)
+        if (m_TutorialPage + 1 >= l_TutorialList.Count)//最後のページまで見たら始める画面へ
         {
-            m_Count = 0;
-            StartButton();
+            ShowPanel(UiState.Start);
+            return;
         }
-        PlayerControl(m_Count);
+        SetTutorialPage(m_TutorialPage + 1);
     }
-    private void StartButton()//スタートボタンを表示させる
+    private void SetTutorialPage(int page)//page:-1で確認パネルを表示
     {
-        g_PrevObj.SetActive(false);
+        HideTutorialPage();
+        m_TutorialPage = page;
 
-        var g = d_PanelDictionary.Get(UiState.Start);
-        g.SetActive(true);
+        d_PanelDictionary.Get(UiState.Tutorial).SetActive(page == -1);
+        if (page >= 0) l_TutorialList[page].SetActive(true);
+    }
+    private void HideTutorialPage()
+    {
+        if (m_TutorialPage >= 0) l_TutorialList[m_TutorialPage].SetActive(false);
+        m_TutorialPage = -1;
     }
 
-    public void PlayerControl(int Count)
-    => t_text.text = $"プレイヤー{++Count}さん選んでください";
     public void ChangeScene()
     {
        SceneManager.LoadScene("TaTsuyaScene");
-       // SceneManager.LoadScene("TaTsuyaScene 2");
-       // SceneManager.LoadScene("TaTsuyaScene 3", LoadSceneMode.Additive);
     }
     public void ExitGame()
     {

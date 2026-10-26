@@ -59,7 +59,7 @@ public class StateMachine<TOwner>
         var from = GetOrAddState<TFrom>();
         if (from.state.ContainsKey(eventId))
         {
-            Debug.Log("‚Å‚«‚È‚¢‚æ");
+            Debug.LogWarning($"{typeof(TFrom).Name}‚É‚ÍƒCƒxƒ“ƒg{eventId}‚Ì‘JˆÚ‚ª‚à‚¤“o˜^‚³‚ê‚Ä‚¢‚Ü‚·");
             return;
         }
         var to = GetOrAddState<TTo>();
@@ -88,7 +88,6 @@ public class StateMachine<TOwner>
         {
             if (!GetOrAddState<AnyState>().state.TryGetValue(eventId, out to))
             {
-                Debug.Log($"{CurrentState}Not Event");
                 return;
             }
         }

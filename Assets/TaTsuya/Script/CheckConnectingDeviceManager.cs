@@ -46,11 +46,7 @@ public class CheckConnectingDeviceManager : MonoBehaviour
         if (l_DeviceList.Count < 2 && Keyboard.current != null)
         {
             AddDeviceList(Keyboard.current);
-        }
-        Debug.Log($"listdevice{l_DeviceList.Count}");
-        foreach (var devi in l_DeviceList)
-        {
-            Debug.Log(devi);
+            AddDeviceList(Keyboard.current);
         }
     }
     public List<InputDevice> GetDeviceList()
@@ -70,18 +66,12 @@ public class CheckConnectingDeviceManager : MonoBehaviour
         if (change == InputDeviceChange.Added)
         {
             // コントローラーが追加されたとき
-            if (device is Gamepad)
-            {
-                Debug.Log("コントローラー接続された: " + device.displayName);
-                
-            }
             CheckConnectDevice();
         }
         else if (change == InputDeviceChange.Removed)
         {
             if (device is Gamepad)
             {
-                Debug.Log("コントローラー切断された: " + device.displayName);
                 RemoveDevice(device);
             }
             CheckConnectDevice();

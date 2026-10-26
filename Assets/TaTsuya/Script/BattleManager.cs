@@ -1,15 +1,25 @@
-using JetBrains.Annotations;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Users;
 using UnityEngine.SceneManagement;
 using State = StateMachine<BattleManager>.State;
 public class BattleManager : MonoBehaviour
 {
     private static readonly int StartAnima = Animator.StringToHash("Start");
+    private const int StageLayerBase = 7;//1P:レイヤー8 2P:レイヤー9
+    private const float BossDefeatResultDelay = 3f;//ボスを倒してから結果を出すまで
+    private const float PlayerDieResultDelay = 1f;//やられてから結果を出すまで
+    private const float CountdownTime = 3f;//開始前のカウントダウンの秒数
+    private const float GoTextTime = 1f;//「GO!」を出しておく時間
+
+    public enum TextType
+    {
+        Stage,
+        TIme,
+        StageInfo
+    }
     public enum BattleState
     {
         GameStating,
@@ -31,63 +41,108 @@ public class BattleManager : MonoBehaviour
         }
     }
     //-----------ターゲットのオブジェクト
-    public GameObject g_PrefabBoss;
-    public GameObject g_PrefabPlayer;
-    public GameObject g_PrefabCamera;
+    public ObjectLists<GameObject, CharaState> l_CharaList;
     //-----------参照先
     private StateMachine<BattleManager> c_BattleManager;
-    private SaveManager c_SaveData;
-    private BossBehaviorManager c_BossBehaviorManager;
-    private BossBaseManager c_BossBaseManager;
-    private PlayerMove c_TestPlayerMove;
+    private readonly List<StageContext> l_Stages = new();
     //-----------バトルの情報
-    public int m_CurrentRound = 1;
-    public float m_TimeLimit;
-    public float m_CurrentTime;
-    public float m_TimeScore;
-    public bool b_IsLoading = false;
-    public int m_CleaStage;
-    //-------データをセットするアクション
-    public event Action<StageSaveData> OnGetStageInfo;
-    public event Action OnSetStageInfo;
+    public bool b_IsLoading = false;//trueの間はキャラと弾が止まる(開始前のカウントダウン中・決着後)
+    private bool b_IsFinished;
+    private bool b_IsBossBgmPlaying;
+    [SerializeField] private float m_InterferencePowerUp = 0.5f;//相手がボスを覚醒させたときに上がる、自分のボスの攻撃力の倍率
+    //-----------カメラ
+    [SerializeField] private float m_SplitCameraSizeRate = 0.5f;//2画面のときのカメラの表示サイズの倍率(0.5で横幅が1画面のときと同じ)
+    private float m_CameraY;
     public event Action<GameObject, InputInfo> OnCreateCharacters;
     //---------Ui関連
-    public TextMeshProUGUI debagte;
-    public TextMeshProUGUI Stage;
     public Animator a_CanvasAnima;
-
+    public ObjectLists<TextMeshProUGUI, TextType> l_TextList;
+    [SerializeField] private float m_CountdownFontSize = 120f;
 
     private void OnDestroy()
     {
-        OnGetStageInfo = null;
-        OnSetStageInfo = null;
+        OnCreateCharacters = null;
     }
     void Start()
     {
         Application.targetFrameRate = 60;
-        InitTransition();
-        InitRoundInfo();
+        b_IsLoading = true;//カウントダウンが終わるまで動かさない
+        InitList();
+        TatuGameManager.Instance.Init();
 
-        c_SaveData = SaveManager.Instance;
-        SetInputDevice();
+        CreateStages(CheckConnectingDeviceManager.Instance.GetDeviceList());
+        InitTransition();
     }
-    private void SetInputDevice()
+    private void InitList()
     {
-        var deviceList = CheckConnectingDeviceManager.Instance.GetDeviceList();
-        int Count = 1;
-        foreach (var device in deviceList)
+        l_TextList.Init();
+        l_CharaList.Init();
+    }
+    //-----------ステージの生成
+    private void CreateStages(List<InputDevice> devices)//つながっているデバイスの数だけステージを作る(最大2)
+    {
+        bool isSplit = devices.Count >= 2;
+        var viewports = new Rect[devices.Count];
+        for (int i = 0; i < devices.Count; i++)
+            viewports[i] = GetViewport(i + 1, isSplit);
+
+        var huds = TatuGameManager.Instance.CreateHuds(viewports);
+        var cameras = CreateCameras(devices.Count, viewports, isSplit);
+
+        for (int i = 0; i < devices.Count; i++)
         {
-            var ControlScheme = GetControlScheme(device);
-            Debug.Log(ControlScheme);
-            var list = new InputInfo()
+            int stageNum = i + 1;
+            var stage = new GameObject($"Stage{stageNum}").AddComponent<StageContext>();
+            stage.Init(stageNum, StageLayerBase + stageNum, cameras[i], huds[i]);
+            l_Stages.Add(stage);
+
+            var info = new InputInfo()
             {
-                ControllerDevice = device,
-                ControllerScheme = ControlScheme,
-                PlayerNum = Count
+                ControllerDevice = devices[i],
+                ControllerScheme = GetControlScheme(devices[i]),
+                PlayerNum = stageNum
             };
-            Count++;
-            CreateCharacter(list);
+            CreateCharacter(info, stage);
         }
+    }
+    private Rect GetViewport(int stageNum, bool isSplit)//上が1P、下が2P
+    {
+        if (!isSplit) return new Rect(0, 0, 1, 1);
+        return stageNum == 1 ? new Rect(0, 0.5f, 1, 0.5f) : new Rect(0, 0, 1, 0.5f);
+    }
+    private Camera[] CreateCameras(int count, Rect[] viewports, bool isSplit)//シーンのカメラを1P用にして、2P用は複製する
+    {
+        Camera mainCamera = Camera.main;
+        float baseSize = mainCamera.orthographicSize;
+        float size = isSplit ? baseSize * m_SplitCameraSizeRate : baseSize;
+        m_CameraY = size - baseSize;//画面の下端を1画面のときと揃える(元のカメラはy=0)
+
+        int allStageMask = 0;
+        for (int i = 0; i < count; i++)
+            allStageMask |= 1 << (StageLayerBase + i + 1);
+
+        var cameras = new Camera[count];
+        for (int i = 0; i < count; i++)
+        {
+            Camera camera = i == 0 ? mainCamera : CloneCamera(mainCamera, i + 1);
+            camera.rect = viewports[i];
+            camera.orthographicSize = size;
+            //他のステージのレイヤーは映さない
+            camera.cullingMask = (camera.cullingMask & ~allStageMask) | (1 << (StageLayerBase + i + 1));
+            cameras[i] = camera;
+        }
+        return cameras;
+    }
+    private Camera CloneCamera(Camera original, int stageNum)
+    {
+        var clone = Instantiate(original.gameObject);
+        clone.name = $"Stage{stageNum} Camera";
+        clone.tag = "Untagged";//Camera.mainは1P側のまま
+
+        var listener = clone.GetComponent<AudioListener>();//AudioListenerは1つだけにする
+        if (listener != null) Destroy(listener);
+
+        return clone.GetComponent<Camera>();
     }
     private string GetControlScheme(InputDevice device)
     {
@@ -99,73 +154,128 @@ public class BattleManager : MonoBehaviour
 
         return "Unknown";
     }
-    private void CreateCharacter(InputInfo devicelist)
+    private void CreateCharacter(InputInfo info, StageContext stage)
     {
-        var player = PlayerInput.Instantiate(g_PrefabPlayer,
-            controlScheme:devicelist.ControllerScheme,
-            pairWithDevice: devicelist.ControllerDevice).gameObject;
-        var boss = Instantiate(g_PrefabBoss);
-        devicelist.TargetObj = player;
-        GetComponents(boss,devicelist);
-        OnCreateCharacters?.Invoke(boss,devicelist);
-    }
-    private void GetComponents(GameObject boss,InputInfo inputInfo)
-    {
-            c_BossBehaviorManager = boss.GetComponent<BossBehaviorManager>();
-            c_BossBaseManager = boss.GetComponent<BossBaseManager>();
+        var player = PlayerInput.Instantiate(l_CharaList.Get(CharaState.Player),
+            controlScheme: info.ControllerScheme,
+            pairWithDevice: info.ControllerDevice).gameObject;
+        var boss = Instantiate(l_CharaList.Get(CharaState.Boss));
+        info.TargetObj = player;
 
-        c_TestPlayerMove = inputInfo.TargetObj.GetComponentInChildren<PlayerMove>();
-        var playermanager = inputInfo.TargetObj.GetComponentInChildren<PlayerManager>();
-       // var cameraMove = camera.GetComponent<CameraMove>();
-        if (c_BossBehaviorManager == null || c_TestPlayerMove == null)
+        SetStage(player, stage);
+        SetStage(boss, stage);
+
+        var playerMove = player.GetComponentInChildren<PlayerMove>();
+        var playerManager = player.GetComponentInChildren<PlayerManager>();
+        var bossBehavior = boss.GetComponent<BossBehaviorManager>();
+        if (playerMove == null || playerManager == null || bossBehavior == null)
         {
             Debug.LogError("コンポーネントがない");
             return;
         }
-        //ここでplayerの初期化も呼んであげる
-        //cameraMove.Init(camera);
-        c_BossBehaviorManager.Init(inputInfo);
-        playermanager.Init();
+        stage.SetCharacters(playerMove, boss.GetComponent<BossBaseManager>());
+
+        bossBehavior.Init(info, stage);
+        playerManager.Init();
+
+        var cameraMove = stage.c_Camera.GetComponent<CameraMove>();
+        if (cameraMove != null) cameraMove.Init(stage, m_CameraY);
+
+        OnCreateCharacters?.Invoke(boss, info);
     }
-    private void InitRoundInfo()
+    private void SetStage(GameObject character, StageContext stage)//レイヤーとステージをキャラクターに設定
     {
-        m_CurrentRound = 1;
-        m_CurrentTime = 0;
+        StageContext.SetLayerRecursively(character, stage.m_Layer);
+        foreach (var chara in character.GetComponentsInChildren<CharaBase>())
+            chara.SetStage(stage);
     }
+    //-----------勝敗
+    public void OnStageFinished(StageContext stage, bool isBossDefeated)//どちらかのステージで決着がついたとき
+    {
+        if (b_IsFinished) return;
+        b_IsFinished = true;
+
+        foreach (var s in l_Stages)
+            s.Finish();
+
+        string result = GetResultText(stage, isBossDefeated);
+        float delay = isBossDefeated ? BossDefeatResultDelay : PlayerDieResultDelay;
+        NextFrame.Run(this, delay, () =>
+        {
+            b_IsLoading = true;
+            TatuGameManager.Instance.ResaltPanel(result);
+        });
+    }
+    private string GetResultText(StageContext stage, bool isBossDefeated)
+    {
+        if (l_Stages.Count == 1)
+            return isBossDefeated ? $"クリア！\nタイム {(int)stage.m_TimeScore}" : "死んでしまった。";
+
+        //先にボスを倒した方の勝ち やられたら相手の勝ち
+        StageContext winner = isBossDefeated ? stage : l_Stages.Find(s => s != stage);
+        return $"プレイヤー{winner.m_StageNum}の勝ち";
+    }
+    public void OnBossAwakened(StageContext stage)//ボスを覚醒させたら、相手のボスを強くする(妨害)
+    {
+        if (b_IsFinished) return;
+
+        foreach (var other in l_Stages)
+        {
+            if (other == stage) continue;
+
+            other.c_Boss.PowerUp(m_InterferencePowerUp);
+            other.ShowInfo($"相手がボスを覚醒させた！\nボスの攻撃力 ×{other.c_Boss.m_AttackParame:0.0}");
+            stage.ShowInfo("相手のボスを強くした！");
+        }
+    }
+    public void PlayBossBgm()//最初に接敵したときだけボスBGMを流す
+    {
+        if (b_IsBossBgmPlaying) return;
+        b_IsBossBgmPlaying = true;
+        AudioManager.Instance.PlayBGMAudio("ボス", 0);
+    }
+    //-----------状態
     private void InitTransition()//ここで状態を追加
     {
         c_BattleManager = new StateMachine<BattleManager>(this);
 
-        c_BattleManager.AddTransition<Other, GameEnter>((int)BattleState.GameStating);
-        c_BattleManager.AddTransition<GameEnter, GameStay>((int)BattleState.GamePlaying);
-        c_BattleManager.AddTransition<GameStay, GameExit>((int)BattleState.GameEnd);
-        c_BattleManager.AddTransition<GameExit, GameEnter>((int)BattleState.GameStating);
+        c_BattleManager.AddTransition<Other, Countdown>((int)BattleState.GameStating);
+        c_BattleManager.AddTransition<Countdown, GameStay>((int)BattleState.GamePlaying);
         c_BattleManager.AnyAddTrasition<GameStop>((int)BattleState.GamePose);
         c_BattleManager.Start<Other>();
-
     }
     private void Update()
     {
         c_BattleManager.Updata();
     }
 
-    public void SetAnimaEvent(int Anima)//0true  1 false これは切り替え時の演出用
+    public void SetAnimaEvent(int Anima)//アニメーションイベント(名前変更不可) 0:演出開始 1:ゲーム開始
     {
-        bool IsStart = Anima == 0 ? true : false;
-
-        if (IsStart) a_CanvasAnima.SetTrigger(StartAnima);
+        if (Anima == 0) a_CanvasAnima.SetTrigger(StartAnima);
         else c_BattleManager.Dispatch((int)BattleState.GameStating);
     }
-    public void ChangeState(int state)
+    public void ChangeState(int state)//スコア画面のボタンから呼ばれる
     {
-        if (m_CleaStage > 2) { SceneManager.LoadScene("title"); return; }
+        if (b_IsFinished) { SceneManager.LoadScene("title"); return; }
         c_BattleManager.Dispatch(state);
-        TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, false); 
+        TatuGameManager.Instance.ChangePanel(TatuGameManager.UiPanelState.Score, false);
     }
-    private void InitTextInfo(string info,int size)
+    private void InitCountdownText()//カウントダウンは2画面の境目(画面の真ん中)に大きく出す
     {
-        debagte.text = info;
-        debagte.fontSize = size;
+        var text = l_TextList.Get(TextType.TIme);
+        var rect = text.rectTransform;
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = new Vector2(600, 300);
+        rect.localScale = Vector3.one;//元のテキストはScaleが2倍なので戻す(大きさはm_CountdownFontSizeで決める)
+
+        text.alignment = TextAlignmentOptions.Center;
+        text.fontSize = m_CountdownFontSize;
+        text.text = "";
+    }
+    private void ShowCountdown(string info)
+    {
+        l_TextList.Get(TextType.TIme).text = info;
     }
     private class Other: State
     {
@@ -176,246 +286,73 @@ public class BattleManager : MonoBehaviour
                 stateMachine.Dispatch((int)BattleState.GameStating);
             });
         }
-        protected override void OnUpdata()
-        {
-
-        }
-        protected override void OnExit(State nextstate)
-        {
-            base.OnExit(nextstate);
-        }
     }
-    private class GameEnter:State//切り替わった瞬間
+    private class Countdown : State//開始前のカウントダウン 3,2,1
     {
-        BattleManager manager;
-        protected override void OnEnter(State prevstate)//ここで順番を確認
-        {
-            owner.InitTextInfo("", 32);
-
-           owner.c_TestPlayerMove.SetDieFlag(false);
-            owner.c_BossBaseManager.SetDieFlag(false);
-
-            manager = stateMachine.owner;
-            owner.b_IsLoading = false;
-            Load();
-        }
-        protected override void OnUpdata()
-        {
-            stateMachine.Dispatch((int)BattleState.GamePlaying);
-        }
-        protected override void OnExit(State nextstate)
-        {
-             Debug.Log("終わり");  
-        }
-        private void Load()
-        {
-            var data = manager.c_SaveData.c_CurrentData;
-
-            LoadBossInfo(data);
-
-            LoadBattleInfo(data);
-        }
-        private void LoadBossInfo(StageSaveData data)
-        {
-            TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, data.b_IsTeleport);
-            TatuGameManager.Instance.SetMoveFlag(data.b_IsTeleport);
-            TatuGameManager.Instance.ChangeAwake(data.e_Awake);
-
-            if (TatuGameManager.Instance.b_BossTeleport == true)
-                AudioManager.Instance.PlayBGMAudio("ボス", data.m_CurrentAudioTime);
-        }
-        private void LoadBattleInfo(StageSaveData data)
-        {
-            owner.m_TimeScore = data.m_TimeScore;
-            Camera.main.transform.position = data.v_CameraPos;
-            manager.OnGetStageInfo?.Invoke(data);
-        }
-    }
-    private class GameStay : State//ランダムで切り替え時間を設定
-    {
-        private float m_RandamNum;
-        private float m_UpdataTimer;
-        private int m_Prevtime;
-
-        private float m_Strength = 10;
-        private float m_Dump = 0.15f;
-        private Coroutine c_BlinkingCoroutine;
+        private float m_RemainingTime;
+        private int m_PrevCount;
         protected override void OnEnter(State prevstate)
-        {
-            m_RandamNum = (int)UnityEngine.Random.Range(50,100);
-            Init();
-        }
-        private void Init()
-        {
-            m_Prevtime = (int)m_RandamNum;
-            m_UpdataTimer = 0;
-            c_BlinkingCoroutine = null;
-        }
-        protected override void OnUpdata()
-        {
-            m_UpdataTimer += Time.deltaTime;
-            if (owner.m_CleaStage > 0) return;
-            if (!TatuGameManager.Instance.GetCameraMoveflag()) return;
-
-            m_RandamNum -= Time.deltaTime;
-            owner.m_TimeScore += Time.deltaTime;//タイムスコア計算
-            if (m_RandamNum <= 0.5f)
-            {
-                m_UpdataTimer = 1;
-                stateMachine.Dispatch((int)BattleState.GameEnd);
-            }
-            if (m_RandamNum <= 30&&Mathf.RoundToInt(m_RandamNum) != m_Prevtime)
-            {
-                if(m_RandamNum <= 10)
-                    UpdateTextBlinking();
-
-                m_UpdataTimer = 0;
-                m_Prevtime = (int)m_RandamNum;
-                owner.debagte.SetText("切り替え時間 : {0:0}", (int)m_RandamNum);
-            }
-        }   
-
-        protected override void OnExit(State nextstate)
         {
             owner.b_IsLoading = true;
-            base.OnExit(nextstate);
-        }
-        private void UpdateTextBlinking()
-        {
-            if (c_BlinkingCoroutine != null)
-            {
-                c_BlinkingCoroutine = null;
-            }
-            c_BlinkingCoroutine = owner.StartCoroutine(TextBlinking());
-        }
-        private IEnumerator TextBlinking()
-        {
-            float duraction = 1;
-            float eplased = 0;
-            float offset = 2;
-
-            while (eplased < duraction)
-            {
-                eplased += Time.deltaTime;
-                var t = eplased / duraction;
-
-                var pulse = 1 + Mathf.Sin(eplased * m_Strength) * (1 - t) * (1 - t)* (1 - t)* m_Dump;
-                owner.debagte.rectTransform.localScale = (Vector3.one*offset) * pulse;
-                yield return null;
-            }
-            c_BlinkingCoroutine = null;
-        }
-    }
-    private class GameStop : State
-    {
-        protected override void OnEnter(State prevstate)
-        {
-            base.OnEnter(prevstate);
+            m_RemainingTime = CountdownTime;
+            m_PrevCount = 0;
+            owner.InitCountdownText();
         }
         protected override void OnUpdata()
         {
-            base.OnUpdata();
-        }
-        protected override void OnExit(State nextstate)
-        {
-            base.OnExit(nextstate);
+            m_RemainingTime -= Time.deltaTime;
+            if (m_RemainingTime <= 0)
+            {
+                stateMachine.Dispatch((int)BattleState.GamePlaying);
+                return;
+            }
+
+            int count = Mathf.CeilToInt(m_RemainingTime);
+            if (count != m_PrevCount)
+            {
+                m_PrevCount = count;
+                owner.ShowCountdown(count.ToString());
+            }
         }
     }
-    private class GameExit:State//切り替わる前の処理
+    private class GameStay : State//プレイ中 タイムは各StageContextが数える
     {
-        BattleManager manager;
         protected override void OnEnter(State prevstate)
         {
-            SetData();
-            owner.OnSetStageInfo?.Invoke();//セーブ
-            InitStageInfo();
-
-            manager.c_SaveData.CheckRound();
-            owner.Stage.text = $"次はPlayer{owner.m_CurrentRound}\n 現在{manager.c_SaveData.c_CurrentData.m_TotalRound}ラウンド目";
-
-            if (owner.m_CleaStage <= 1) { owner.SetAnimaEvent(0); return; }
-
-            CheckResalt();
-          
-            owner.m_CleaStage++;
-
+            owner.b_IsLoading = false;
+            owner.ShowCountdown("GO!");
+            NextFrame.Run(owner, GoTextTime, () => owner.ShowCountdown(""));
         }
-        protected override void OnExit(State nextstate)
+    }
+    private class GameStop : State { }//ポーズ
+}
+
+[Serializable]
+public class ObjectLists<T,T1> where T:UnityEngine.Object where T1: Enum
+{
+    [Serializable]
+    public class Parame
+    {
+        public T1 Key;
+        public T Value;
+    }
+    [SerializeField] private System.Collections.Generic.List<Parame> l_ObjList;
+
+    private System.Collections.Generic.Dictionary<T1, T> d_ObjList = new();
+
+    public void Init()
+    {
+        foreach(var obj in l_ObjList)
         {
-            base.OnExit(nextstate);
-    
+            d_ObjList[obj.Key] = obj.Value;
         }
-        private void CheckResalt()
+    }
+    public T Get(T1 state)
+    {
+        if(d_ObjList.TryGetValue(state,out var T))
         {
-            NextFrame.Run(owner, 1, () =>
-            {
-                var stage1 = owner.c_SaveData.GetCurrentData(1);
-                var stage2 = owner.c_SaveData.GetCurrentData(2);
-
-                var St1Die = stage1.c_BossData.b_DieFlag;
-                var St2Die = stage2.c_BossData.b_DieFlag;
-
-                var P1Die = stage1.c_PlayerData.b_DieFlag;
-                var P2Die = stage2.c_PlayerData.b_DieFlag;
-
-                if (P1Die && !P2Die)
-                {
-                    TatuGameManager.Instance.ResaltPanel("プレイヤー２の勝ち");
-                    return;
-                }
-                if (!P1Die && P2Die)
-                {
-                    TatuGameManager.Instance.ResaltPanel("プレイヤー１の勝ち");
-                    return;
-                }
-
-                if (St1Die || St2Die)
-                {
-                    if (stage1.m_TimeScore < stage2.m_TimeScore)
-                    {
-                        TatuGameManager.Instance.ResaltPanel("プレイヤー１の勝ち");
-                    }
-                    else
-                    {
-                        TatuGameManager.Instance.ResaltPanel("プレイヤー２の勝ち");
-                    }
-                }
-                else
-                {
-                    TatuGameManager.Instance.ResaltPanel("引き分け");
-                }
-            });
+            return T;
         }
-        private void SetData()
-        {
-            manager = stateMachine.owner;
-            StageSaveData CurrentData = manager.c_SaveData.c_CurrentData;
-
-            CurrentData.m_CurrentAudioTime = AudioManager.Instance.GetTime();
-            CurrentData.m_TotalRound++;
-            CurrentData.m_TimeScore = owner.m_TimeScore;
-            CurrentData.b_IsTeleport = TatuGameManager.Instance.b_BossTeleport;
-            CurrentData.v_CameraPos = Camera.main.transform.position;
-            CurrentData.e_Awake = TatuGameManager.Instance.e_Awake;
-
-        }
-        private void SetInfo()//
-        {
-            AudioManager.Instance.AllStopAudio();
-            TatuGameManager.Instance.SetMoveFlag(false);
-            TatuGameManager.Instance.ActiveHpbar(CharaState.Boss, false);
-        }
-        private void InitStageInfo()//ステージの情報を更新
-        {
-            owner.m_TimeScore = 0;
-
-            manager.m_CurrentRound++;
-            Debug.Log("ラウンド追加");
-            if (manager.m_CurrentRound > 2) manager.m_CurrentRound = 1;
-
-            SetInfo();
-
-            owner.c_SaveData.SetCurrenBossInfo(owner.c_BossBehaviorManager.e_AwakeHp, owner.c_BossBehaviorManager.m_CurrentActionTime);
-        }
+        return null;
     }
 }

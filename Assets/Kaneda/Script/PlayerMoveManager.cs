@@ -61,7 +61,6 @@ public class PlayerMoveManager : MonoBehaviour
 
         // 初期地面位置保存
         f_GroundY = transform.position.y;
-        Debug.Log($"Ground{f_GroundY}");
         // 初期ジャンプ高さ
         f_JumpHeight = 0f;
 
@@ -320,6 +319,5 @@ public class PlayerMoveManager : MonoBehaviour
     public void SetAnimaHashName(int HashName)
     {
         m_AnimaHashName = HashName;
-        c_PlayerManager.SetAnimaType(m_AnimaHashName);
     }
 }

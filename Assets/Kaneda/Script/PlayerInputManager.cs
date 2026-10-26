@@ -123,7 +123,6 @@ public class PlayerInputManager : MonoBehaviour
     }
     public void SetAttack(InputAction.CallbackContext ctx)
     {
-        Debug.Log("ê¢ÇŒÇ¡ÇÍÇΩ");
         if (ctx.performed)
         {
             f_AttackBufferTimer = ATTACK_BUFFER_TIME;
