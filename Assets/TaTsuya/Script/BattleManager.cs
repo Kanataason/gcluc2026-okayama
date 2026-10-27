@@ -162,7 +162,8 @@ public class BattleManager : MonoBehaviour
         var boss = Instantiate(l_CharaList.Get(CharaState.Boss));
         info.TargetObj = player;
 
-        SetStage(player, stage);
+        //PlayerInputは子のPlayerに付いているので、影(Shadow)も含めて一番上の親から設定する
+        SetStage(player.transform.root.gameObject, stage);
         SetStage(boss, stage);
 
         var playerMove = player.GetComponentInChildren<PlayerMove>();
