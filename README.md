@@ -84,7 +84,7 @@
 | Dark Forest | 背景 | Unity Asset Store の有料アセット（Asset Store の利用規約に従う） |
 | Nova（CyberAgent, Inc.） | エフェクト用シェーダー | MIT License（`LICENSE` 内の第三者ライセンスを参照） |
 | Noto Sans JP（Google） | 日本語フォント | SIL Open Font License 1.1（同梱の `OFL.txt`） |
-| 効果音（`Assets/TaTsuya/Prefab/Audio/Se/`） | 効果音 | **出典を記入してください** |
+| 効果音（`Assets/TaTsuya/Prefab/Audio/Se/`） | 効果音 | 効果音ラボ様 |
 | BGM | BGM | 小木曽さんより提供 |
 | Unity パッケージ（URP、Input System、TextMesh Pro など） | エンジン機能 | Unity Companion License など、各パッケージのライセンス |
 
