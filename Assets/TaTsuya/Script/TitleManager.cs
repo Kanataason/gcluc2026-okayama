@@ -20,6 +20,8 @@ public class TitleManager : MonoBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+
         d_PanelDictionary.Init();
         g_CurrentPanel = d_PanelDictionary.Get(UiState.Title);
     }
@@ -74,7 +76,7 @@ public class TitleManager : MonoBehaviour
 
     public void ChangeScene()
     {
-       SceneManager.LoadScene("TaTsuyaScene");
+       SceneManager.LoadScene("GameScene");
     }
     public void ExitGame()
     {

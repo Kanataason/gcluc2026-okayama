@@ -11,6 +11,7 @@ public class BattleManager : MonoBehaviour
     private const int StageLayerBase = 7;//1P:レイヤー8 2P:レイヤー9
     private const float BossDefeatResultDelay = 3f;//ボスを倒してから結果を出すまで
     private const float PlayerDieResultDelay = 1f;//やられてから結果を出すまで
+    private const float ResultButtonDelay = 1f;//結果画面のボタンを選べるようになるまで(攻撃・ジャンプの連打で押さないため)
     private const float CountdownTime = 3f;//開始前のカウントダウンの秒数
     private const float GoTextTime = 1f;//「GO!」を出しておく時間
 
@@ -49,6 +50,10 @@ public class BattleManager : MonoBehaviour
     public bool b_IsLoading = false;//trueの間はキャラと弾が止まる(開始前のカウントダウン中・決着後)
     private bool b_IsFinished;
     private bool b_IsBossBgmPlaying;
+    //-----------ポーズ
+    private GameObject g_PausePanel;
+    private bool b_IsPaused;
+    private bool b_LoadingBeforePause;//ポーズ前のb_IsLoading(カウントダウン中にポーズしたときのため)
     [SerializeField] private float m_InterferencePowerUp = 0.5f;//相手がボスを覚醒させたときに上がる、自分のボスの攻撃力の倍率
     //-----------カメラ
     [SerializeField] private float m_SplitCameraSizeRate = 0.5f;//2画面のときのカメラの表示サイズの倍率(0.5で横幅が1画面のときと同じ)
@@ -66,9 +71,11 @@ public class BattleManager : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = 60;
+        Time.timeScale = 1;//ポーズ中にシーンを移動してきた場合のため
         b_IsLoading = true;//カウントダウンが終わるまで動かさない
         InitList();
         TatuGameManager.Instance.Init();
+        g_PausePanel = TatuGameManager.Instance.CreatePauseMenu(Resume, ReturnToTitle, QuitGame);
 
         CreateStages(CheckConnectingDeviceManager.Instance.GetDeviceList());
         InitTransition();
@@ -204,6 +211,7 @@ public class BattleManager : MonoBehaviour
         NextFrame.Run(this, delay, () =>
         {
             b_IsLoading = true;
+            UiSelectionKeeper.SuppressFor(ResultButtonDelay);
             TatuGameManager.Instance.ResaltPanel(result);
         });
     }
@@ -242,12 +250,61 @@ public class BattleManager : MonoBehaviour
 
         c_BattleManager.AddTransition<Other, Countdown>((int)BattleState.GameStating);
         c_BattleManager.AddTransition<Countdown, GameStay>((int)BattleState.GamePlaying);
-        c_BattleManager.AnyAddTrasition<GameStop>((int)BattleState.GamePose);
         c_BattleManager.Start<Other>();
     }
     private void Update()
     {
+        if (IsPausePressed()) TogglePause();
+        if (b_IsPaused) return;
+
         c_BattleManager.Updata();
+    }
+    //-----------ポーズ(Esc・コントローラーのStartボタン)
+    private bool IsPausePressed()
+    {
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) return true;
+        foreach (var gamepad in Gamepad.all)
+        {
+            if (gamepad.startButton.wasPressedThisFrame) return true;
+        }
+        return false;
+    }
+    private void TogglePause()
+    {
+        if (b_IsPaused) Resume();
+        else Pause();
+    }
+    private void Pause()
+    {
+        if (b_IsFinished || g_PausePanel == null) return;//決着後は結果画面を使う
+
+        b_IsPaused = true;
+        b_LoadingBeforePause = b_IsLoading;
+        b_IsLoading = true;//ポーズ中の入力でキャラが動かないようにする
+        Time.timeScale = 0;
+        g_PausePanel.SetActive(true);
+    }
+    private void Resume()//ポーズメニューの「続ける」
+    {
+        if (!b_IsPaused) return;
+
+        b_IsPaused = false;
+        b_IsLoading = b_LoadingBeforePause;
+        Time.timeScale = 1;
+        g_PausePanel.SetActive(false);
+    }
+    private void ReturnToTitle()//ポーズメニューの「タイトルへ戻る」
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene("title");
+    }
+    private void QuitGame()//ポーズメニューの「ゲームを終了」
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     public void SetAnimaEvent(int Anima)//アニメーションイベント(名前変更不可) 0:演出開始 1:ゲーム開始
@@ -325,7 +382,6 @@ public class BattleManager : MonoBehaviour
             NextFrame.Run(owner, GoTextTime, () => owner.ShowCountdown(""));
         }
     }
-    private class GameStop : State { }//ポーズ
 }
 
 [Serializable]

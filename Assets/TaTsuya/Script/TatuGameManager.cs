@@ -86,6 +86,51 @@ public class TatuGameManager : MonoBehaviour
         text.gameObject.SetActive(true);
         return text;
     }
+    //----------ポーズメニュー
+    public GameObject CreatePauseMenu(Action onResume, Action onTitle, Action onQuit)//ポーズパネルにボタンを3つ作る 作れなければnull
+    {
+        var scorePanel = d_PanelDictionary.Get(UiPanelState.Score);
+        var pausePanel = GetPausePanel(scorePanel);
+        if (scorePanel == null || pausePanel == null) return null;
+
+        //結果画面のボタンを複製して使う(見た目と日本語フォントをそろえるため)
+        var template = scorePanel.GetComponentInChildren<Button>(true);
+        if (template == null) return null;
+
+        CreatePauseButton(template, pausePanel.transform, "続ける", 0, onResume);
+        CreatePauseButton(template, pausePanel.transform, "タイトル", 1, onTitle);
+        CreatePauseButton(template, pausePanel.transform, "ゲームを終了", 2, onQuit);
+
+        pausePanel.SetActive(false);
+        return pausePanel;
+    }
+    private GameObject GetPausePanel(GameObject scorePanel)//パネル一覧に登録されていなければ、結果画面と同じ親の「Pose」を使う
+    {
+        var panel = d_PanelDictionary.Get(UiPanelState.Pose);
+        if (panel != null || scorePanel == null) return panel;
+
+        var found = scorePanel.transform.parent.Find("Pose");
+        return found != null ? found.gameObject : null;
+    }
+    private void CreatePauseButton(Button template, Transform parent, string label, int index, Action onClick)
+    {
+        const float ButtonSpaceRate = 1.5f;//ボタンの高さに対する間隔
+
+        var button = Instantiate(template, parent, false);
+        button.name = $"PauseButton({label})";
+        button.onClick = new Button.ButtonClickedEvent();//複製元(結果画面)のイベントは使わない
+        button.onClick.AddListener(() => onClick());
+
+        var rect = (RectTransform)button.transform;
+        float space = rect.sizeDelta.y * rect.localScale.y * ButtonSpaceRate;
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = new Vector2(0, space * (1 - index));//上から順に並べる
+
+        var text = button.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (text != null) text.text = label;
+
+        button.gameObject.SetActive(true);
+    }
     public void ChangePanel(UiPanelState state,bool IsActive)
     {
         var panel = d_PanelDictionary.Get(state);

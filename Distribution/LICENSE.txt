@@ -1,0 +1,58 @@
+﻿Copyright (c) 2026 「ボスは二度戦う」制作チーム（金田、田中、今吉）
+All rights reserved.
+
+このリポジトリに含まれるプログラムおよび制作チームが作成した素材の著作権は、
+制作チームに帰属します。
+
+このリポジトリの内容を閲覧することは自由ですが、制作チームの書面による許可なく、
+その全部または一部を複製、改変、再配布、販売、その他の方法で利用することを禁止します。
+
+This repository is provided for viewing purposes only. No permission is granted to
+use, copy, modify, merge, publish, distribute, sublicense, or sell any part of this
+repository without prior written permission from the copyright holders.
+
+
+第三者の素材について / Third-Party Assets
+------------------------------------------
+
+このリポジトリには、第三者が著作権を持つ素材が含まれています。
+これらの素材には上記のライセンスは適用されず、それぞれのライセンスに従います。
+一覧は README.md の「使用素材」を見てください。
+
+This repository contains third-party assets that are NOT covered by the license
+above. Each of them is subject to its own license. See "使用素材" in README.md.
+
+- Bringer Of Death（Assets/2DAsset/BossChara/Bringer Of Death/License.txt）
+  再配布・転売は禁止されています。 / Redistribution and resale are prohibited.
+- Warrior free set（Assets/2DAsset/PlayerChara/Warrior free set/License.txt）
+  再配布・転売は禁止されています。 / Redistribution and resale are prohibited.
+- Dark Forest（Assets/2DAsset/BackGround/Dark Forest/）
+  Unity Asset Store の利用規約に従います。 / Subject to the Unity Asset Store EULA.
+- Noto Sans JP（Assets/TaTsuya/Noto_Sans_JP (1)/OFL.txt）
+  SIL Open Font License, Version 1.1
+- Nova（Assets/Nova/）
+  MIT License（以下の全文を参照） / MIT License (full text below)
+
+
+Nova - MIT License
+------------------
+
+Copyright 2025 CyberAgent, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

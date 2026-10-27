@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/TaTsuya/TaTsuyaScene 3.unity
     guid: 446cc91ab95276f45a5b26ccf00b402e
   - enabled: 1
-    path: Assets/TaTsuya/TaTsuyaScene.unity
+    path: Assets/Scenes/GameScene.unity
     guid: ecc5b95e9236ed04591681c4b6db0b32
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: b9f5761bad2f2254f8bc592d200ccdd3, type: 2}
