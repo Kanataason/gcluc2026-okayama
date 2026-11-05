@@ -73,3 +73,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Third-party assets (redistribution not allowed)
+/Assets/2DAsset/BackGround/Dark Forest/
+/Assets/2DAsset/BossChara/Bringer Of Death/Sprite Sheet/*.png
+/Assets/2DAsset/PlayerChara/Warrior free set/Sprite Sheet/*.png
