@@ -8,8 +8,7 @@ using UnityEditor.Build.Reporting;
 //Windows向けにビルドして、遊び方とライセンスを同梱し、ZIPにまとめる
 public static class DistributionBuilder
 {
-    private const string ProductName = "ボスは二度戦う";//ウィンドウのタイトル
-    private const string ExeName = "BossWaNidoTatakau";//exeとフォルダの名前(日本語だと環境によって文字化けするため英字)
+    private const string ExeName = "TheBossReturns";//exeとフォルダの名前(日本語だと環境によって文字化けするため英字)
     private const string OutputRoot = "Build";//出力先(プロジェクトフォルダ直下、Gitの管理外)
     private const string DocumentFolder = "Distribution";//一緒に配布する文書(README.txt・LICENSE.txt)
     private const string FontLicensePath = "Assets/TaTsuya/Noto_Sans_JP (1)/OFL.txt";//ビルドに含まれるフォントのライセンス
@@ -18,11 +17,9 @@ public static class DistributionBuilder
     private static void Build()
     {
         string gameFolder = Path.Combine(OutputRoot, ExeName);
-        string zipPath = Path.Combine(OutputRoot, ExeName + ".zip");
+        string zipPath = Path.Combine(OutputRoot, $"{ExeName}_v{PlayerSettings.bundleVersion}_Windows.zip");
         if (Directory.Exists(gameFolder)) Directory.Delete(gameFolder, true);
         if (File.Exists(zipPath)) File.Delete(zipPath);
-
-        PlayerSettings.productName = ProductName;
 
         var options = new BuildPlayerOptions
         {
